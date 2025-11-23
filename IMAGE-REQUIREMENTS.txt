@@ -1,0 +1,280 @@
+==================================================
+IMAGE REQUIREMENTS & OPTIMIZATION GUIDE
+==================================================
+
+This file explains what images you need and how to prepare them for your portfolio website.
+
+
+REQUIRED IMAGES
+==================================================
+
+1. PROFILE PHOTO
+   Location: images/profile-photo.jpg
+   Size: 300x300px (square)
+   Format: JPG
+   Usage: About page
+   Tips: Professional headshot, good lighting, neutral background
+
+
+2. PROJECT THUMBNAIL IMAGES (9 images)
+   Location: images/
+   Files: project1-thumb.jpg through project9-thumb.jpg
+   Size: 800x600px (4:3 ratio)
+   Format: JPG
+   Usage: Homepage project grid
+   Tips: Choose the most striking view of each project
+         These are the first thing visitors see!
+
+
+3. PROJECT HERO IMAGES (9 images)
+   Location: images/
+   Files: project1-hero.jpg through project9-hero.jpg
+   Size: 1920x1080px (16:9 ratio) or larger
+   Format: JPG
+   Usage: Top of each project detail page
+   Tips: High quality, dramatic wide shot
+         Can be renders, photos, or diagrams
+
+
+4. PROJECT GALLERY IMAGES (4-6 per project)
+   Location: images/
+   Files: project1-img1.jpg, project1-img2.jpg, etc.
+          project2-img1.jpg, project2-img2.jpg, etc.
+   Size: 1200x900px (4:3 ratio) recommended
+   Format: JPG or PNG
+   Usage: Gallery section on project pages
+   Tips: Mix of exteriors, interiors, diagrams, sections
+         Tell the full story of your project
+
+
+NAMING CONVENTION
+==================================================
+
+Follow this exact pattern:
+
+Profile:
+✓ images/profile-photo.jpg
+
+Project 1:
+✓ images/project1-thumb.jpg
+✓ images/project1-hero.jpg
+✓ images/project1-img1.jpg
+✓ images/project1-img2.jpg
+✓ images/project1-img3.jpg
+✓ images/project1-img4.jpg
+
+Project 2:
+✓ images/project2-thumb.jpg
+✓ images/project2-hero.jpg
+✓ images/project2-img1.jpg
+... and so on
+
+IMPORTANT:
+- Use lowercase only
+- Use hyphens (-) not underscores (_)
+- Match the HTML exactly (case-sensitive!)
+
+
+IMAGE OPTIMIZATION TIPS
+==================================================
+
+Why optimize?
+- Faster website loading
+- Better user experience
+- Better SEO ranking
+- Lower hosting costs
+
+Target file sizes:
+- Thumbnails: < 100KB each
+- Hero images: < 500KB each
+- Gallery images: < 300KB each
+
+How to optimize:
+
+METHOD 1: Online Tools (Easiest)
+→ TinyPNG: https://tinypng.com
+  - Drag and drop images
+  - Download compressed versions
+  - Reduces 50-70% file size with no visible quality loss
+
+→ Squoosh: https://squoosh.app
+  - More control over compression
+  - Side-by-side quality comparison
+  - Download compressed images
+
+METHOD 2: Photoshop
+→ File > Export > Save for Web (Legacy)
+  - Choose JPEG
+  - Quality: 60-80%
+  - Check file size preview
+  - Click Save
+
+METHOD 3: Lightroom
+→ Export settings:
+  - Image Format: JPEG
+  - Quality: 70-80
+  - Resize to fit: Long Edge
+  - Pixels: 1920 (for hero images)
+
+METHOD 4: Free Software (GIMP)
+→ Export As
+  - Choose JPEG
+  - Adjust quality slider
+  - Preview file size
+
+
+IMAGE PREPARATION CHECKLIST
+==================================================
+
+Before uploading images:
+
+□ Correct dimensions
+  - Use online tools like Photopea.com or Pixlr.com to resize
+  - Or use Photoshop/GIMP: Image > Image Size
+
+□ Proper naming
+  - Lowercase
+  - No spaces (use hyphens)
+  - Matches HTML exactly
+
+□ Optimized file size
+  - Run through TinyPNG or similar
+  - Check file size in your file browser
+
+□ Good quality
+  - Sharp and in focus
+  - Good lighting
+  - High resolution source images
+
+□ Correct format
+  - Use JPG for photos/renders
+  - Use PNG for diagrams/graphics with transparency
+
+□ Backup originals
+  - Keep high-res originals in a separate folder
+  - Only upload optimized versions to website
+
+
+SAMPLE IMAGE SIZES (Reference)
+==================================================
+
+After compression, your images/ folder should be:
+
+profile-photo.jpg         ~50KB
+project1-thumb.jpg        ~80KB
+project1-hero.jpg         ~400KB
+project1-img1.jpg         ~250KB
+project1-img2.jpg         ~250KB
+...
+
+Total for 9 projects with 5 images each:
+- 9 thumbnails: ~720KB
+- 9 hero images: ~3.6MB
+- 45 gallery images: ~11MB
+- TOTAL: ~15MB (very reasonable!)
+
+
+ASPECT RATIOS EXPLAINED
+==================================================
+
+4:3 Ratio (Traditional)
+- Examples: 800x600, 1200x900, 1600x1200
+- Good for: Architecture photos, interiors
+- Used for: Thumbnails and gallery images
+
+16:9 Ratio (Widescreen)
+- Examples: 1920x1080, 2560x1440, 3840x2160
+- Good for: Dramatic wide shots, landscapes
+- Used for: Hero images
+
+1:1 Ratio (Square)
+- Examples: 300x300, 500x500, 1000x1000
+- Good for: Portraits, social media
+- Used for: Profile photo
+
+
+QUICK RESIZE GUIDE
+==================================================
+
+Need to resize images fast?
+
+Online (No software needed):
+1. Go to: https://www.iloveimg.com/resize-image
+2. Upload your image
+3. Choose pixels
+4. Enter width: 1920 (for hero) or 800 (for thumb)
+5. Download resized image
+
+Or use Photopea (Free Photoshop alternative):
+1. Go to: https://www.photopea.com
+2. Open your image
+3. Image > Image Size
+4. Enter new dimensions
+5. Export as JPG
+
+
+DON'T HAVE IMAGES YET?
+==================================================
+
+Use placeholder images while building:
+
+Temporary placeholders:
+→ Unsplash: https://unsplash.com
+  - Free high-quality photos
+  - Search "architecture sustainable"
+  - Download and use temporarily
+
+→ Placeholder.com:
+  - https://via.placeholder.com/800x600
+  - Creates instant placeholder
+  - Replace with real images later
+
+BUT: Use your own work before launching!
+
+
+TROUBLESHOOTING
+==================================================
+
+Images not showing on website?
+→ Check file names match HTML exactly
+→ Verify images are in images/ folder
+→ Check file extensions (.jpg not .jpeg)
+→ File names are case-sensitive!
+
+Images look blurry?
+→ Increase source image quality
+→ Use larger dimensions
+→ Reduce compression level
+
+Images loading slowly?
+→ File sizes too large
+→ Compress with TinyPNG
+→ Reduce dimensions if needed
+
+Wrong aspect ratio?
+→ Crop image before resizing
+→ Use Photopea or similar tools
+→ Don't stretch images!
+
+
+RECOMMENDED WORKFLOW
+==================================================
+
+1. Gather all project photos/renders
+2. Organize in folders by project
+3. Choose best images for each purpose:
+   - Most striking → thumbnail
+   - Most dramatic → hero
+   - Supporting story → gallery
+4. Batch resize all images:
+   - Thumbnails: 800x600px
+   - Heroes: 1920x1080px
+   - Gallery: 1200x900px
+5. Compress all images (TinyPNG)
+6. Rename following naming convention
+7. Upload to images/ folder
+8. Test on website
+9. Adjust as needed
+
+
+That's it! Good luck with your images! 📸

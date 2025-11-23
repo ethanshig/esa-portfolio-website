@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Get in touch about sustainable design projects and collaborations">
+    <title>Contact | Your Name</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/grid-system.css">
+    <link rel="stylesheet" href="css/grid-content.css">
+    <link rel="stylesheet" href="css/page-transition.css">
+    <link rel="stylesheet" href="css/contact.css">
+    <script>
+        // Apply theme immediately to prevent flash
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">Your Name</a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Projects</a></li>
+                <li><a href="about.html" class="nav-link">About</a></li>
+                <li><a href="resume.html" class="nav-link">Resume</a></li>
+                <li><a href="contact.html" class="nav-link active">Contact</a></li>
+            </ul>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <span class="theme-icon" id="theme-icon"></span>
+                <span id="theme-label">Light</span>
+            </button>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contact Content - Grid Layout -->
+    <main class="page-grid-wrapper">
+        <div class="page-grid">
+            <!-- Hero Section -->
+            <section class="grid-item grid-span-full grid-margin-vertical">
+                <h1 class="page-title">Let's Connect</h1>
+                <p class="page-subtitle">I'd love to hear about your project or just chat about sustainable design</p>
+            </section>
+
+            <!-- Contact Form -->
+            <section class="grid-item grid-left-half">
+                <h2 class="section-heading">Send a Message</h2>
+
+                <!-- IMPORTANT: Replace YOUR_ACCESS_KEY with your actual Web3Forms key -->
+                <!-- Get free key at: https://web3forms.com -->
+                <form action="https://api.web3forms.com/submit" method="POST" class="contact-form" id="contactForm">
+                    <!-- Web3Forms Access Key -->
+                    <input type="hidden" name="access_key" value="YOUR_ACCESS_KEY_HERE">
+
+                    <!-- Honeypot Spam Protection -->
+                    <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+
+                    <!-- Form Fields -->
+                    <div class="form-group">
+                        <label for="name">Name *</label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            required
+                            placeholder="Your name"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            required
+                            placeholder="your.email@example.com"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subject">Subject *</label>
+                        <input
+                            type="text"
+                            id="subject"
+                            name="subject"
+                            required
+                            placeholder="What's this about?"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message">Message *</label>
+                        <textarea
+                            id="message"
+                            name="message"
+                            rows="6"
+                            required
+                            placeholder="Tell me about your project or inquiry..."
+                        ></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn">
+                        Send Message
+                    </button>
+
+                    <!-- Success/Error Messages -->
+                    <div id="result" class="form-result"></div>
+                </form>
+            </section>
+
+            <!-- Contact Info -->
+            <aside class="grid-item grid-right-half">
+                <h2 class="section-heading">Other Ways to Reach Me</h2>
+
+                <div class="contact-methods">
+                    <div class="contact-method grid-highlight-border-bottom grid-margin-bottom">
+                        <h3 class="method-title">Email</h3>
+                        <a href="mailto:your.email@example.com" class="method-link">
+                            your.email@example.com
+                        </a>
+                    </div>
+
+                    <div class="contact-method grid-highlight-border-bottom grid-margin-bottom">
+                        <h3 class="method-title">LinkedIn</h3>
+                        <a href="https://linkedin.com/in/yourprofile" target="_blank" class="method-link">
+                            linkedin.com/in/yourprofile
+                        </a>
+                    </div>
+
+                    <div class="contact-method grid-highlight-border-bottom grid-margin-bottom">
+                        <h3 class="method-title">Instagram</h3>
+                        <a href="https://instagram.com/yourprofile" target="_blank" class="method-link">
+                            @yourprofile
+                        </a>
+                    </div>
+
+                    <div class="contact-method grid-margin-bottom">
+                        <h3 class="method-title">Location</h3>
+                        <p class="method-text">Based in [Your City, State]</p>
+                    </div>
+                </div>
+
+                <!-- Availability -->
+                <div class="grid-box grid-margin-top">
+                    <h3 class="availability-title">Availability</h3>
+                    <p class="availability-text">
+                        I'm currently open to internships, collaborations, and freelance projects
+                        focused on sustainable design. Expected response time: 1-2 business days.
+                    </p>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Your Name. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://linkedin.com/in/yourprofile" target="_blank" aria-label="LinkedIn">LinkedIn</a>
+                <a href="https://instagram.com/yourprofile" target="_blank" aria-label="Instagram">Instagram</a>
+                <a href="mailto:your.email@example.com" aria-label="Email">Email</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/theme-and-animations.js"></script>
+    <script src="js/contact.js"></script>
+    <script src="js/page-transition.js"></script>
+</body>
+</html>

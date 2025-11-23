@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Resume - Sustainable Architecture & Design Student">
+    <title>Resume | Your Name</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/grid-system.css">
+    <link rel="stylesheet" href="css/grid-content.css">
+    <link rel="stylesheet" href="css/page-transition.css">
+    <link rel="stylesheet" href="css/resume.css">
+    <script>
+        // Apply theme immediately to prevent flash
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">Your Name</a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Projects</a></li>
+                <li><a href="about.html" class="nav-link">About</a></li>
+                <li><a href="resume.html" class="nav-link active">Resume</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+            </ul>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <span class="theme-icon" id="theme-icon"></span>
+                <span id="theme-label">Light</span>
+            </button>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Resume Content - Grid Layout -->
+    <main class="page-grid-wrapper">
+        <div class="page-grid">
+
+            <!-- Hero Section -->
+            <section class="grid-item grid-span-full grid-margin-vertical">
+                <h1 class="page-title">Resume</h1>
+                <p class="page-subtitle">Architecture student specializing in sustainable and regenerative design</p>
+                <a href="assets/resume/Your-Name-Resume.pdf" download class="btn" style="display: inline-block; margin-top: var(--grid-3);">
+                    Download PDF
+                </a>
+            </section>
+
+            <!-- Education -->
+            <section class="grid-item grid-span-full">
+                <h2 class="section-title grid-highlight-underline-thick">Education</h2>
+            </section>
+
+            <div class="grid-item grid-center-8 grid-highlight-border-bottom grid-margin-bottom">
+                <div class="resume-item">
+                    <div class="item-header">
+                        <div class="item-title-group">
+                            <h3 class="item-title">Bachelor of Architecture</h3>
+                            <p class="item-institution">[Your University Name]</p>
+                        </div>
+                        <div class="item-date">2023 - 2028 (Expected)</div>
+                    </div>
+                    <div class="item-details">
+                        <p class="item-description">
+                            Focus on sustainable design, building science, and community-engaged practice.
+                            GPA: 3.8/4.0
+                        </p>
+                        <ul class="item-list">
+                            <li>Relevant Coursework: Sustainable Design Studio, Building Energy Modeling, Environmental Systems, Urban Ecology</li>
+                            <li>Dean's List: Fall 2023, Spring 2024</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-item grid-center-8 grid-margin-bottom">
+                <div class="resume-item">
+                    <div class="item-header">
+                        <div class="item-title-group">
+                            <h3 class="item-title">LEED Green Associate Certification</h3>
+                            <p class="item-institution">U.S. Green Building Council</p>
+                        </div>
+                        <div class="item-date">2023</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="grid-item grid-span-full">
+                <div class="h-line"></div>
+            </div>
+
+            <!-- Experience -->
+            <section class="grid-item grid-span-full grid-margin-vertical">
+                <h2 class="section-title grid-highlight-underline-thick">Experience</h2>
+            </section>
+
+            <div class="grid-item grid-center-8 grid-margin-bottom">
+                <div class="resume-item grid-highlight-border-bottom" style="padding-bottom: var(--grid-3);">
+                    <div class="item-header">
+                        <div class="item-title-group">
+                            <h3 class="item-title">Design Intern</h3>
+                            <p class="item-institution">[Architecture Firm Name]</p>
+                        </div>
+                        <div class="item-date">Summer 2024</div>
+                    </div>
+                    <div class="item-details">
+                        <p class="item-location">[City, State]</p>
+                        <ul class="item-list">
+                            <li>Assisted in developing sustainable design concepts for mixed-use development project</li>
+                            <li>Created 3D models and renderings using Rhino and V-Ray for client presentations</li>
+                            <li>Conducted energy modeling analysis using Climate Studio to optimize building performance</li>
+                            <li>Collaborated with senior architects on material research for low-carbon construction</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-item grid-center-8 grid-margin-bottom">
+                <div class="resume-item grid-highlight-border-bottom" style="padding-bottom: var(--grid-3);">
+                    <div class="item-header">
+                        <div class="item-title-group">
+                            <h3 class="item-title">Student Research Assistant</h3>
+                            <p class="item-institution">[University] Sustainable Design Lab</p>
+                        </div>
+                        <div class="item-date">2023 - 2024</div>
+                    </div>
+                    <div class="item-details">
+                        <ul class="item-list">
+                            <li>Researched embodied carbon in building materials for faculty-led research project</li>
+                            <li>Compiled data on renewable energy systems for affordable housing applications</li>
+                            <li>Assisted in organizing "Future of Sustainable Architecture" symposium with 200+ attendees</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-item grid-center-8 grid-margin-bottom">
+                <div class="resume-item">
+                    <div class="item-header">
+                        <div class="item-title-group">
+                            <h3 class="item-title">Volunteer Designer</h3>
+                            <p class="item-institution">[Local Nonprofit Name]</p>
+                        </div>
+                        <div class="item-date">2023</div>
+                    </div>
+                    <div class="item-details">
+                        <ul class="item-list">
+                            <li>Designed community garden and outdoor learning space for underserved neighborhood</li>
+                            <li>Worked directly with community members to incorporate their vision and needs</li>
+                            <li>Created construction drawings and coordinated with contractors for implementation</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="grid-item grid-span-full">
+                <div class="h-line"></div>
+            </div>
+
+            <!-- Skills -->
+            <section class="grid-item grid-span-full grid-margin-vertical">
+                <h2 class="section-title grid-highlight-underline-thick">Technical Skills</h2>
+            </section>
+
+            <div class="grid-item grid-span-full">
+                <div class="grid-three-col">
+                    <div class="skill-category grid-box">
+                        <h3 class="skill-category-title">Design Software</h3>
+                        <div class="skill-tags">
+                            <span class="skill-tag">Rhino</span>
+                            <span class="skill-tag">Grasshopper</span>
+                            <span class="skill-tag">AutoCAD</span>
+                            <span class="skill-tag">SketchUp</span>
+                            <span class="skill-tag">Revit</span>
+                            <span class="skill-tag">Adobe Suite</span>
+                        </div>
+                    </div>
+
+                    <div class="skill-category grid-box">
+                        <h3 class="skill-category-title">Sustainability Tools</h3>
+                        <div class="skill-tags">
+                            <span class="skill-tag">Climate Studio</span>
+                            <span class="skill-tag">Ladybug Tools</span>
+                            <span class="skill-tag">eQuest</span>
+                            <span class="skill-tag">Energy Modeling</span>
+                            <span class="skill-tag">LEED</span>
+                            <span class="skill-tag">LCA</span>
+                        </div>
+                    </div>
+
+                    <div class="skill-category grid-box">
+                        <h3 class="skill-category-title">Visualization</h3>
+                        <div class="skill-tags">
+                            <span class="skill-tag">V-Ray</span>
+                            <span class="skill-tag">Enscape</span>
+                            <span class="skill-tag">Photoshop</span>
+                            <span class="skill-tag">InDesign</span>
+                            <span class="skill-tag">Hand Drawing</span>
+                            <span class="skill-tag">Model Making</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="grid-item grid-span-full grid-margin-vertical">
+                <div class="h-line"></div>
+            </div>
+
+            <!-- Awards & Recognition -->
+            <section class="grid-item grid-span-full">
+                <h2 class="section-title grid-highlight-underline-thick">Awards & Recognition</h2>
+            </section>
+
+            <div class="grid-item grid-center-8 grid-margin-bottom">
+                <div class="resume-item grid-highlight-border-bottom" style="padding-bottom: var(--grid-3);">
+                    <div class="item-header">
+                        <div class="item-title-group">
+                            <h3 class="item-title">First Place - Regional Sustainable Design Competition</h3>
+                            <p class="item-institution">[Organization Name]</p>
+                        </div>
+                        <div class="item-date">2024</div>
+                    </div>
+                    <div class="item-details">
+                        <p class="item-description">
+                            Awarded for "Sustainable Housing Complex" project demonstrating innovative net-zero design
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-item grid-center-8 grid-margin-bottom">
+                <div class="resume-item">
+                    <div class="item-header">
+                        <div class="item-title-group">
+                            <h3 class="item-title">Student Scholarship</h3>
+                            <p class="item-institution">American Institute of Architects</p>
+                        </div>
+                        <div class="item-date">2023</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="grid-item grid-span-full grid-margin-vertical">
+                <div class="h-line"></div>
+            </div>
+
+            <!-- Leadership & Involvement -->
+            <section class="grid-item grid-span-full">
+                <h2 class="section-title grid-highlight-underline-thick">Leadership & Involvement</h2>
+            </section>
+
+            <div class="grid-item grid-center-8 grid-margin-bottom">
+                <div class="resume-item grid-highlight-border-bottom" style="padding-bottom: var(--grid-3);">
+                    <div class="item-header">
+                        <div class="item-title-group">
+                            <h3 class="item-title">President</h3>
+                            <p class="item-institution">Sustainable Design Student Organization</p>
+                        </div>
+                        <div class="item-date">2024 - Present</div>
+                    </div>
+                    <div class="item-details">
+                        <ul class="item-list">
+                            <li>Lead organization of 50+ students focused on sustainable architecture and design</li>
+                            <li>Coordinate workshops, site visits, and lectures on green building practices</li>
+                            <li>Organize annual design charrette addressing local environmental challenges</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-item grid-center-8 grid-margin-bottom">
+                <div class="resume-item">
+                    <div class="item-header">
+                        <div class="item-title-group">
+                            <h3 class="item-title">Member</h3>
+                            <p class="item-institution">American Institute of Architecture Students (AIAS)</p>
+                        </div>
+                        <div class="item-date">2023 - Present</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="grid-item grid-span-full grid-margin-vertical">
+                <div class="h-line"></div>
+            </div>
+
+            <!-- Download CTA -->
+            <section class="grid-item grid-center-6 grid-margin-vertical">
+                <div class="grid-highlight-bg-subtle" style="text-align: center; padding: var(--grid-6);">
+                    <h3 class="cta-title">Want a copy for your records?</h3>
+                    <a href="assets/resume/Your-Name-Resume.pdf" download class="btn" style="margin-top: var(--grid-3); display: inline-block;">
+                        Download Resume PDF
+                    </a>
+                    <p class="cta-subtitle" style="margin-top: var(--grid-2);">Or <a href="contact.html" class="inline-link">get in touch</a> to discuss opportunities</p>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Your Name. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://linkedin.com/in/yourprofile" target="_blank" aria-label="LinkedIn">LinkedIn</a>
+                <a href="https://instagram.com/yourprofile" target="_blank" aria-label="Instagram">Instagram</a>
+                <a href="mailto:your.email@example.com" aria-label="Email">Email</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/theme-and-animations.js"></script>
+    <script src="js/page-transition.js"></script>
+</body>
+</html>

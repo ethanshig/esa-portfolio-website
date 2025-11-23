@@ -1,0 +1,332 @@
+/* ===================================
+   PROJECTS GRID PAGE
+   Full grid-based layout with flip cards
+   =================================== */
+
+/* ===================================
+   PAGE CONTAINER
+   =================================== */
+.projects-grid-page {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    min-height: 100vh;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* ===================================
+   GRID BACKGROUND (Always Visible)
+   =================================== */
+.grid-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    gap: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.grid-cell {
+    position: relative;
+    border: 1px solid var(--color-border);
+    transition: all 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+/* Thicker borders for navigation row */
+.grid-cell.nav-cell {
+    border-bottom: 2px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: var(--color-bg);
+}
+
+/* ESA cell */
+.grid-cell.esa-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: 700;
+    color: var(--color-primary);
+    pointer-events: auto;
+}
+
+/* Navigation cells */
+.grid-cell.nav-letter-cell {
+    pointer-events: auto;
+    cursor: pointer;
+    perspective: 1000px;
+}
+
+/* Theme toggle cell */
+.grid-cell.theme-cell {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.grid-cell.theme-cell:hover {
+    border-color: var(--color-primary);
+}
+
+.theme-icon {
+    width: 60%;
+    height: 60%;
+    object-fit: contain;
+    filter: brightness(0); /* Make black in light mode */
+    transition: filter var(--transition-medium);
+}
+
+[data-theme="dark"] .theme-icon {
+    filter: brightness(0) invert(1); /* Make white in dark mode */
+}
+
+/* ===================================
+   FLIP CARD STRUCTURE
+   =================================== */
+.flip-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+.nav-letter-cell:hover .flip-card,
+.nav-letter-cell.flipped .flip-card,
+.theme-cell:hover .flip-card {
+    transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    font-weight: 600;
+}
+
+/* Front: Single letter */
+.flip-card-front {
+    background-color: var(--color-bg);
+    color: var(--color-primary);
+}
+
+/* Back: Full word - OPPOSITE THEME */
+.flip-card-back {
+    background-color: var(--color-primary);
+    color: var(--color-bg);
+    transform: rotateY(180deg);
+    font-size: clamp(0.75rem, 1.5vw, 1rem);
+}
+
+/* ===================================
+   PROJECTS CONTAINER
+   =================================== */
+.projects-container {
+    position: relative;
+    z-index: 1;
+    padding-top: 25vh; /* Start below navigation row + 1 row margin (2/8th of viewport) */
+    pointer-events: none;
+}
+
+/* ===================================
+   PROJECT ITEMS
+   =================================== */
+.project-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 62.5vh; /* 5 rows out of 8 = 62.5% of viewport height */
+    pointer-events: auto;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.project-item.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.project-image-container {
+    position: absolute;
+    left: 8.33%; /* Column 2 out of 12 = 8.33% */
+    width: 83.34%; /* 10 columns out of 12 = 83.34% */
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Project Image */
+.project-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(100%);
+    transition: filter 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+.project-item:hover .project-image {
+    filter: grayscale(0%);
+}
+
+/* ===================================
+   PROJECT INFO ROW (Bottom Row)
+   =================================== */
+.project-info-row {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 20%; /* 1/5th of project height = bottom row */
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 0;
+    pointer-events: auto;
+}
+
+/* Info cells */
+.info-cell {
+    position: relative;
+    border: 1px solid var(--color-border);
+    perspective: 1000px;
+    transition: border-width 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
+    overflow: visible;
+}
+
+.project-item:hover .info-cell {
+    border-width: 2px;
+}
+
+/* Info flip card */
+.info-flip-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+.project-item:hover .info-flip-card {
+    transform: rotateY(180deg);
+}
+
+.info-card-front,
+.info-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-size: clamp(0.75rem, 1.5vw, 1.25rem);
+    font-weight: 600;
+    padding: 0.5rem;
+    text-align: center;
+}
+
+/* Front: Title/Category */
+.info-card-front {
+    background-color: var(--color-bg);
+    color: var(--color-primary);
+}
+
+/* Back: Details - OPPOSITE THEME */
+.info-card-back {
+    position: relative;
+    background-color: var(--color-primary);
+    color: var(--color-bg);
+    transform: rotateY(180deg);
+    font-size: clamp(0.65rem, 1.2vw, 1rem);
+    flex-direction: column;
+    gap: 0.25rem;
+    overflow: visible;
+}
+
+/* Text that spans across multiple cells */
+.info-span-text {
+    position: absolute;
+    left: 0;
+    white-space: nowrap;
+    padding: 0 0.5rem;
+    display: block;
+    width: max-content;
+}
+
+/* ===================================
+   STICKY NAVIGATION ROW
+   =================================== */
+.grid-cell.sticky-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+/* ===================================
+   RESPONSIVE ADJUSTMENTS
+   =================================== */
+@media (max-width: 1024px) {
+    .grid-background {
+        grid-template-columns: repeat(10, 1fr);
+    }
+
+    .project-image-container {
+        left: 10%; /* Column 2 out of 10 */
+        width: 80%; /* 8 columns out of 10 */
+    }
+}
+
+@media (max-width: 768px) {
+    .grid-background {
+        grid-template-columns: repeat(6, 1fr);
+    }
+
+    .project-image-container {
+        left: 16.67%; /* Column 2 out of 6 */
+        width: 66.67%; /* 4 columns out of 6 */
+    }
+
+    .project-item {
+        height: 75vh; /* Taller on mobile */
+    }
+
+    .flip-card-back {
+        font-size: 0.65rem;
+    }
+}
+
+/* ===================================
+   ACCESSIBILITY
+   =================================== */
+@media (prefers-reduced-motion: reduce) {
+    .flip-card,
+    .info-flip-card {
+        transition: none;
+    }
+
+    .project-image {
+        transition: none;
+    }
+}

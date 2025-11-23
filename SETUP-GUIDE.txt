@@ -1,0 +1,162 @@
+==================================================
+PORTFOLIO WEBSITE - QUICK SETUP GUIDE
+==================================================
+
+STEP 1: CUSTOMIZE YOUR INFO (Required)
+--------------------------------------
+Search and replace in ALL files:
+- "Your Name" → Your actual name
+- "your.email@example.com" → Your email
+- Social media URLs (LinkedIn, Instagram)
+- "[Your University Name]" → Your school
+
+Files to edit: index.html, about.html, contact.html, resume.html
+
+
+STEP 2: ADD IMAGES (Required)
+------------------------------
+Add these images to the images/ folder:
+
+Profile:
+- profile-photo.jpg (300x300px)
+
+Project Thumbnails (800x600px):
+- project1-thumb.jpg
+- project2-thumb.jpg
+- project3-thumb.jpg
+... (up to project9-thumb.jpg)
+
+Project Hero Images (1920x1080px):
+- project1-hero.jpg
+- project2-hero.jpg
+... (up to project9-hero.jpg)
+
+Project Gallery Images (1200x900px):
+- project1-img1.jpg, project1-img2.jpg, etc.
+
+
+STEP 3: SETUP CONTACT FORM (Required)
+--------------------------------------
+1. Go to: https://web3forms.com
+2. Enter your email to get FREE Access Key
+3. Open contact.html
+4. Find line 46: <input type="hidden" name="access_key" value="YOUR_ACCESS_KEY_HERE">
+5. Replace YOUR_ACCESS_KEY_HERE with your actual key
+6. Save the file
+
+Test: Submit the form and check your email!
+
+
+STEP 4: ADD YOUR RESUME PDF (Required)
+---------------------------------------
+1. Export your resume as PDF
+2. Name it: Your-Name-Resume.pdf
+3. Put it in: assets/resume/ folder
+4. Update links in resume.html (lines 22 and 275)
+
+
+STEP 5: CUSTOMIZE PROJECTS (Required)
+--------------------------------------
+Homepage (index.html):
+- Edit project cards (lines 68-175)
+- Update titles, descriptions, categories
+- Change image file names
+
+Project Pages (projects/project1.html):
+- Duplicate project1.html for each project
+- Rename: project2.html, project3.html, etc.
+- Update content for each project
+
+
+STEP 6: TEST LOCALLY (Recommended)
+-----------------------------------
+Option A - VS Code:
+1. Install VS Code
+2. Install "Live Server" extension
+3. Right-click index.html → "Open with Live Server"
+
+Option B - Simple:
+1. Just double-click index.html
+2. Opens in your browser
+
+
+STEP 7: DEPLOY ONLINE (Required)
+---------------------------------
+EASIEST: Netlify
+1. Go to: https://netlify.com
+2. Sign up (free)
+3. Drag your portfolio-website folder onto the page
+4. Done! Your site is live in 30 seconds
+5. Free URL: yourname.netlify.app
+
+OR GitHub Pages:
+1. Create GitHub account
+2. Create repository
+3. Upload files
+4. Enable Pages in Settings
+5. Free URL: yourusername.github.io/repository-name
+
+
+OPTIONAL CUSTOMIZATIONS
+-----------------------
+Change Colors:
+- Edit css/style.css (lines 5-15)
+- Modify --color-accent variable
+
+Change Fonts:
+- Visit fonts.google.com
+- Pick a font and add to HTML <head>
+- Update --font-primary in CSS
+
+Add More Projects:
+- Duplicate a project page
+- Add card to homepage
+- Update navigation links
+
+
+TROUBLESHOOTING
+---------------
+Images not showing?
+→ Check file names match exactly (case-sensitive!)
+→ Verify images are in images/ folder
+
+Contact form not working?
+→ Did you add your Web3Forms key?
+→ Test on live site (not local file)
+
+Site broken on mobile?
+→ Clear browser cache
+→ Check all CSS files are linked
+
+
+LEARNING RESOURCES
+------------------
+- Full README: Read README.md for detailed guide
+- HTML/CSS: developer.mozilla.org
+- Web3Forms Help: web3forms.com/docs
+- Netlify Docs: docs.netlify.com
+
+
+QUICK REFERENCE - FILE STRUCTURE
+---------------------------------
+portfolio-website/
+├── index.html          ← Homepage
+├── about.html          ← About page
+├── contact.html        ← Contact (add API key here!)
+├── resume.html         ← Resume/CV
+├── css/                ← Styles (change colors here)
+├── js/                 ← Interactivity
+├── images/             ← ADD YOUR IMAGES HERE
+├── projects/           ← Individual project pages
+└── assets/resume/      ← ADD YOUR RESUME PDF HERE
+
+
+NEED HELP?
+----------
+- Read the full README.md
+- Google your specific error
+- Check Stack Overflow
+- Review the code comments
+
+
+Good luck with your portfolio! 🚀

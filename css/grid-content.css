@@ -1,0 +1,295 @@
+/* ===================================
+   INVISIBLE GRID CONTENT SYSTEM
+   12×8 grid layout for content pages
+   =================================== */
+
+/* ===================================
+   BASE GRID WRAPPER
+   =================================== */
+.page-grid-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* Grid container for positioning content */
+.page-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: auto;
+    gap: 0;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--grid-4);
+}
+
+/* Grid items - invisible by default */
+.grid-item {
+    position: relative;
+    padding: var(--grid-2);
+}
+
+/* ===================================
+   GRID POSITIONING UTILITIES
+   =================================== */
+
+/* Full width items */
+.grid-span-full {
+    grid-column: 1 / -1;
+}
+
+/* Common column spans */
+.grid-span-6 {
+    grid-column: span 6;
+}
+
+.grid-span-8 {
+    grid-column: span 8;
+}
+
+.grid-span-4 {
+    grid-column: span 4;
+}
+
+.grid-span-3 {
+    grid-column: span 3;
+}
+
+/* Centered content */
+.grid-center-8 {
+    grid-column: 3 / 11; /* 8 columns centered */
+}
+
+.grid-center-6 {
+    grid-column: 4 / 10; /* 6 columns centered */
+}
+
+/* Side-by-side layouts */
+.grid-left-half {
+    grid-column: 1 / 7;
+}
+
+.grid-right-half {
+    grid-column: 7 / 13;
+}
+
+/* Offset positions */
+.grid-offset-1 {
+    grid-column-start: 2;
+}
+
+.grid-offset-2 {
+    grid-column-start: 3;
+}
+
+/* ===================================
+   HIGHLIGHTING UTILITIES
+   =================================== */
+
+/* Border highlighting */
+.grid-highlight-border {
+    border: 1px solid var(--color-border);
+    padding: var(--grid-3);
+}
+
+.grid-highlight-border-thick {
+    border: 2px solid var(--color-primary);
+    padding: var(--grid-3);
+}
+
+.grid-highlight-border-top {
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--grid-3);
+}
+
+.grid-highlight-border-bottom {
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: var(--grid-3);
+}
+
+/* Background highlighting */
+.grid-highlight-bg {
+    background-color: var(--color-border);
+    padding: var(--grid-3);
+}
+
+.grid-highlight-bg-subtle {
+    background-color: rgba(0, 0, 0, 0.02);
+    padding: var(--grid-3);
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+    .grid-highlight-bg-subtle {
+        background-color: rgba(255, 255, 255, 0.02);
+    }
+}
+
+/* Underline highlighting */
+.grid-highlight-underline {
+    border-bottom: 1px solid var(--color-primary);
+    padding-bottom: var(--grid-unit);
+    display: inline-block;
+}
+
+.grid-highlight-underline-thick {
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: var(--grid-unit);
+    display: inline-block;
+}
+
+/* Color accent backgrounds */
+.grid-accent-light {
+    background-color: rgba(250, 250, 250, 0.5);
+    padding: var(--grid-3);
+}
+
+.grid-accent-primary {
+    background-color: var(--color-primary);
+    color: var(--color-bg);
+    padding: var(--grid-3);
+}
+
+/* Box highlighting (bordered + padded) */
+.grid-box {
+    border: 1px solid var(--color-border);
+    padding: var(--grid-4);
+    background-color: var(--color-bg);
+}
+
+.grid-box-hover {
+    border: 1px solid var(--color-border);
+    padding: var(--grid-4);
+    background-color: var(--color-bg);
+    transition: all 0.3s var(--transition-smooth);
+}
+
+.grid-box-hover:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+}
+
+/* ===================================
+   RESPONSIVE GRID ADJUSTMENTS
+   =================================== */
+
+@media (max-width: 1024px) {
+    .page-grid {
+        grid-template-columns: repeat(10, 1fr);
+    }
+
+    .grid-center-8 {
+        grid-column: 2 / 10;
+    }
+
+    .grid-center-6 {
+        grid-column: 3 / 9;
+    }
+
+    .grid-left-half {
+        grid-column: 1 / 6;
+    }
+
+    .grid-right-half {
+        grid-column: 6 / 11;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-grid {
+        grid-template-columns: repeat(6, 1fr);
+        padding: 0 var(--grid-3);
+    }
+
+    /* Stack on mobile */
+    .grid-span-full,
+    .grid-span-8,
+    .grid-span-6,
+    .grid-span-4,
+    .grid-span-3,
+    .grid-center-8,
+    .grid-center-6,
+    .grid-left-half,
+    .grid-right-half {
+        grid-column: 1 / -1;
+    }
+
+    .grid-item {
+        padding: var(--grid-unit);
+    }
+}
+
+/* ===================================
+   SPECIAL CONTENT LAYOUTS
+   =================================== */
+
+/* Two column content within grid */
+.grid-two-col {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--grid-4);
+}
+
+/* Three column content within grid */
+.grid-three-col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--grid-3);
+}
+
+/* Four column content within grid */
+.grid-four-col {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--grid-3);
+}
+
+@media (max-width: 1024px) {
+    .grid-three-col,
+    .grid-four-col {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .grid-two-col,
+    .grid-three-col,
+    .grid-four-col {
+        grid-template-columns: 1fr;
+        gap: var(--grid-2);
+    }
+}
+
+/* ===================================
+   SPACING UTILITIES
+   =================================== */
+
+.grid-spacing-none {
+    padding: 0;
+}
+
+.grid-spacing-small {
+    padding: var(--grid-2);
+}
+
+.grid-spacing-medium {
+    padding: var(--grid-4);
+}
+
+.grid-spacing-large {
+    padding: var(--grid-6);
+}
+
+/* Margin utilities */
+.grid-margin-top {
+    margin-top: var(--grid-6);
+}
+
+.grid-margin-bottom {
+    margin-bottom: var(--grid-6);
+}
+
+.grid-margin-vertical {
+    margin-top: var(--grid-6);
+    margin-bottom: var(--grid-6);
+}

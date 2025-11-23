@@ -1,0 +1,33 @@
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary Files
+*.tmp
+*.temp
+*.log
+
+# Node modules (if you add any build tools later)
+node_modules/
+package-lock.json
+
+# Large files that shouldn't be in version control
+*.psd
+*.ai
+*.sketch
+
+# Environment variables (if you add them later)
+.env
+.env.local

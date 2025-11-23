@@ -1,0 +1,114 @@
+/* ===================================
+   GRID-BASED PAGE TRANSITION V2
+   Double-flip approach: Exit → Navigate → Reveal
+   =================================== */
+
+/* Transition overlay container */
+.page-transition-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    pointer-events: none;
+    display: none;
+}
+
+.page-transition-overlay.active {
+    display: block;
+    pointer-events: all;
+}
+
+/* Grid container for transition cells */
+.transition-grid {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    gap: 0;
+}
+
+/* Individual transition cell */
+.transition-cell {
+    position: relative;
+    overflow: hidden;
+    perspective: 1000px;
+}
+
+/* Flip card container */
+.transition-flip-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+/* Trigger flip */
+.transition-cell.flipped .transition-flip-card {
+    transform: rotateY(180deg);
+}
+
+/* Card faces */
+.transition-card-front,
+.transition-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+}
+
+/* Front face: Shows current page (transparent to see through) */
+.transition-card-front {
+    background-color: transparent;
+}
+
+/* Back face: Opposite color for contrast (black on white theme, white on dark theme) */
+.transition-card-back {
+    background-color: var(--color-primary);
+    transform: rotateY(180deg);
+}
+
+/* ===================================
+   RESPONSIVE GRID
+   =================================== */
+@media (max-width: 1024px) {
+    .transition-grid {
+        grid-template-columns: repeat(10, 1fr);
+        grid-template-rows: repeat(8, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .transition-grid {
+        grid-template-columns: repeat(6, 1fr);
+        grid-template-rows: repeat(8, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .transition-grid {
+        grid-template-columns: repeat(6, 1fr);
+        grid-template-rows: repeat(8, 1fr);
+    }
+}
+
+/* ===================================
+   ACCESSIBILITY
+   =================================== */
+@media (prefers-reduced-motion: reduce) {
+    .transition-flip-card {
+        transition: none;
+    }
+
+    .transition-cell.flipped .transition-flip-card {
+        transform: none;
+    }
+
+    .transition-card-back {
+        transform: none;
+    }
+}
