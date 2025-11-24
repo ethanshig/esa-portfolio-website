@@ -37,13 +37,13 @@ html {
 
 .grid-cell {
     position: relative;
-    border: 1px solid var(--color-border);
+    border: 1px dashed var(--color-border);
     transition: all 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
 }
 
 /* Thicker borders for navigation row */
 .grid-cell.nav-cell {
-    border-bottom: 2px solid var(--color-border);
+    border-bottom: 2px dashed var(--color-border);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -216,6 +216,7 @@ html {
 
 .project-item:hover .info-cell {
     border-width: 2px;
+    border-style: solid;
 }
 
 /* Info flip card */

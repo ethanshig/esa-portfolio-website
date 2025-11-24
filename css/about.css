@@ -1,172 +1,267 @@
 /* ===================================
-   ABOUT PAGE STYLES
+   ABOUT PAGE - GRID BASED
+   Interactive cards with fixed grid overlay
    =================================== */
 
-.container-narrow {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 0 var(--spacing-lg);
-}
-
-@media (max-width: 768px) {
-    .container-narrow {
-        padding: 0 var(--spacing-md);
-    }
+/* ===================================
+   PAGE SETUP
+   =================================== */
+.about-grid-page {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
 }
 
 /* ===================================
-   ABOUT HERO
+   FIXED GRID BACKGROUND
    =================================== */
-.about-hero {
-    margin-top: 80px;
-    padding: var(--spacing-3xl) 0 var(--spacing-2xl) 0;
-    background-color: var(--color-bg);
-    text-align: center;
-}
-
-.page-title {
-    font-family: var(--font-heading);
-    font-size: var(--text-3xl);
-    font-weight: 500;
-    color: var(--color-primary);
-    letter-spacing: -0.03em;
-    line-height: 1.15;
-}
-
-/* ===================================
-   ABOUT CONTENT
-   =================================== */
-.about-content {
-    padding: var(--spacing-2xl) 0 var(--spacing-3xl) 0;
-}
-
-.about-section {
-    margin-bottom: var(--spacing-3xl);
-}
-
-.section-heading {
-    font-family: var(--font-heading);
-    font-size: var(--text-xl);
-    font-weight: 500;
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-lg);
-    letter-spacing: -0.02em;
-}
-
-/* ===================================
-   PROFILE SECTION
-   =================================== */
-.profile-section {
-    padding-bottom: var(--spacing-2xl);
-    border-bottom: 1px solid var(--color-border);
-}
-
-.profile-grid {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: var(--spacing-2xl);
-    align-items: start;
-}
-
-.profile-image {
-    width: 100%;
-    aspect-ratio: 1;
-    overflow: hidden;
-    background-color: var(--color-bg-alt);
-}
-
-.profile-image img {
+.grid-background {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    gap: 0;
+    pointer-events: none;
+    z-index: 0;
 }
 
-.intro-text {
-    font-size: var(--text-lg);
-    line-height: 1.75;
-    color: var(--color-text);
-    margin-bottom: var(--spacing-md);
-    letter-spacing: -0.01em;
+.grid-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            transparent 4px,
+            var(--color-border) 4px,
+            var(--color-border) 6px,
+            transparent 6px,
+            transparent calc(100% / 8)
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent 0px,
+            transparent 4px,
+            var(--color-border) 4px,
+            var(--color-border) 6px,
+            transparent 6px,
+            transparent calc(100% / 12)
+        );
+    pointer-events: none;
 }
 
 /* ===================================
-   PHILOSOPHY SECTION
+   ABOUT CONTAINER
    =================================== */
-.philosophy-grid {
+.about-container {
+    position: relative;
+    z-index: 1;
+    padding: calc(100vh / 8 + var(--grid-6)) var(--grid-4) var(--grid-12) var(--grid-4);
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--spacing-xl);
-    margin-top: var(--spacing-lg);
+    grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+    gap: var(--grid-6);
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
-.philosophy-card {
-    padding: var(--spacing-lg);
-    background-color: transparent;
+/* ===================================
+   ABOUT CARDS
+   =================================== */
+.about-card {
+    position: relative;
+    min-height: 280px;
+    perspective: 1000px;
     border: 1px solid var(--color-border);
     transition: all var(--transition-medium);
 }
 
-.philosophy-card:hover {
+.about-card:hover {
+    border-width: 2px;
+    border-style: solid;
     border-color: var(--color-primary);
-    transform: translateY(-4px);
 }
 
-.philosophy-icon {
-    font-size: 2.5rem;
-    margin-bottom: var(--spacing-md);
+/* Profile card - larger */
+.profile-card {
+    grid-column: span 1;
+    min-height: 400px;
 }
 
-.philosophy-title {
-    font-size: var(--text-lg);
-    font-weight: 500;
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-sm);
-    letter-spacing: -0.01em;
-}
-
-.philosophy-text {
-    font-size: var(--text-sm);
-    line-height: 1.65;
-    color: var(--color-text-light);
+/* Wide cards */
+.wide-card {
+    grid-column: span 2;
 }
 
 /* ===================================
-   SKILLS SECTION
+   FLIP CARD STRUCTURE
    =================================== */
-.skills-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: var(--spacing-xl);
-    margin-top: var(--spacing-lg);
+.flip-card-about {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 280px;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.skill-category {
-    padding: var(--spacing-lg);
-    background-color: transparent;
-    border: 1px solid var(--color-border);
+.profile-card .flip-card-about {
+    min-height: 400px;
 }
 
-.skill-category-title {
+.about-card:hover .flip-card-about {
+    transform: rotateY(180deg);
+}
+
+.flip-card-front-about,
+.flip-card-back-about {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--grid-4);
+}
+
+/* Front Face */
+.flip-card-front-about {
+    background-color: var(--color-bg);
+    color: var(--color-primary);
+}
+
+.flip-card-front-about .card-content {
+    text-align: center;
+    width: 100%;
+}
+
+.flip-card-front-about h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    color: var(--color-primary);
+    letter-spacing: -0.02em;
+    margin-bottom: var(--grid-2);
+}
+
+.flip-card-front-about h3 {
+    font-family: var(--font-heading);
     font-size: var(--text-lg);
     font-weight: 500;
     color: var(--color-primary);
-    margin-bottom: var(--spacing-md);
-    padding-bottom: var(--spacing-sm);
-    border-bottom: 1px solid var(--color-border);
     letter-spacing: -0.01em;
 }
 
+.card-subtitle {
+    font-size: var(--text-sm);
+    color: var(--color-text-light);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+}
+
+/* Profile image on front */
+.card-image {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(100%);
+    transition: filter var(--transition-slow);
+}
+
+.about-card:hover .card-image img {
+    filter: grayscale(0%);
+}
+
+/* Back Face - Opposite Theme */
+.flip-card-back-about {
+    background-color: var(--color-primary);
+    color: var(--color-bg);
+    transform: rotateY(180deg);
+    overflow-y: auto;
+}
+
+.flip-card-back-about .card-content-detailed {
+    text-align: left;
+    width: 100%;
+}
+
+.flip-card-back-about .card-content-centered {
+    text-align: center;
+    width: 100%;
+}
+
+/* ===================================
+   CARD CONTENT STYLES
+   =================================== */
+.card-content-detailed h2 {
+    font-size: var(--text-xl);
+    font-weight: 500;
+    color: var(--color-bg);
+    margin-bottom: var(--grid-3);
+    letter-spacing: -0.02em;
+}
+
+.card-content-detailed h3 {
+    font-size: var(--text-lg);
+    font-weight: 500;
+    color: var(--color-bg);
+    margin-bottom: var(--grid-2);
+    letter-spacing: -0.01em;
+}
+
+.card-content-detailed h4 {
+    font-size: var(--text-base);
+    font-weight: 500;
+    color: var(--color-bg);
+    margin-bottom: var(--grid-2);
+    letter-spacing: -0.01em;
+}
+
+.card-content-detailed p {
+    font-size: var(--text-sm);
+    color: rgba(250, 250, 250, 0.9);
+    line-height: 1.65;
+    margin-bottom: var(--grid-2);
+}
+
+.card-intro {
+    font-size: var(--text-sm);
+    color: rgba(250, 250, 250, 0.9);
+    line-height: 1.65;
+    margin-bottom: var(--grid-3);
+}
+
+/* ===================================
+   SKILLS LIST
+   =================================== */
 .skills-list {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
 .skills-list li {
     font-size: var(--text-sm);
-    line-height: 1.8;
-    color: var(--color-text);
-    padding: var(--spacing-xs) 0;
-    padding-left: 1.5rem;
+    color: rgba(250, 250, 250, 0.85);
+    line-height: 1.75;
+    padding-left: 1.25rem;
+    margin-bottom: var(--spacing-xs);
     position: relative;
 }
 
@@ -174,171 +269,272 @@
     content: '—';
     position: absolute;
     left: 0;
-    color: var(--color-text-light);
-    font-weight: normal;
+    color: rgba(250, 250, 250, 0.6);
 }
 
 /* ===================================
-   EDUCATION/TIMELINE SECTION
+   TIMELINE CONTENT
    =================================== */
-.timeline {
-    margin-top: var(--spacing-lg);
-    position: relative;
-    padding-left: var(--spacing-lg);
-}
-
-.timeline::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background-color: var(--color-border);
+.timeline-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--grid-3);
 }
 
 .timeline-item {
-    position: relative;
-    margin-bottom: var(--spacing-2xl);
-    padding-left: var(--spacing-lg);
+    padding-bottom: var(--grid-3);
+    border-bottom: 1px solid rgba(250, 250, 250, 0.2);
 }
 
-.timeline-item::before {
-    content: '';
-    position: absolute;
-    left: -5px;
-    top: 6px;
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background-color: var(--color-primary);
-    border: 2px solid var(--color-bg);
+.timeline-item:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
 }
 
 .timeline-date {
+    display: block;
     font-size: var(--text-xs);
-    font-weight: 400;
-    color: var(--color-text-light);
+    color: rgba(250, 250, 250, 0.6);
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    margin-bottom: var(--spacing-xs);
+    margin-bottom: var(--grid-1);
 }
 
-.timeline-title {
-    font-size: var(--text-lg);
+.timeline-item h4 {
+    font-size: var(--text-base);
     font-weight: 500;
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-xs);
+    color: var(--color-bg);
+    margin-bottom: var(--grid-1);
     letter-spacing: -0.01em;
 }
 
-.timeline-institution {
-    font-size: var(--text-base);
-    color: var(--color-secondary);
-    font-weight: 400;
-    margin-bottom: var(--spacing-sm);
+.timeline-inst {
+    font-size: var(--text-sm);
+    color: rgba(250, 250, 250, 0.8);
+    margin-bottom: var(--grid-1);
 }
 
-.timeline-description {
+.timeline-desc {
     font-size: var(--text-sm);
-    line-height: 1.65;
-    color: var(--color-text-light);
+    color: rgba(250, 250, 250, 0.7);
+    line-height: 1.6;
 }
 
 /* ===================================
-   CALL TO ACTION
+   CTA CONTENT
    =================================== */
-.about-cta {
-    text-align: center;
-    padding: var(--spacing-2xl) var(--spacing-lg);
-    background-color: var(--color-bg-alt);
-    margin-top: var(--spacing-3xl);
-}
-
-.cta-heading {
-    font-family: var(--font-heading);
-    font-size: var(--text-xl);
-    font-weight: 500;
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-md);
-    letter-spacing: -0.02em;
-}
-
 .cta-text {
-    font-size: var(--text-base);
+    font-size: var(--text-sm);
+    color: rgba(250, 250, 250, 0.9);
     line-height: 1.65;
-    color: var(--color-text-light);
-    max-width: 600px;
-    margin: 0 auto var(--spacing-lg) auto;
+    margin-bottom: var(--grid-4);
 }
 
 .cta-buttons {
     display: flex;
-    gap: var(--spacing-md);
-    justify-content: center;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: var(--grid-2);
+    align-items: center;
 }
 
-.cta-button-outline {
+.cta-link,
+.cta-link-outline {
     display: inline-block;
-    padding: 0.875rem 2rem;
-    background-color: transparent;
-    color: var(--color-primary);
-    font-weight: 400;
-    border: 1px solid var(--color-border);
-    transition: all var(--transition-medium);
+    padding: var(--grid-2) var(--grid-4);
     font-size: var(--text-sm);
+    font-weight: 500;
+    text-decoration: none;
+    transition: all var(--transition-medium);
     letter-spacing: 0.02em;
+    text-align: center;
+    min-width: 140px;
 }
 
-.cta-button-outline:hover {
-    background-color: var(--color-primary);
+.cta-link {
+    background-color: var(--color-bg);
+    color: var(--color-primary);
+    border: 1px solid var(--color-bg);
+}
+
+.cta-link:hover {
+    background-color: transparent;
     color: var(--color-bg);
-    border-color: var(--color-primary);
+    border-color: var(--color-bg);
+}
+
+.cta-link-outline {
+    background-color: transparent;
+    color: var(--color-bg);
+    border: 1px solid rgba(250, 250, 250, 0.5);
+}
+
+.cta-link-outline:hover {
+    background-color: var(--color-bg);
+    color: var(--color-primary);
+    border-color: var(--color-bg);
+}
+
+/* ===================================
+   DARK MODE ADJUSTMENTS
+   =================================== */
+[data-theme="dark"] .flip-card-back-about .timeline-item {
+    border-bottom-color: rgba(10, 10, 10, 0.2);
+}
+
+[data-theme="dark"] .flip-card-back-about h2,
+[data-theme="dark"] .flip-card-back-about h3,
+[data-theme="dark"] .flip-card-back-about h4 {
+    color: var(--color-bg);
+}
+
+[data-theme="dark"] .flip-card-back-about p,
+[data-theme="dark"] .flip-card-back-about .card-intro,
+[data-theme="dark"] .flip-card-back-about .skills-list li,
+[data-theme="dark"] .flip-card-back-about .timeline-inst,
+[data-theme="dark"] .flip-card-back-about .cta-text {
+    color: rgba(10, 10, 10, 0.8);
+}
+
+[data-theme="dark"] .flip-card-back-about .timeline-date,
+[data-theme="dark"] .flip-card-back-about .timeline-desc,
+[data-theme="dark"] .flip-card-back-about .skills-list li::before {
+    color: rgba(10, 10, 10, 0.6);
+}
+
+[data-theme="dark"] .cta-link-outline {
+    border-color: rgba(10, 10, 10, 0.5);
+    border-style: solid;
 }
 
 /* ===================================
    RESPONSIVE DESIGN
    =================================== */
+@media (min-width: 768px) {
+    .about-container {
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    }
+
+    .profile-card {
+        grid-column: span 2;
+    }
+
+    .wide-card {
+        grid-column: span 2;
+    }
+}
+
+@media (min-width: 1024px) {
+    .grid-background {
+        grid-template-columns: repeat(10, 1fr);
+    }
+
+    .grid-background::before {
+        background-image:
+            repeating-linear-gradient(
+                0deg,
+                var(--color-border) 0px,
+                var(--color-border) 1px,
+                transparent 1px,
+                transparent calc(100% / 8)
+            ),
+            repeating-linear-gradient(
+                90deg,
+                var(--color-border) 0px,
+                var(--color-border) 1px,
+                transparent 1px,
+                transparent calc(100% / 10)
+            );
+    }
+
+    .about-container {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .profile-card {
+        grid-column: span 2;
+        grid-row: span 2;
+    }
+}
+
 @media (max-width: 768px) {
-    .about-hero {
-        padding: var(--spacing-2xl) 0 var(--spacing-xl) 0;
+    .grid-background {
+        grid-template-columns: repeat(6, 1fr);
     }
 
-    .profile-grid {
+    .grid-background::before {
+        background-image:
+            repeating-linear-gradient(
+                0deg,
+                var(--color-border) 0px,
+                var(--color-border) 1px,
+                transparent 1px,
+                transparent calc(100% / 8)
+            ),
+            repeating-linear-gradient(
+                90deg,
+                var(--color-border) 0px,
+                var(--color-border) 1px,
+                transparent 1px,
+                transparent calc(100% / 6)
+            );
+    }
+
+    .about-container {
+        padding-top: calc(100vh / 8 + var(--grid-4));
+        gap: var(--grid-4);
         grid-template-columns: 1fr;
-        gap: var(--spacing-xl);
     }
 
-    .profile-image {
-        max-width: 280px;
-        margin: 0 auto;
+    .about-card {
+        min-height: 260px;
     }
 
-    .philosophy-grid {
-        grid-template-columns: 1fr;
+    .flip-card-about {
+        min-height: 260px;
     }
 
-    .skills-grid {
-        grid-template-columns: 1fr;
+    .profile-card,
+    .wide-card {
+        grid-column: span 1;
+        min-height: 320px;
     }
 
-    .timeline {
-        padding-left: var(--spacing-md);
-    }
-
-    .timeline-item {
-        padding-left: var(--spacing-md);
+    .profile-card .flip-card-about {
+        min-height: 320px;
     }
 }
 
 @media (max-width: 480px) {
-    .cta-buttons {
-        flex-direction: column;
-        align-items: stretch;
+    .about-card {
+        min-height: 240px;
     }
 
-    .cta-button-outline {
-        width: 100%;
+    .flip-card-about {
+        min-height: 240px;
+    }
+
+    .profile-card {
+        min-height: 300px;
+    }
+
+    .profile-card .flip-card-about {
+        min-height: 300px;
+    }
+}
+
+/* ===================================
+   ACCESSIBILITY
+   =================================== */
+@media (prefers-reduced-motion: reduce) {
+    .flip-card-about {
+        transition: none;
+    }
+
+    .about-card:hover .flip-card-about {
+        transform: none;
+    }
+
+    .card-image img {
+        transition: none;
     }
 }

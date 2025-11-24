@@ -22,15 +22,16 @@
 
 /* ===================================
    HORIZONTAL DIVIDERS (GRID LINES)
+   Background structural grid elements - DASHED for visibility
    =================================== */
 .section-divider {
-    border-top: 1px solid var(--color-border);
+    border-top: 1px dashed var(--color-border);
     margin: 0;
     padding: 0;
 }
 
 .section-divider-thick {
-    border-top: 2px solid var(--color-border);
+    border-top: 2px dashed var(--color-border);
     margin: 0;
     padding: 0;
 }
@@ -238,6 +239,7 @@
 
 /* ===================================
    CARDS WITH GRID BORDERS
+   UI component borders - SOLID for definition
    =================================== */
 .grid-card {
     border: 1px solid var(--color-border);
@@ -275,6 +277,7 @@
 
 /* ===================================
    BUTTONS (GRID-ALIGNED)
+   UI component borders - SOLID for definition
    =================================== */
 .btn {
     font-family: var(--font-body);
@@ -347,6 +350,7 @@
 
 /* ===================================
    PROJECT GRID (SPECIAL LAYOUT)
+   UI component borders - SOLID for definition
    =================================== */
 .projects-grid .grid {
     display: grid;

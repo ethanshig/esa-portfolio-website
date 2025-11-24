@@ -1,309 +1,673 @@
 /* ===================================
-   RESUME PAGE STYLES
+   RESUME PAGE - GRID ALIGNED
+   Cards positioned on 12x8 grid
    =================================== */
 
-.container-narrow {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 0 var(--spacing-lg);
-}
-
-@media (max-width: 768px) {
-    .container-narrow {
-        padding: 0 var(--spacing-md);
-    }
+/* ===================================
+   PAGE SETUP
+   =================================== */
+.resume-grid-page {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
 }
 
 /* ===================================
-   RESUME HERO
+   FIXED GRID BACKGROUND
    =================================== */
-.resume-hero {
-    margin-top: 80px;
-    padding: var(--spacing-3xl) 0 var(--spacing-2xl) 0;
+.grid-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    gap: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.grid-cell {
+    position: relative;
+    border: 1px dashed var(--color-border);
+    transition: all 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+/* Navigation row cells */
+.grid-cell.nav-cell {
+    border-bottom: 2px dashed var(--color-border);
     background-color: var(--color-bg);
-    text-align: center;
+    pointer-events: auto;
+    z-index: 1000;
 }
 
-.page-title {
-    font-family: var(--font-heading);
-    font-size: var(--text-3xl);
-    font-weight: 500;
-    color: var(--color-primary);
-    letter-spacing: -0.03em;
-    margin-bottom: var(--spacing-md);
-    line-height: 1.15;
-}
-
-.page-subtitle {
-    font-size: var(--text-lg);
-    color: var(--color-text-light);
-    max-width: 600px;
-    margin: 0 auto var(--spacing-lg) auto;
-    letter-spacing: -0.01em;
-}
-
-/* Download Button */
-.download-btn {
-    display: inline-flex;
+/* ESA cell */
+.grid-cell.esa-cell {
+    display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
-    padding: 0.875rem 2rem;
-    background-color: transparent;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: 700;
     color: var(--color-primary);
-    font-weight: 400;
-    border: 1px solid var(--color-border);
-    transition: all var(--transition-medium);
-    font-size: var(--text-sm);
-    letter-spacing: 0.02em;
+    cursor: pointer;
 }
 
-.download-btn:hover {
-    background-color: var(--color-primary);
-    color: var(--color-bg);
+/* Navigation letter cells */
+.grid-cell.nav-letter-cell {
+    cursor: pointer;
+    perspective: 1000px;
+}
+
+.grid-cell.nav-letter-cell.active .flip-card {
+    background-color: var(--color-bg-alt);
+}
+
+/* Theme toggle cell */
+.grid-cell.theme-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.grid-cell.theme-cell:hover {
     border-color: var(--color-primary);
 }
 
-.download-icon {
-    font-size: 1rem;
+.theme-icon {
+    width: 60%;
+    height: 60%;
+    object-fit: contain;
+    filter: brightness(0);
+    transition: filter var(--transition-medium);
+}
+
+[data-theme="dark"] .theme-icon {
+    filter: brightness(0) invert(1);
 }
 
 /* ===================================
-   RESUME CONTENT
+   FLIP CARD FOR NAVIGATION
    =================================== */
-.resume-content {
-    padding: var(--spacing-2xl) 0 var(--spacing-3xl) 0;
+.grid-cell .flip-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
 }
 
-.resume-section {
-    margin-bottom: var(--spacing-3xl);
-    padding-bottom: var(--spacing-2xl);
-    border-bottom: 1px solid var(--color-border);
+.nav-letter-cell:hover .flip-card,
+.theme-cell:hover .flip-card {
+    transform: rotateY(180deg);
 }
 
-.resume-section:last-of-type {
-    border-bottom: none;
-}
-
-.section-title {
+.flip-card-front,
+.flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-family: var(--font-heading);
-    font-size: var(--text-xl);
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    font-weight: 600;
+}
+
+.flip-card-front {
+    background-color: var(--color-bg);
+    color: var(--color-primary);
+}
+
+.flip-card-back {
+    background-color: var(--color-primary);
+    color: var(--color-bg);
+    transform: rotateY(180deg);
+    font-size: clamp(0.75rem, 1.5vw, 1rem);
+}
+
+/* ===================================
+   RESUME CONTAINER
+   =================================== */
+.resume-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* ===================================
+   RESUME CARDS - GRID ALIGNED
+   Using calc() to align to 12x8 grid
+   =================================== */
+.resume-card {
+    position: absolute;
+    border: 1px solid var(--color-border);
+    transition: all var(--transition-medium);
+    pointer-events: auto;
+    display: grid;
+    gap: 0;
+}
+
+.resume-card:hover {
+    border-width: 2px;
+    border-style: solid;
+    border-color: var(--color-primary);
+    z-index: 10;
+}
+
+/* Content wrapper - sits above flip cells, spans entire card */
+.card-content-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Front and back content layers */
+.card-front-layer,
+.card-back-layer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--grid-3);
+    backface-visibility: hidden;
+    transition: opacity 0.3s ease;
+}
+
+.card-front-layer {
+    opacity: 1;
+    z-index: 2;
+}
+
+.card-back-layer {
+    opacity: 0;
+    z-index: 1;
+}
+
+/* Light mode: dark background with light text for back layer */
+:root .card-back-layer {
+    background-color: #1a1a1a;
+    color: #fafafa;
+}
+
+/* Dark mode: light background with dark text for back layer */
+[data-theme="dark"] .card-back-layer {
+    background-color: #fafafa;
+    color: #0a0a0a;
+}
+
+/* Force text colors for all content inside back layer - Light Mode */
+:root .card-back-layer .card-content,
+:root .card-back-layer .card-content-detailed,
+:root .card-back-layer h3,
+:root .card-back-layer .institution,
+:root .card-back-layer .date,
+:root .card-back-layer .detail,
+:root .card-back-layer .detail-list li,
+:root .card-back-layer .skill-group h4,
+:root .card-back-layer .skill-group p,
+:root .card-back-layer a.cta-link,
+:root .card-back-layer a.download-link {
+    color: #fafafa !important;
+}
+
+/* Force bullet colors - Light Mode */
+:root .card-back-layer .detail-list li::before {
+    color: #fafafa !important;
+}
+
+/* Force text colors for all content inside back layer - Dark Mode */
+[data-theme="dark"] .card-back-layer .card-content,
+[data-theme="dark"] .card-back-layer .card-content-detailed,
+[data-theme="dark"] .card-back-layer h3,
+[data-theme="dark"] .card-back-layer .institution,
+[data-theme="dark"] .card-back-layer .date,
+[data-theme="dark"] .card-back-layer .detail,
+[data-theme="dark"] .card-back-layer .detail-list li,
+[data-theme="dark"] .card-back-layer .skill-group h4,
+[data-theme="dark"] .card-back-layer .skill-group p,
+[data-theme="dark"] .card-back-layer a.cta-link,
+[data-theme="dark"] .card-back-layer a.download-link {
+    color: #0a0a0a !important;
+}
+
+/* Force bullet colors - Dark Mode */
+[data-theme="dark"] .card-back-layer .detail-list li::before {
+    color: #0a0a0a !important;
+}
+
+/* Show back content when card is hovered (flipped) */
+.resume-card:hover .card-front-layer {
+    opacity: 0;
+}
+
+.resume-card:hover .card-back-layer {
+    opacity: 1;
+}
+
+/* Individual flip cells within each card (background only) */
+.flip-cell {
+    position: relative;
+    perspective: 1000px;
+    border: none; /* Removed to create clean card appearance without internal grid lines */
+    z-index: 1;
+}
+
+.flip-cell.flipped .flip-card-resume {
+    transform: rotateY(180deg);
+}
+
+/* Download Card - Row 2-3, Cols 2-7 (6 cols, 2 rows) */
+.download-card {
+    left: calc(100% / 12 * 1);
+    top: calc(100% / 8 * 2);
+    width: calc(100% / 12 * 10);
+    height: calc(100% / 8 * 1);
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: 1fr;
+}
+
+/* Education Card - Row 2-3, Cols 8-12 (5 cols, 2 rows) */
+.education-card {
+    left: calc(100% / 12 * 1);
+    top: calc(100% / 8 * 4);
+    width: calc(100% / 12 * 4);
+    height: calc(100% / 8 * 2);
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+}
+
+/* Experience Card 1 - Row 4-5, Cols 1-6 (6 cols, 2 rows) */
+.experience-card {
+    left: calc(100% / 12 * 7);
+    top: calc(100% / 8 * 4);
+    width: calc(100% / 12 * 4);
+    height: calc(100% / 8 * 2);
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+}
+
+/* Experience Card 2 - Natural Areas Internship */
+.experience-card-2 {
+    left: calc(100% / 12 * 6);
+    top: calc(100% / 8 * 3);
+    width: calc(100% / 12 * 6);
+    height: calc(100% / 8 * 1);
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: 1fr;
+}
+
+/* Experience Card 3 - Research Internship */
+.experience-card-3 {
+    left: calc(100% / 12 * 5);
+    top: calc(100% / 8 * 6);
+    width: calc(100% / 12 * 7);
+    height: calc(100% / 8 * 1);
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: 1fr;
+}
+
+/* Extracurricular Card 1 - Independent Research Project */
+.extracurricular-card {
+    left: calc(100% / 12 * 0);
+    top: calc(100% / 8 * 3);
+    width: calc(100% / 12 * 6);
+    height: calc(100% / 8 * 1);
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: 1fr;
+}
+
+/* Extracurricular Card 2 - Goodwill Ambassadorship */
+.extracurricular-card-2 {
+    left: calc(100% / 12 * 5);
+    top: calc(100% / 8 * 4);
+    width: calc(100% / 12 * 7);
+    height: calc(100% / 8 * 1);
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: 1fr;
+}
+
+/* Skills Card - Software & Language */
+.skills-card {
+    left: calc(100% / 12 * 0);
+    top: calc(100% / 8 * 5);
+    width: calc(100% / 12 * 5);
+    height: calc(100% / 8 * 1);
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: 1fr;
+}
+
+/* Achievements Card - Honors & Recognition */
+.achievements-card {
+    left: calc(100% / 12 * 0);
+    top: calc(100% / 8 * 6);
+    width: calc(100% / 12 * 5);
+    height: calc(100% / 8 * 1);
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: 1fr;
+}
+
+/* Contact Card - Row 8, Cols 1-12 (12 cols, 1 row) */
+.contact-card {
+    left: calc(100% / 12 * 1);
+    top: calc(100% / 8 * 7);
+    width: calc(100% / 12 * 10);
+    height: calc(100% / 8 * 1);
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: 1fr;
+}
+
+/* ===================================
+   FLIP CARD STRUCTURE FOR CONTENT
+   =================================== */
+.flip-card-resume {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flip-card-front-resume,
+.flip-card-back-resume {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--grid-3);
+}
+
+/* Front Face */
+.flip-card-front-resume {
+    background-color: var(--color-bg);
+    color: var(--color-primary);
+}
+
+.flip-card-front-resume .card-content {
+    text-align: center;
+    width: 100%;
+}
+
+.flip-card-front-resume h2 {
+    font-family: var(--font-heading);
+    font-size: clamp(1.25rem, 2.5vw, 2rem);
     font-weight: 500;
     color: var(--color-primary);
-    margin-bottom: var(--spacing-lg);
-    padding-bottom: var(--spacing-sm);
-    border-bottom: 1px solid var(--color-border);
     letter-spacing: -0.02em;
+    margin-bottom: var(--grid-1);
+}
+
+.card-subtitle {
+    font-size: var(--text-xs);
+    color: var(--color-text-light);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+}
+
+/* Back Face - Inverted Theme Colors */
+.flip-card-back-resume {
+    transform: rotateY(180deg);
+    overflow-y: auto;
+}
+
+/* Light mode: dark background with light text */
+:root .flip-card-back-resume {
+    background-color: #1a1a1a;
+    color: #fafafa;
+}
+
+/* Dark mode: light background with dark text */
+[data-theme="dark"] .flip-card-back-resume {
+    background-color: #fafafa;
+    color: #0a0a0a;
+}
+
+/* Force text colors for all content inside flipped cards - Light Mode */
+:root .flip-card-back-resume .card-content,
+:root .flip-card-back-resume .card-content-detailed,
+:root .flip-card-back-resume h3,
+:root .flip-card-back-resume .institution,
+:root .flip-card-back-resume .date,
+:root .flip-card-back-resume .detail,
+:root .flip-card-back-resume .detail-list li,
+:root .flip-card-back-resume .skill-group h4,
+:root .flip-card-back-resume .skill-group p,
+:root .flip-card-back-resume a {
+    color: #fafafa !important;
+}
+
+/* Force text colors for all content inside flipped cards - Dark Mode */
+[data-theme="dark"] .flip-card-back-resume .card-content,
+[data-theme="dark"] .flip-card-back-resume .card-content-detailed,
+[data-theme="dark"] .flip-card-back-resume h3,
+[data-theme="dark"] .flip-card-back-resume .institution,
+[data-theme="dark"] .flip-card-back-resume .date,
+[data-theme="dark"] .flip-card-back-resume .detail,
+[data-theme="dark"] .flip-card-back-resume .detail-list li,
+[data-theme="dark"] .flip-card-back-resume .skill-group h4,
+[data-theme="dark"] .flip-card-back-resume .skill-group p,
+[data-theme="dark"] .flip-card-back-resume a {
+    color: #0a0a0a !important;
+}
+
+.flip-card-back-resume .card-content {
+    text-align: center;
+    width: 100%;
+}
+
+.flip-card-back-resume .card-content-detailed {
+    text-align: left;
+    width: 100%;
 }
 
 /* ===================================
-   RESUME ITEMS
+   CARD CONTENT STYLES
    =================================== */
 .resume-item {
-    margin-bottom: var(--spacing-2xl);
+    margin-bottom: var(--grid-2);
+    padding-bottom: var(--grid-2);
+    position: relative;
+}
+
+.resume-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.2;
 }
 
 .resume-item:last-child {
     margin-bottom: 0;
+    padding-bottom: 0;
 }
 
-.item-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: var(--spacing-md);
-    gap: var(--spacing-lg);
+.resume-item:last-child::after {
+    display: none;
 }
 
-.item-title {
-    font-size: var(--text-lg);
+.resume-item h3 {
+    font-size: var(--text-base);
     font-weight: 500;
-    color: var(--color-primary);
+    color: inherit;
     margin-bottom: var(--spacing-xs);
     letter-spacing: -0.01em;
 }
 
-.item-institution {
-    font-size: var(--text-base);
-    color: var(--color-secondary);
-    font-weight: 400;
+.institution {
+    font-size: var(--text-sm);
+    color: inherit;
+    opacity: 0.8;
+    margin-bottom: var(--spacing-xs);
 }
 
-.item-date {
+.date {
     font-size: var(--text-xs);
-    color: var(--color-text-light);
-    font-weight: 400;
+    color: inherit;
+    opacity: 0.6;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    white-space: nowrap;
+    margin-bottom: var(--grid-1);
 }
 
-.item-details {
-    margin-top: var(--spacing-sm);
-}
-
-.item-location {
+.detail {
     font-size: var(--text-sm);
-    color: var(--color-text-light);
-    margin-bottom: var(--spacing-sm);
+    color: inherit;
+    opacity: 0.9;
+    line-height: 1.5;
 }
 
-.item-description {
-    font-size: var(--text-sm);
-    line-height: 1.65;
-    color: var(--color-text-light);
-    margin-bottom: var(--spacing-md);
-}
-
-.item-list {
+.detail-list {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
-.item-list li {
-    font-size: var(--text-sm);
-    line-height: 1.75;
-    color: var(--color-text-light);
-    padding-left: 1.5rem;
-    margin-bottom: var(--spacing-sm);
+.detail-list li {
+    font-size: var(--text-xs);
+    color: inherit;
+    opacity: 0.9;
+    line-height: 1.6;
+    padding-left: 1rem;
+    margin-bottom: var(--spacing-xs);
     position: relative;
 }
 
-.item-list li::before {
+.detail-list li::before {
     content: '—';
     position: absolute;
     left: 0;
-    color: var(--color-text-light);
-    font-weight: normal;
+    opacity: 0.6;
+}
+
+/* Ensure bullets have proper color on flipped cards */
+:root .flip-card-back-resume .detail-list li::before {
+    color: #fafafa;
+}
+
+[data-theme="dark"] .flip-card-back-resume .detail-list li::before {
+    color: #0a0a0a;
 }
 
 /* ===================================
-   SKILLS SECTION
+   SKILLS CONTENT
    =================================== */
-.skills-categories {
-    display: grid;
-    gap: var(--spacing-lg);
+.skills-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--grid-2);
 }
 
-.skill-category {
-    background-color: transparent;
-    padding: var(--spacing-lg);
-    border: 1px solid var(--color-border);
-}
-
-.skill-category-title {
-    font-size: var(--text-lg);
+.skill-group h4 {
+    font-size: var(--text-sm);
     font-weight: 500;
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-md);
+    color: inherit;
+    margin-bottom: var(--spacing-xs);
     letter-spacing: -0.01em;
 }
 
-.skill-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-sm);
-}
-
-.skill-tag {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    background-color: var(--color-bg-alt);
-    border: 1px solid var(--color-border);
+.skill-group p {
     font-size: var(--text-xs);
-    font-weight: 400;
-    color: var(--color-text);
-    transition: all var(--transition-medium);
-    letter-spacing: 0.01em;
-}
-
-.skill-tag:hover {
-    border-color: var(--color-primary);
-    color: var(--color-primary);
+    color: inherit;
+    opacity: 0.85;
+    line-height: 1.5;
 }
 
 /* ===================================
-   RESUME CTA
+   DOWNLOAD & CTA LINKS
    =================================== */
-.resume-cta {
-    text-align: center;
-    padding: var(--spacing-2xl) var(--spacing-lg);
-    background-color: var(--color-bg-alt);
-    margin-top: var(--spacing-3xl);
-}
-
-.cta-title {
-    font-size: var(--text-xl);
-    font-weight: 500;
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-lg);
-    letter-spacing: -0.02em;
-}
-
-.download-btn-large {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    padding: 0.875rem 2.5rem;
-    background-color: var(--color-primary);
-    color: var(--color-bg);
-    font-weight: 400;
-    transition: all var(--transition-medium);
+.download-link,
+.cta-link {
+    display: inline-block;
+    padding: var(--grid-2) var(--grid-3);
     font-size: var(--text-sm);
-    margin-bottom: var(--spacing-md);
+    font-weight: 500;
+    text-decoration: none;
+    transition: all var(--transition-medium);
     letter-spacing: 0.02em;
 }
 
-.download-btn-large:hover {
-    background-color: var(--color-secondary);
+/* Light mode: Links on dark flipped card background (inside .card-back-layer or .flip-card-back-resume) */
+:root .card-back-layer .download-link,
+:root .card-back-layer .cta-link,
+:root .flip-card-back-resume .download-link,
+:root .flip-card-back-resume .cta-link {
+    background-color: #fafafa !important;
+    color: #1a1a1a !important;
+    border: 1px solid #fafafa;
 }
 
-.cta-subtitle {
-    font-size: var(--text-sm);
-    color: var(--color-text-light);
+:root .card-back-layer .download-link:hover,
+:root .card-back-layer .cta-link:hover,
+:root .flip-card-back-resume .download-link:hover,
+:root .flip-card-back-resume .cta-link:hover {
+    background-color: transparent !important;
+    color: #fafafa !important;
+    border-color: #fafafa;
 }
 
-.inline-link {
-    color: var(--color-primary);
-    font-weight: 400;
-    transition: color var(--transition-medium);
-    border-bottom: 1px solid var(--color-border);
+/* Dark mode: Links on light flipped card background (inside .card-back-layer or .flip-card-back-resume) */
+[data-theme="dark"] .card-back-layer .download-link,
+[data-theme="dark"] .card-back-layer .cta-link,
+[data-theme="dark"] .flip-card-back-resume .download-link,
+[data-theme="dark"] .flip-card-back-resume .cta-link {
+    background-color: #0a0a0a !important;
+    color: #fafafa !important;
+    border: 1px solid #0a0a0a;
 }
 
-.inline-link:hover {
-    color: var(--color-secondary);
-    border-bottom-color: var(--color-secondary);
+[data-theme="dark"] .card-back-layer .download-link:hover,
+[data-theme="dark"] .card-back-layer .cta-link:hover,
+[data-theme="dark"] .flip-card-back-resume .download-link:hover,
+[data-theme="dark"] .flip-card-back-resume .cta-link:hover {
+    background-color: transparent !important;
+    color: #0a0a0a !important;
+    border-color: #0a0a0a;
 }
 
 /* ===================================
-   RESPONSIVE DESIGN
+   DARK MODE ADJUSTMENTS
    =================================== */
-@media (max-width: 768px) {
-    .resume-hero {
-        padding: var(--spacing-2xl) 0 var(--spacing-xl) 0;
+/* No adjustments needed - using inherit and opacity for automatic theme adaptation */
+
+/* ===================================
+   ACCESSIBILITY
+   =================================== */
+@media (prefers-reduced-motion: reduce) {
+    .flip-card,
+    .flip-card-resume {
+        transition: none;
     }
 
-    .item-header {
-        flex-direction: column;
-        gap: var(--spacing-sm);
-    }
-
-    .item-date {
-        align-self: flex-start;
-    }
-
-    .download-btn,
-    .download-btn-large {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .skill-tags {
-        gap: var(--spacing-xs);
-    }
-
-    .skill-tag {
-        padding: 0.375rem 0.75rem;
+    .resume-card:hover .flip-card-resume,
+    .nav-letter-cell:hover .flip-card,
+    .theme-cell:hover .flip-card {
+        transform: none;
     }
 }
