@@ -279,6 +279,71 @@ Complete redesign of all pages to echo the landing page grid theme:
 
 ---
 
-**Last Updated**: 2025-11-22
-**Version**: 2.0 - Grid-Based Redesign
-**Status**: Ready for Testing
+## Recent Updates (2025-11-23)
+
+### Resume Page Flip Card Enhancements
+
+**Major improvements to resume page:**
+
+1. **Fixed Card Title Centering** (resume.css)
+   - Titles now centered across full card area, not confined to single cells
+   - Implemented dual-layer architecture: content layer (z-index: 2) over flip cells (z-index: 1)
+   - Card content wrapper spans entire card with absolute positioning
+   - Sequential flip animation preserved perfectly
+
+2. **Removed Internal Grid Lines** (resume.css)
+   - Removed grid borders from flip cells for clean card appearance
+   - Cards appear as unified rectangular elements
+   - Cell-by-cell flip animation maintained internally
+   - Only outer card border visible
+
+3. **Fixed Text Visibility on Flipped Cards** (resume.css)
+   - Resolved white-on-white and black-on-black text issues
+   - Implemented theme-specific color overrides with `!important` flags
+   - Light mode flipped cards: dark background (#1a1a1a) with light text (#fafafa)
+   - Dark mode flipped cards: light background (#fafafa) with dark text (#0a0a0a)
+   - Added comprehensive styling for `.card-back-layer` to handle dual-layer architecture
+
+4. **Updated Resume Content** (resume.html)
+   - Replaced all placeholder content with exact wording from actual resume PDF
+   - Expanded from 7 to 9 cards to properly represent all sections:
+     - Education (1 card)
+     - Work Experience (3 cards: RATIO internship, Allerton Park, Para La Tierra)
+     - Extracurricular Activities (2 cards: Kingfisher Composting, Goodwill Ambassador)
+     - Skills and Achievements (2 cards: Software/Languages, Honors/Recognition)
+   - Added resume PDF download: `assets/resume/Ethan-Anderson-Resume.pdf`
+
+5. **Grid Line Styling Refinement** (all CSS files)
+   - Changed background grid lines from dotted to **dashed** (more visible)
+   - Reverted all UI component borders to **solid** lines:
+     - Card outlines, navigation bars, buttons, forms, etc.
+   - Clear visual hierarchy: dashed architectural grid vs solid bold components
+   - Updated files: grid-system.css, about.css, resume.css, projects-grid.css, style.css, contact.css
+
+**Files Modified:**
+- `css/resume.css` - Dual-layer architecture, text color fixes, card styling
+- `resume.html` - Complete content replacement with exact resume data
+- `css/grid-system.css` - Grid line styling (dashed background)
+- `css/about.css` - UI borders (solid)
+- `css/projects-grid.css` - UI borders (solid)
+- `css/style.css` - Navigation and button borders (solid)
+- `css/contact.css` - Form borders (solid)
+- `js/resume.js` - Created for flip card generation
+- `js/about.js` - Created for about page functionality
+
+**New Test Files Created:**
+- `test-flip-cards.html` - Standalone test page for flip card debugging
+- Various documentation files (COLOR-VERIFICATION.md, FLIP-CARD-FIX-SUMMARY.md, etc.)
+
+**Technical Architecture:**
+- Flip cards use dual-layer system: content layers above flip cell layers
+- Content layers handle text display and fading (opacity transitions)
+- Flip cells provide sequential 3D flip animation background
+- Theme-specific hardcoded colors with `!important` to override inheritance
+- Staggered flip animation: 30ms delay per cell
+
+---
+
+**Last Updated**: 2025-11-23
+**Version**: 2.1 - Resume Page Flip Card Enhancements
+**Status**: Production Ready
