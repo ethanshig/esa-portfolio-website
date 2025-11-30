@@ -1,0 +1,185 @@
+/* ===================================
+   NAVIGATION STYLES
+   Desktop navbar + Mobile bottom tab bar
+   Per MASTER-PLAN Section 13
+   =================================== */
+
+/* ===================================
+   DESKTOP NAVIGATION BAR
+   =================================== */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--color-bg);
+    border-bottom: var(--grid-line-medium) solid var(--color-primary);
+    z-index: 1000;
+    padding: var(--spacing-lg) 0;
+    transition: background-color var(--transition-medium);
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-2xl);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--color-primary);
+    letter-spacing: 0;
+    text-transform: lowercase;
+}
+
+.logo:hover {
+    opacity: 0.7;
+}
+
+.nav-menu {
+    display: flex;
+    gap: var(--spacing-2xl);
+    align-items: center;
+}
+
+.nav-link {
+    color: var(--color-primary);
+    font-weight: 400;
+    font-size: var(--text-base);
+    position: relative;
+    transition: opacity var(--transition-fast);
+}
+
+.nav-link:hover {
+    opacity: 0.6;
+}
+
+.nav-link.active {
+    font-weight: 700;
+}
+
+/* Hide hamburger on desktop */
+.hamburger {
+    display: none;
+}
+
+/* ===================================
+   MOBILE BOTTOM TAB BAR (Section 13)
+   iOS-style navigation
+   =================================== */
+.mobile-tab-bar {
+    display: none; /* Hidden on desktop */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--color-bg);
+    border-top: var(--grid-line-medium) solid var(--color-primary);
+    z-index: 1000;
+    padding: var(--spacing-sm) 0;
+}
+
+.tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-gray);
+    font-size: var(--text-caption);
+    font-weight: 400;
+    padding: var(--spacing-sm);
+    transition: color var(--transition-fast);
+    text-transform: capitalize;
+}
+
+.tab-item:hover,
+.tab-item.active {
+    color: var(--color-primary);
+    font-weight: 500;
+}
+
+/* ===================================
+   RESPONSIVE BEHAVIOR (Section 13)
+   =================================== */
+
+/* Tablet (≤1024px) - Keep desktop nav */
+@media (max-width: 1024px) {
+    .nav-container {
+        padding: 0 var(--spacing-xl);
+    }
+
+    .nav-menu {
+        gap: var(--spacing-xl);
+    }
+}
+
+/* Mobile (≤768px) - Switch to bottom tab bar */
+@media (max-width: 768px) {
+    /* Hide desktop navbar links */
+    .nav-menu {
+        display: none;
+    }
+
+    /* Show mobile tab bar */
+    .mobile-tab-bar {
+        display: flex;
+    }
+
+    /* Keep logo and theme toggle in top navbar */
+    .navbar {
+        padding: var(--spacing-md) 0;
+    }
+
+    .nav-container {
+        padding: 0 var(--spacing-lg);
+    }
+
+    /* Add bottom padding to body to prevent content from hiding behind tab bar */
+    body {
+        padding-bottom: 60px; /* Height of tab bar */
+    }
+
+    /* Add top padding for fixed navbar */
+    main {
+        padding-top: 60px; /* Height of navbar */
+    }
+}
+
+/* Small mobile (≤480px) */
+@media (max-width: 480px) {
+    .nav-container {
+        padding: 0 var(--spacing-md);
+    }
+
+    .tab-item {
+        font-size: 0.75rem;
+    }
+}
+
+/* ===================================
+   LANDING PAGE EXCEPTION
+   Landing page doesn't use navbar (has grid navigation)
+   =================================== */
+body.landing-page .navbar {
+    display: none;
+}
+
+body.landing-page .mobile-tab-bar {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    /* On mobile, landing page DOES show bottom tab bar */
+    body.landing-page .mobile-tab-bar {
+        display: flex;
+    }
+
+    body.landing-page {
+        padding-bottom: 60px;
+    }
+}

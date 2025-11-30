@@ -1,0 +1,373 @@
+/* ===================================
+   PROJECT DETAIL PAGE (Option 1 - Traditional)
+   Per MASTER-PLAN Section 5
+   Single column, centered, full-width hero
+   =================================== */
+
+/* Page Layout */
+.project-detail-page {
+    background-color: var(--color-bg);
+    padding-top: 80px; /* Space for navbar */
+}
+
+/* ===================================
+   HERO IMAGE - Full Width
+   =================================== */
+.project-hero {
+    width: 100vw;
+    height: 80vh;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: var(--section-spacing);
+}
+
+.project-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(100%);
+    transition: filter var(--transition-slow);
+}
+
+.project-hero:hover img {
+    filter: grayscale(0%);
+}
+
+/* ===================================
+   PROJECT HEADER - Centered Content
+   =================================== */
+.project-header {
+    max-width: 1200px;
+    margin: 0 auto var(--section-spacing);
+    padding: 0 var(--spacing-2xl);
+}
+
+.project-header h1 {
+    font-size: var(--text-h1);
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    color: var(--color-primary);
+}
+
+.project-metadata {
+    display: flex;
+    gap: var(--spacing-xl);
+    flex-wrap: wrap;
+    font-size: var(--text-caption);
+    color: var(--color-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-bottom: var(--subsection-spacing);
+    padding-bottom: var(--subsection-spacing);
+    border-bottom: 1px solid var(--color-primary);
+}
+
+.metadata-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.metadata-label {
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.metadata-value {
+    font-weight: 400;
+}
+
+/* ===================================
+   CONTENT SECTIONS
+   =================================== */
+.project-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-2xl);
+}
+
+.content-section {
+    margin-bottom: var(--section-spacing);
+}
+
+.content-section:last-child {
+    margin-bottom: var(--section-spacing);
+}
+
+/* Section Headers */
+.content-section h2 {
+    font-size: var(--text-h2);
+    font-weight: 700;
+    margin-top: 3rem;
+    margin-bottom: 1.5rem;
+    color: var(--color-primary);
+}
+
+.content-section h3 {
+    font-size: var(--text-h3);
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: var(--color-primary);
+}
+
+/* Text Content */
+.content-section p {
+    font-size: var(--text-base);
+    line-height: var(--line-height-normal);
+    max-width: 75ch;
+    margin-bottom: 1em;
+    color: var(--color-primary);
+}
+
+/* Lists */
+.content-section ul,
+.content-section ol {
+    max-width: 75ch;
+    margin-bottom: 1.5rem;
+    padding-left: 2rem;
+}
+
+.content-section li {
+    font-size: var(--text-base);
+    line-height: var(--line-height-normal);
+    margin-bottom: 0.5rem;
+    list-style: disc;
+}
+
+.content-section ol li {
+    list-style: decimal;
+}
+
+/* ===================================
+   IMAGE GALLERY
+   2-3 column grid with gaps
+   =================================== */
+.image-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: var(--image-gap);
+    margin: var(--subsection-spacing) 0;
+}
+
+.gallery-image {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-primary);
+    cursor: pointer;
+}
+
+.gallery-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(100%);
+    transition: filter var(--transition-slow), transform var(--transition-slow);
+}
+
+.gallery-image:hover img {
+    filter: grayscale(0%);
+    transform: scale(1.02);
+}
+
+/* Single full-width image */
+.full-width-image {
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    margin-top: var(--subsection-spacing);
+    margin-bottom: var(--subsection-spacing);
+}
+
+.full-width-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: grayscale(100%);
+    transition: filter var(--transition-slow);
+}
+
+.full-width-image:hover img {
+    filter: grayscale(0%);
+}
+
+/* Image Captions */
+.image-caption {
+    font-size: var(--text-caption);
+    color: var(--color-gray);
+    margin-top: var(--spacing-sm);
+    text-align: center;
+    font-style: italic;
+}
+
+/* ===================================
+   LIGHTBOX (Section 12)
+   Click to enlarge images
+   =================================== */
+.lightbox {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-2xl);
+}
+
+.lightbox.active {
+    display: flex;
+}
+
+.lightbox-image {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: var(--spacing-xl);
+    right: var(--spacing-xl);
+    background: transparent;
+    border: 2px solid #ffffff;
+    color: #ffffff;
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.lightbox-close:hover {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+/* ===================================
+   NAVIGATION - Next/Previous Project
+   =================================== */
+.project-navigation {
+    max-width: 1200px;
+    margin: var(--section-spacing) auto;
+    padding: var(--spacing-2xl);
+    border-top: 1px solid var(--color-primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-2xl);
+}
+
+.nav-project {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    color: var(--color-primary);
+    transition: opacity var(--transition-fast);
+}
+
+.nav-project:hover {
+    opacity: 0.6;
+}
+
+.nav-arrow {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.nav-project-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.nav-label {
+    font-size: var(--text-caption);
+    color: var(--color-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.nav-title {
+    font-size: var(--text-lg);
+    font-weight: 500;
+}
+
+/* ===================================
+   RESPONSIVE (Section 13)
+   =================================== */
+@media (max-width: 1024px) {
+    .image-gallery {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-xl);
+    }
+}
+
+@media (max-width: 768px) {
+    .project-detail-page {
+        padding-top: 60px;
+    }
+
+    .project-hero {
+        height: 60vh;
+    }
+
+    .project-header,
+    .project-content,
+    .project-navigation {
+        padding: 0 var(--spacing-xl);
+    }
+
+    .project-metadata {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+
+    .image-gallery {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+    }
+
+    .project-navigation {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .nav-project {
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 480px) {
+    .project-header,
+    .project-content,
+    .project-navigation {
+        padding: 0 var(--spacing-lg);
+    }
+
+    .project-hero {
+        height: 50vh;
+    }
+
+    .lightbox {
+        padding: var(--spacing-lg);
+    }
+
+    .lightbox-close {
+        top: var(--spacing-md);
+        right: var(--spacing-md);
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+    }
+}

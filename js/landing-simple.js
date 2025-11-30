@@ -19,6 +19,11 @@ const gridLayout = {
         { row: 1, col: 12 } // Top right corner
     ],
 
+    // Easter egg - bouncing egg that appears on random/rotating cell
+    easterEgg: [
+        { row: 8, col: 3 } // Bottom left area (grid is 8 rows max)
+    ],
+
     // Navigation words - hidden until hover
     // Each word is a group that flips together
 
@@ -72,7 +77,7 @@ const gridLayout = {
 // Navigation links
 const navLinks = {
     resume: 'resume.html',
-    projects: 'index.html#projects',
+    projects: 'projects.html',
     about: 'about.html',
     contact: 'contact.html'
 };
@@ -158,6 +163,9 @@ function generateGrid(gridOverlay) {
         // Check if this is the theme toggle cell
         const isThemeCell = gridLayout.theme.some(t => t.row === row && t.col === col);
 
+        // Check if this is the easter egg cell
+        const isEasterEggCell = gridLayout.easterEgg.some(e => e.row === row && e.col === col);
+
         if (isThemeCell) {
             // Theme toggle cell
             cell.classList.add('theme-cell', 'interactive');
@@ -174,6 +182,23 @@ function generateGrid(gridOverlay) {
                     </div>
                     <div class="flip-card-back">
                         <img src="images/${hoverIcon}" alt="Toggle theme" class="theme-icon">
+                    </div>
+                </div>
+            `;
+        } else if (isEasterEggCell) {
+            // Easter egg cell
+            cell.classList.add('easter-egg-cell', 'interactive');
+            cell.id = 'easter-egg-cell';
+
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            const keyIcon = currentTheme === 'light' ? 'key-light.svg' : 'key-dark.svg';
+
+            cell.innerHTML = `
+                <div class="flip-card">
+                    <div class="flip-card-front">
+                    </div>
+                    <div class="flip-card-back">
+                        <img src="images/${keyIcon}" alt="Secret key" class="easter-egg-key">
                     </div>
                 </div>
             `;
@@ -233,9 +258,21 @@ function setupHoverEffects() {
         themeCell.addEventListener('click', toggleTheme);
     }
 
+    // Setup easter egg click
+    const easterEggCell = document.getElementById('easter-egg-cell');
+    if (easterEggCell) {
+        easterEggCell.addEventListener('click', () => {
+            if (window.pageTransition) {
+                window.pageTransition.transitionToPage('easter-egg.html');
+            } else {
+                window.location.href = 'easter-egg.html';
+            }
+        });
+    }
+
     allCells.forEach(cell => {
-        // Skip theme cell for word hover effects
-        if (cell.id === 'theme-cell') return;
+        // Skip theme cell and easter egg cell for word hover effects
+        if (cell.id === 'theme-cell' || cell.id === 'easter-egg-cell') return;
         cell.addEventListener('mouseenter', () => {
             const word = cell.dataset.word;
             if (!word) return;

@@ -1,0 +1,342 @@
+/* ===================================
+   PORTFOLIO WEBSITE - FOUNDATION CSS
+   Built to MASTER-PLAN specifications
+   =================================== */
+
+/* ===================================
+   CUSTOM FONTS - Sato Family
+   =================================== */
+@font-face {
+    font-family: 'Sato';
+    src: url('../fonts/Sato-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Sato';
+    src: url('../fonts/Sato-RegularSlanted.woff') format('woff');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Sato';
+    src: url('../fonts/Sato-Medium.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Sato';
+    src: url('../fonts/Sato-Bold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ===================================
+   CSS VARIABLES - Design System
+   Per MASTER-PLAN Section 10 & 11
+   =================================== */
+:root {
+    /* COLORS - Light Mode (Section 10) */
+    --color-primary: #1a1a1a;           /* Black text */
+    --color-bg: #fafafa;                 /* Soft white background */
+    --color-border: #fafafa;             /* Soft white borders */
+    --color-gray: #666666;               /* Mid-gray for captions/metadata */
+
+    /* COLORS - Dark Mode */
+    --color-primary-dark: #fafafa;       /* White text */
+    --color-bg-dark: #1a1a1a;            /* Black background */
+    --color-border-dark: #1a1a1a;        /* Black borders */
+    --color-gray-dark: #999999;          /* Lighter gray for dark mode */
+
+    /* TYPOGRAPHY - Font Family (Section 9) */
+    --font-primary: 'Sato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+    /* TYPOGRAPHY - Sizes (Section 9) */
+    --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+    --text-esa: clamp(3rem, 6vw, 5rem);
+    --text-nav: clamp(1.5rem, 3vw, 2.5rem);
+
+    /* Typography - Heading Hierarchy (from MASTER-PLAN filled decisions) */
+    --text-h1: clamp(2.5rem, 5vw, 4rem);
+    --text-h2: clamp(1.75rem, 3vw, 2.5rem);
+    --text-h3: clamp(1.25rem, 2vw, 1.5rem);
+    --text-caption: 0.875rem;
+
+    /* Typography - Line Heights (Section 9) */
+    --line-height-tight: 1.2;
+    --line-height-normal: 1.8;
+
+    /* SPACING SYSTEM - 8px base (Section 11) */
+    --spacing-xs: 4px;      /* 0.5× */
+    --spacing-sm: 8px;      /* 1× */
+    --spacing-md: 12px;     /* 1.5× */
+    --spacing-lg: 16px;     /* 2× */
+    --spacing-xl: 24px;     /* 3× */
+    --spacing-2xl: 40px;    /* 5× */
+    --spacing-3xl: 64px;    /* 8× */
+    --spacing-4xl: 96px;    /* 12× */
+
+    /* SPACING - Applied Values (from MASTER-PLAN decisions) */
+    --section-spacing: var(--spacing-4xl);      /* Between major sections */
+    --subsection-spacing: var(--spacing-xl);    /* Within sections */
+    --image-gap: var(--spacing-2xl);            /* Image grid gaps */
+    --container-padding: var(--spacing-2xl);    /* Padding inside cards/containers */
+
+    /* TRANSITIONS */
+    --transition-fast: 0.15s ease;
+    --transition-medium: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* GRID LINES - Build List inspired (Section 11) */
+    --grid-line-thick: 2px;
+    --grid-line-medium: 1px;
+    --grid-line-dotted: 1px;
+}
+
+/* Dark Mode Theme */
+[data-theme="dark"] {
+    --color-primary: var(--color-primary-dark);
+    --color-bg: var(--color-bg-dark);
+    --color-border: var(--color-border-dark);
+    --color-gray: var(--color-gray-dark);
+}
+
+/* ===================================
+   RESET & BASE STYLES
+   =================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-primary);
+    font-size: var(--text-base);
+    font-weight: 500;                    /* Medium for body text (MASTER-PLAN) */
+    line-height: var(--line-height-normal);
+    color: var(--color-primary);
+    background-color: var(--color-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color var(--transition-medium), color var(--transition-medium);
+}
+
+/* TYPOGRAPHY HIERARCHY (Section 9) */
+h1 {
+    font-size: var(--text-h1);
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: var(--line-height-tight);
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+}
+
+h2 {
+    font-size: var(--text-h2);
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: var(--line-height-tight);
+    margin-top: 3rem;
+    margin-bottom: 1.5rem;
+}
+
+h3 {
+    font-size: var(--text-h3);
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+p {
+    max-width: 75ch;                     /* MASTER-PLAN: 65-75ch for readability */
+    margin-bottom: 1em;
+}
+
+/* Captions/Metadata (Section 9) */
+.caption, .metadata {
+    font-size: var(--text-caption);
+    font-weight: 400;
+    color: var(--color-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+/* Links */
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transition-fast);
+}
+
+/* Images */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Lists */
+ul, ol {
+    list-style: none;
+}
+
+/* ===================================
+   LAYOUT UTILITIES
+   =================================== */
+
+/* Full-width containers for images (Section 5 - Project Pages) */
+.full-width {
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+}
+
+/* Centered content with max-width */
+.content-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-2xl);
+}
+
+/* Sections with spacing (Section 11) */
+.section {
+    margin-bottom: var(--section-spacing);
+}
+
+.subsection {
+    margin-bottom: var(--subsection-spacing);
+}
+
+/* Horizontal dividers (locomotive.ca inspired - Section 11) */
+.section-divider {
+    border: none;
+    border-top: 1px solid var(--color-primary);
+    margin: var(--section-spacing) 0;
+}
+
+/* ===================================
+   GRID BACKGROUND (Section 11)
+   Hybrid Approach: Decorative grid on non-landing pages
+   =================================== */
+.grid-background {
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent calc(100% / 8 - 1px),
+            var(--color-primary) calc(100% / 8 - 1px),
+            var(--color-primary) calc(100% / 8)
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent calc(100% / 12 - 1px),
+            var(--color-primary) calc(100% / 12 - 1px),
+            var(--color-primary) calc(100% / 12)
+        );
+    background-size: 100% 100%;
+    opacity: 0.05;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* ===================================
+   THEME TOGGLE
+   =================================== */
+.theme-toggle {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    color: var(--color-gray);
+    font-size: var(--text-caption);
+    font-family: var(--font-primary);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    transition: all var(--transition-medium);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.theme-toggle:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+/* ===================================
+   RESPONSIVE BREAKPOINTS (Section 13)
+   =================================== */
+@media (max-width: 1024px) {
+    /* Tablet adjustments */
+    :root {
+        --section-spacing: var(--spacing-3xl);
+    }
+}
+
+@media (max-width: 768px) {
+    /* Mobile adjustments */
+    :root {
+        --section-spacing: var(--spacing-2xl);
+        --subsection-spacing: var(--spacing-lg);
+        --image-gap: var(--spacing-xl);
+        --container-padding: var(--spacing-xl);
+    }
+
+    .content-container {
+        padding: 0 var(--spacing-xl);
+    }
+}
+
+@media (max-width: 480px) {
+    /* Small mobile adjustments */
+    :root {
+        --section-spacing: var(--spacing-xl);
+        --container-padding: var(--spacing-lg);
+    }
+
+    .content-container {
+        padding: 0 var(--spacing-lg);
+    }
+}
+
+/* ===================================
+   ACCESSIBILITY (Section 17)
+   =================================== */
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus styles for keyboard navigation */
+a:focus-visible,
+button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 4px;
+}

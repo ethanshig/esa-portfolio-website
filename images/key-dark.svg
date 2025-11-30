@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Atari Adventure-style key for dark theme (white key) -->
+  <g stroke="#fafafa" stroke-width="2" fill="#fafafa">
+    <!-- Key head (circular) -->
+    <circle cx="8" cy="16" r="5" />
+
+    <!-- Key shaft -->
+    <rect x="11" y="14.5" width="14" height="3" />
+
+    <!-- Key teeth -->
+    <rect x="21" y="11.5" width="2" height="3" />
+    <rect x="25" y="11.5" width="2" height="3" />
+    <rect x="21" y="17.5" width="2" height="3" />
+  </g>
+</svg>

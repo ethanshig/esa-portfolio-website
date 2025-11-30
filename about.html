@@ -3,27 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="About - Sustainable Architecture & Design Student">
-    <title>About | Ethan Anderson</title>
+    <meta name="description" content="About Ethan Shig Anderson - Sustainable Architecture Student">
+    <title>About | esa</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/grid-system.css">
+    <link rel="stylesheet" href="css/grid-content.css">
     <link rel="stylesheet" href="css/page-transition.css">
-    <link rel="stylesheet" href="css/about.css">
     <script>
+        // Apply theme immediately to prevent flash
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
 </head>
-<body class="about-grid-page">
-    <!-- Fixed Grid Background -->
-    <div class="grid-background" id="grid-background"></div>
-
+<body>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
-            <a href="index.html" class="logo">Ethan Anderson</a>
+            <a href="index.html" class="logo">esa</a>
             <ul class="nav-menu">
-                <li><a href="index.html" class="nav-link">Projects</a></li>
+                <li><a href="projects.html" class="nav-link">Projects</a></li>
                 <li><a href="about.html" class="nav-link active">About</a></li>
                 <li><a href="resume.html" class="nav-link">Resume</a></li>
                 <li><a href="contact.html" class="nav-link">Contact</a></li>
@@ -40,270 +38,105 @@
         </div>
     </nav>
 
-    <!-- About Content Container -->
-    <div class="about-container">
-        <!-- Profile Card -->
-        <div class="about-card profile-card">
-            <div class="flip-card-about">
-                <div class="flip-card-front-about">
-                    <div class="card-image">
-                        <img src="images/profile-photo.jpg" alt="Ethan Anderson">
-                    </div>
-                </div>
-                <div class="flip-card-back-about">
-                    <div class="card-content-detailed">
-                        <h2>Ethan Anderson</h2>
-                        <p class="card-intro">
-                            Sustainable architecture student passionate about designing spaces that nurture
-                            both people and planet. My work explores the intersection of environmental stewardship,
-                            social equity, and beautiful design.
-                        </p>
-                        <p class="card-intro">
-                            I believe the built environment has tremendous power to address the climate crisis while creating
-                            healthier, more vibrant communities.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- About Content - Grid Layout -->
+    <main class="page-grid-wrapper">
+        <div class="page-grid">
+            <!-- Hero Section -->
+            <section class="grid-item grid-span-full grid-margin-vertical">
+                <h1 class="page-title">About Me</h1>
+                <p class="page-subtitle">Ethan Shig Anderson</p>
+            </section>
 
-        <!-- Philosophy Card 1 -->
-        <div class="about-card philosophy-card">
-            <div class="flip-card-about">
-                <div class="flip-card-front-about">
-                    <div class="card-content">
-                        <h3>Regenerative Design</h3>
-                    </div>
+            <!-- Profile Photo -->
+            <section class="grid-item grid-left-half">
+                <div class="profile-photo-container">
+                    <img src="images/profile-photo.jpg" alt="Ethan Anderson" class="profile-photo">
                 </div>
-                <div class="flip-card-back-about">
-                    <div class="card-content-detailed">
-                        <h3>Regenerative Design</h3>
-                        <p>
-                            I strive to create buildings that go beyond "doing less harm" to actively regenerating
-                            ecosystems and enriching the natural environment.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+            </section>
 
-        <!-- Philosophy Card 2 -->
-        <div class="about-card philosophy-card">
-            <div class="flip-card-about">
-                <div class="flip-card-front-about">
-                    <div class="card-content">
-                        <h3>Community-Centered</h3>
-                    </div>
-                </div>
-                <div class="flip-card-back-about">
-                    <div class="card-content-detailed">
-                        <h3>Community-Centered</h3>
-                        <p>
-                            Great design emerges from deep listening to communities. I prioritize participatory
-                            processes that center the needs and wisdom of residents.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <!-- Bio Text -->
+            <section class="grid-item grid-right-half">
+                <h2 class="section-heading">Introduction</h2>
+                <p class="bio-text">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                </p>
+                <p class="bio-text">
+                    Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.
+                </p>
+                <p class="bio-text">
+                    Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
+                </p>
+            </section>
 
-        <!-- Philosophy Card 3 -->
-        <div class="about-card philosophy-card">
-            <div class="flip-card-about">
-                <div class="flip-card-front-about">
-                    <div class="card-content">
-                        <h3>Circular Materials</h3>
-                    </div>
-                </div>
-                <div class="flip-card-back-about">
-                    <div class="card-content-detailed">
-                        <h3>Circular Materials</h3>
-                        <p>
-                            Every material choice matters. I advocate for locally sourced, low-carbon materials
-                            and designs that facilitate deconstruction and material reuse.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <!-- Education -->
+            <section class="grid-item grid-left-half grid-margin-vertical">
+                <h2 class="section-heading">Education</h2>
 
-        <!-- Philosophy Card 4 -->
-        <div class="about-card philosophy-card">
-            <div class="flip-card-about">
-                <div class="flip-card-front-about">
-                    <div class="card-content">
-                        <h3>Passive-First Approach</h3>
-                    </div>
+                <div class="education-item grid-highlight-border-bottom grid-margin-bottom">
+                    <h3 class="item-title">University of Illinois Urbana-Champaign</h3>
+                    <p class="item-meta">Bachelor of Science in Architecture • Expected 2026</p>
+                    <p class="item-description">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Focus on sustainable design principles and innovative architectural solutions.
+                    </p>
                 </div>
-                <div class="flip-card-back-about">
-                    <div class="card-content-detailed">
-                        <h3>Passive-First Approach</h3>
-                        <p>
-                            Technology can't solve everything. I prioritize passive strategies—orientation, natural
-                            ventilation, daylighting—before adding mechanical systems.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Skills Card 1 -->
-        <div class="about-card skills-card">
-            <div class="flip-card-about">
-                <div class="flip-card-front-about">
-                    <div class="card-content">
-                        <h3>Design Software</h3>
-                    </div>
+                <div class="education-item">
+                    <h3 class="item-title">Relevant Coursework</h3>
+                    <ul class="coursework-list">
+                        <li>Sustainable Design Studio</li>
+                        <li>Environmental Systems</li>
+                        <li>Digital Fabrication</li>
+                        <li>Urban Planning Theory</li>
+                        <li>Building Materials & Methods</li>
+                    </ul>
                 </div>
-                <div class="flip-card-back-about">
-                    <div class="card-content-detailed">
-                        <h4>Design Software</h4>
-                        <ul class="skills-list">
-                            <li>Rhino + Grasshopper</li>
-                            <li>AutoCAD</li>
-                            <li>SketchUp</li>
-                            <li>Adobe Creative Suite</li>
-                            <li>Revit (BIM)</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+            </section>
 
-        <!-- Skills Card 2 -->
-        <div class="about-card skills-card">
-            <div class="flip-card-about">
-                <div class="flip-card-front-about">
-                    <div class="card-content">
-                        <h3>Sustainability Tools</h3>
-                    </div>
-                </div>
-                <div class="flip-card-back-about">
-                    <div class="card-content-detailed">
-                        <h4>Sustainability Tools</h4>
-                        <ul class="skills-list">
-                            <li>Climate Studio / Ladybug</li>
-                            <li>Energy modeling (eQuest, EnergyPlus)</li>
-                            <li>LEED certification knowledge</li>
-                            <li>Passive House principles</li>
-                            <li>Life Cycle Assessment (LCA)</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <!-- Skills & Expertise -->
+            <section class="grid-item grid-right-half grid-margin-vertical">
+                <h2 class="section-heading">Skills & Expertise</h2>
 
-        <!-- Skills Card 3 -->
-        <div class="about-card skills-card">
-            <div class="flip-card-about">
-                <div class="flip-card-front-about">
-                    <div class="card-content">
-                        <h3>Visualization</h3>
-                    </div>
+                <div class="skills-category grid-margin-bottom">
+                    <h3 class="item-title">Design Software</h3>
+                    <ul class="skills-list">
+                        <li>Rhino 3D</li>
+                        <li>AutoCAD</li>
+                        <li>Adobe Creative Suite</li>
+                        <li>SketchUp</li>
+                        <li>Grasshopper</li>
+                    </ul>
                 </div>
-                <div class="flip-card-back-about">
-                    <div class="card-content-detailed">
-                        <h4>Visualization</h4>
-                        <ul class="skills-list">
-                            <li>V-Ray / Enscape rendering</li>
-                            <li>Hand sketching & watercolor</li>
-                            <li>Physical model making</li>
-                            <li>Photoshop compositing</li>
-                            <li>InDesign layout</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Skills Card 4 -->
-        <div class="about-card skills-card">
-            <div class="flip-card-about">
-                <div class="flip-card-front-about">
-                    <div class="card-content">
-                        <h3>Knowledge Areas</h3>
-                    </div>
+                <div class="skills-category grid-margin-bottom">
+                    <h3 class="item-title">Technical Skills</h3>
+                    <ul class="skills-list">
+                        <li>Sustainable Design Principles</li>
+                        <li>LEED Certification Knowledge</li>
+                        <li>3D Modeling & Rendering</li>
+                        <li>Physical Model Making</li>
+                        <li>Technical Drawing</li>
+                    </ul>
                 </div>
-                <div class="flip-card-back-about">
-                    <div class="card-content-detailed">
-                        <h4>Knowledge Areas</h4>
-                        <ul class="skills-list">
-                            <li>Building science & physics</li>
-                            <li>Renewable energy systems</li>
-                            <li>Biophilic design</li>
-                            <li>Urban ecology</li>
-                            <li>Environmental justice</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Timeline Card -->
-        <div class="about-card timeline-card wide-card">
-            <div class="flip-card-about">
-                <div class="flip-card-front-about">
-                    <div class="card-content">
-                        <h2>Education</h2>
-                        <p class="card-subtitle">& Recognition</p>
-                    </div>
+                <div class="skills-category">
+                    <h3 class="item-title">Additional Competencies</h3>
+                    <ul class="skills-list">
+                        <li>Web Development (HTML/CSS/JavaScript)</li>
+                        <li>Graphic Design</li>
+                        <li>Photography</li>
+                        <li>Project Management</li>
+                    </ul>
                 </div>
-                <div class="flip-card-back-about">
-                    <div class="card-content-detailed timeline-content">
-                        <div class="timeline-item">
-                            <span class="timeline-date">2023 - Present</span>
-                            <h4>Bachelor of Architecture</h4>
-                            <p class="timeline-inst">Your University Name</p>
-                            <p class="timeline-desc">GPA: 3.8/4.0 | Dean's List</p>
-                        </div>
-                        <div class="timeline-item">
-                            <span class="timeline-date">2024</span>
-                            <h4>Sustainable Design Award Winner</h4>
-                            <p class="timeline-inst">Regional Architecture Competition</p>
-                        </div>
-                        <div class="timeline-item">
-                            <span class="timeline-date">2023</span>
-                            <h4>LEED Green Associate</h4>
-                            <p class="timeline-inst">Green Building Certification</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </section>
         </div>
-
-        <!-- CTA Card -->
-        <div class="about-card cta-card">
-            <div class="flip-card-about">
-                <div class="flip-card-front-about">
-                    <div class="card-content">
-                        <h2>Let's Collaborate</h2>
-                        <p class="card-subtitle">Sustainable projects</p>
-                    </div>
-                </div>
-                <div class="flip-card-back-about">
-                    <div class="card-content-centered">
-                        <p class="cta-text">
-                            I'm interested in collaborating on projects that prioritize environmental
-                            and social impact.
-                        </p>
-                        <div class="cta-buttons">
-                            <a href="contact.html" class="cta-link">Get in Touch</a>
-                            <a href="resume.html" class="cta-link-outline">View Resume</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    </main>
 
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2025 Ethan Anderson. All rights reserved.</p>
             <div class="social-links">
                 <a href="https://linkedin.com/in/yourprofile" target="_blank" aria-label="LinkedIn">LinkedIn</a>
-                <a href="https://instagram.com/yourprofile" target="_blank" aria-label="Instagram">Instagram</a>
-                <a href="mailto:your.email@example.com" aria-label="Email">Email</a>
+                <a href="mailto:ethanshig@gmail.com" aria-label="Email">Email</a>
             </div>
         </div>
     </footer>
@@ -311,6 +144,5 @@
     <script src="js/main.js"></script>
     <script src="js/theme-and-animations.js"></script>
     <script src="js/page-transition.js"></script>
-    <script src="js/about.js"></script>
 </body>
 </html>

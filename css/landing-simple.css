@@ -193,10 +193,42 @@
 }
 
 /* ===================================
+   EASTER EGG CELL
+   =================================== */
+.easter-egg-cell {
+    cursor: pointer;
+}
+
+.easter-egg-cell:hover {
+    border-color: var(--color-primary);
+}
+
+.easter-egg-key {
+    width: 50%;
+    height: 50%;
+    object-fit: contain;
+    animation: bounce 1s ease-in-out infinite;
+}
+
+/* Bouncing animation */
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* ===================================
    ACCESSIBILITY
    =================================== */
 @media (prefers-reduced-motion: reduce) {
     .flip-card {
         transition: none;
+    }
+
+    .easter-egg-key {
+        animation: none;
     }
 }

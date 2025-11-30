@@ -1,0 +1,306 @@
+/* ===================================
+   LANDING PAGE WITH FULL ANIMATION
+   Per MASTER-PLAN Section 4
+   Animation Sequence:
+   1. Grid lines draw in (1500-2000ms)
+   2. ESA cells flip (e→s→a with delays)
+   3. 'a' struggles, gets "smacked" by 's'
+   4. Navigation appears on hover only
+   =================================== */
+
+/* ===================================
+   GRID LAYOUT - 12×8
+   =================================== */
+.landing-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-bg);
+    position: relative;
+    overflow: hidden;
+}
+
+.grid-overlay {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    width: 90vw;
+    max-width: 1200px;
+    height: 80vh;
+    max-height: 800px;
+    gap: 0;
+    position: relative;
+}
+
+/* ===================================
+   GRID LINES (Phase 1 Animation)
+   Sequential drawing - horizontal then vertical
+   =================================== */
+.grid-line {
+    position: absolute;
+    background-color: var(--color-primary);
+}
+
+/* Horizontal lines */
+.grid-line.horizontal {
+    height: 1px;
+    width: 0; /* Start at 0, animate to 100% */
+    left: 0;
+    opacity: 0;
+}
+
+/* Vertical lines */
+.grid-line.vertical {
+    width: 1px;
+    height: 0; /* Start at 0, animate to 100% */
+    top: 0;
+    opacity: 0;
+}
+
+/* Animation classes added by JavaScript */
+.grid-line.draw {
+    animation: drawLine 100ms ease-out forwards;
+}
+
+@keyframes drawLine {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.2;
+        width: 100%;  /* For horizontal */
+        height: 100%; /* For vertical */
+    }
+}
+
+/* Horizontal line positioning */
+.grid-line.horizontal {
+    width: 100%;
+}
+.grid-line.horizontal[data-row="1"] { top: calc((100% / 8) * 1); }
+.grid-line.horizontal[data-row="2"] { top: calc((100% / 8) * 2); }
+.grid-line.horizontal[data-row="3"] { top: calc((100% / 8) * 3); }
+.grid-line.horizontal[data-row="4"] { top: calc((100% / 8) * 4); }
+.grid-line.horizontal[data-row="5"] { top: calc((100% / 8) * 5); }
+.grid-line.horizontal[data-row="6"] { top: calc((100% / 8) * 6); }
+.grid-line.horizontal[data-row="7"] { top: calc((100% / 8) * 7); }
+
+/* Vertical line positioning */
+.grid-line.vertical {
+    height: 100%;
+}
+.grid-line.vertical[data-col="1"] { left: calc((100% / 12) * 1); }
+.grid-line.vertical[data-col="2"] { left: calc((100% / 12) * 2); }
+.grid-line.vertical[data-col="3"] { left: calc((100% / 12) * 3); }
+.grid-line.vertical[data-col="4"] { left: calc((100% / 12) * 4); }
+.grid-line.vertical[data-col="5"] { left: calc((100% / 12) * 5); }
+.grid-line.vertical[data-col="6"] { left: calc((100% / 12) * 6); }
+.grid-line.vertical[data-col="7"] { left: calc((100% / 12) * 7); }
+.grid-line.vertical[data-col="8"] { left: calc((100% / 12) * 8); }
+.grid-line.vertical[data-col="9"] { left: calc((100% / 12) * 9); }
+.grid-line.vertical[data-col="10"] { left: calc((100% / 12) * 10); }
+.grid-line.vertical[data-col="11"] { left: calc((100% / 12) * 11); }
+
+/* ===================================
+   GRID CELLS
+   =================================== */
+.grid-cell {
+    perspective: 1000px;
+    position: relative;
+}
+
+/* ===================================
+   FLIP CARDS (Phase 2 & 3 Animation)
+   =================================== */
+.flip-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.grid-cell.flipped .flip-card {
+    transform: rotateY(180deg);
+}
+
+/* Card faces */
+.flip-card-front,
+.flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flip-card-front {
+    background-color: var(--color-bg);
+}
+
+.flip-card-back {
+    background-color: var(--color-primary);
+    color: var(--color-bg);
+    transform: rotateY(180deg);
+}
+
+/* ===================================
+   LETTERS - ESA and Navigation
+   =================================== */
+
+/* ESA Letters (Bold, 2x size, always visible after flip) */
+.letter-esa {
+    font-size: var(--text-esa);
+    font-weight: 700;
+    color: var(--color-primary);
+    text-transform: lowercase;
+}
+
+.flip-card-back .letter-esa {
+    color: var(--color-bg);
+}
+
+/* Navigation Letters (Regular weight, hidden until hover) */
+.letter-nav {
+    font-size: var(--text-nav);
+    font-weight: 400;
+    color: var(--color-primary);
+    text-transform: lowercase;
+    opacity: 0; /* Hidden initially */
+    transition: opacity var(--transition-medium);
+}
+
+.flip-card-back .letter-nav {
+    color: var(--color-bg);
+}
+
+/* Show nav letters on word hover (wave effect handled by JS) */
+.grid-cell.word-hover .letter-nav {
+    opacity: 1;
+}
+
+/* ===================================
+   ESA ANIMATION (Phase 2)
+   Sequential flip: e → s → a
+   =================================== */
+
+/* 'e' flips first */
+.grid-cell[data-letter="e"].esa-letter {
+    animation: flipCell 600ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation-delay: 2000ms; /* After grid completes (1500ms) + delay (500ms) */
+}
+
+/* 's' flips second */
+.grid-cell[data-letter="s"].esa-letter {
+    animation: flipCell 600ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation-delay: 2800ms; /* 'e' delay + flip duration + gap (2000 + 600 + 200) */
+}
+
+/* 'a' struggles - handled by JavaScript for complex sequence */
+
+@keyframes flipCell {
+    from {
+        transform: rotateY(0deg);
+    }
+    to {
+        transform: rotateY(180deg);
+    }
+}
+
+/* ===================================
+   'A' STRUGGLE ANIMATION (Phase 3)
+   JavaScript-controlled for precise timing
+   =================================== */
+
+/* Attempt 1: Flip to 45° then fall back */
+@keyframes struggleAttempt1 {
+    0% { transform: rotateY(0deg); }
+    50% { transform: rotateY(45deg); }
+    100% { transform: rotateY(0deg); }
+}
+
+/* Attempt 2: Flip to 70° then fall back */
+@keyframes struggleAttempt2 {
+    0% { transform: rotateY(0deg); }
+    50% { transform: rotateY(70deg); }
+    100% { transform: rotateY(0deg); }
+}
+
+/* Final successful flip */
+@keyframes struggleSuccess {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(180deg); }
+}
+
+/* ===================================
+   THEME TOGGLE CELL
+   Position: (1,12) - Top right
+   =================================== */
+.theme-toggle-cell {
+    grid-column: 12;
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.theme-icon-landing {
+    font-size: 1.5rem;
+    transition: transform var(--transition-fast);
+}
+
+.theme-toggle-cell:hover .theme-icon-landing {
+    transform: scale(1.1);
+}
+
+/* ===================================
+   EASTER EGG CELL
+   Daily rotation position
+   =================================== */
+.easter-egg-icon {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* ===================================
+   RESPONSIVE (Section 13)
+   =================================== */
+@media (max-width: 1024px) {
+    .grid-overlay {
+        width: 95vw;
+        height: 85vh;
+    }
+}
+
+@media (max-width: 768px) {
+    .grid-overlay {
+        grid-template-columns: repeat(6, 1fr);
+        grid-template-rows: repeat(8, 1fr);
+        width: 95vw;
+        height: 70vh;
+    }
+
+    /* Hide landing grid on mobile, show bottom tab bar */
+    .landing-container {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .grid-overlay {
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(6, 1fr);
+    }
+}
