@@ -16,29 +16,29 @@
 const projects = [
     {
         id: 'project-1',
-        title: 'Project Title 1',
+        title: '3 Little Pig Wall Assembly',
         year: '2024',
-        category: 'Sustainable Architecture',
-        description: 'Brief one-sentence description of the project that captures its essence and main goal.',
-        image: 'images/projects/project1-thumb.jpg',
+        category: 'Sustainable Construction',
+        description: 'R-52 straw bale insulation wall system designed for compatibility with traditional stick framing construction.',
+        image: 'images/project1-thumb.jpg',
         link: 'projects/project1.html'
     },
     {
         id: 'project-2',
-        title: 'Project Title 2',
+        title: 'Mylo To-Go',
         year: '2024',
-        category: 'Urban Design',
-        description: 'Brief one-sentence description of the project that captures its essence and main goal.',
-        image: 'images/projects/project2-thumb.jpg',
+        category: 'Sustainable Design',
+        description: 'Biodegradable mycelium-based food containers grown from agricultural waste, replacing single-use Styrofoam.',
+        image: 'images/project2-thumb.jpg',
         link: 'projects/project2.html'
     },
     {
         id: 'project-3',
-        title: 'Project Title 3',
-        year: '2023',
-        category: 'Interior Design',
-        description: 'Brief one-sentence description of the project that captures its essence and main goal.',
-        image: 'images/projects/project3-thumb.jpg',
+        title: 'Beaver\'s Burden',
+        year: '2024',
+        category: 'Ecological Design',
+        description: 'Beaver-inspired devices exploring the evolving relationship between humans and beavers in rewilding the Kankakee Marsh.',
+        image: 'images/project3-thumb.jpg',
         link: 'projects/project3.html'
     },
     {

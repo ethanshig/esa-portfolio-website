@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mylo To-Go - Biodegradable mycelium-based containers">
+    <title>Mylo To-Go | Ethan Anderson</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/project.css">
+    <link rel="stylesheet" href="../css/grid-system.css">
+    <link rel="stylesheet" href="../css/page-transition.css">
+    <script>
+        // Apply theme immediately to prevent flash
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">esa</a>
+            <ul class="nav-menu">
+                <li><a href="../projects.html" class="nav-link">Projects</a></li>
+                <li><a href="../about.html" class="nav-link">About</a></li>
+                <li><a href="../resume.html" class="nav-link">Resume</a></li>
+                <li><a href="../contact.html" class="nav-link">Contact</a></li>
+            </ul>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <span class="theme-icon" id="theme-icon"></span>
+                <span id="theme-label">Light</span>
+            </button>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Project Hero -->
+    <section class="project-hero">
+        <div class="project-hero-image">
+            <img src="../images/project2-hero.jpg" alt="Mylo To-Go">
+        </div>
+    </section>
+
+    <!-- Project Details -->
+    <article class="project-detail">
+        <div class="container-narrow">
+            <!-- Project Header -->
+            <header class="project-header">
+                <a href="../projects.html" class="back-link">← Back to Projects</a>
+                <h1 class="project-title-large">Mylo To-Go</h1>
+                <div class="project-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Type</span>
+                        <span class="meta-value">Sustainable Design</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Year</span>
+                        <span class="meta-value">2024</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Location</span>
+                        <span class="meta-value">University of Illinois</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Role</span>
+                        <span class="meta-value">Design & Development</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Project Overview -->
+            <section class="project-section">
+                <h2 class="section-heading">Project Overview</h2>
+                <p class="project-text">
+                    In a world drowning in plastic waste, we turned to nature for a solution. Our mycelium-based containers aren't just biodegradable; they're grown, not manufactured. Designed to replace single-use Styrofoam, our containers decompose naturally, leaving no trace.
+                </p>
+                <p class="project-text">
+                    The creation of MYLO entailed collaboration as a small team to explore the full development cycle of mycelium-based fabrication. I contributed to every step of the process: form development, mold fabrication, mycelium cultivation, visual documentation, and iteration.
+                </p>
+            </section>
+
+            <!-- Challenge/Solution -->
+            <section class="project-section">
+                <h2 class="section-heading">Challenge</h2>
+                <p class="project-text">
+                    Single-use food containers, particularly Styrofoam, create massive environmental waste that persists for centuries. Traditional biodegradable alternatives often require industrial composting facilities and still take months to break down. How can we create a truly sustainable, rapidly biodegradable container that decomposes naturally?
+                </p>
+
+                <h2 class="section-heading">Solution</h2>
+                <p class="project-text">
+                    Mylo To-Go reimagines food containers by growing them from mycelium, the root structure of mushrooms. These containers are cultivated rather than manufactured, using agricultural waste as substrate. The result is a fully biodegradable container that returns to nature in weeks, not centuries, while providing effective insulation and protection for food.
+                </p>
+            </section>
+
+            <!-- Key Features -->
+            <section class="project-section">
+                <h2 class="section-heading">Key Features</h2>
+                <ul class="features-list">
+                    <li>Grown from mycelium using agricultural waste as substrate</li>
+                    <li>Fully biodegradable and compostable in natural environments</li>
+                    <li>Replaces single-use Styrofoam and plastic containers</li>
+                    <li>Provides natural insulation for food temperature retention</li>
+                    <li>Decomposes naturally in weeks, leaving no trace</li>
+                    <li>Cultivated through sustainable, low-energy process</li>
+                    <li>Explored full development cycle from mold fabrication to final product</li>
+                </ul>
+            </section>
+
+            <!-- Image Gallery -->
+            <section class="project-gallery">
+                <div class="gallery-grid">
+                    <figure class="gallery-item gallery-item-wide">
+                        <img src="../images/project2-img01.jpg" alt="Mylo container overview">
+                        <figcaption>Mycelium-based food container in use</figcaption>
+                    </figure>
+                    <figure class="gallery-item">
+                        <img src="../images/project2-img03.jpg" alt="Mylo container detail">
+                        <figcaption>Detail showing natural mycelium texture</figcaption>
+                    </figure>
+                    <figure class="gallery-item">
+                        <img src="../images/project2-img04.jpg" alt="Multiple Mylo containers">
+                        <figcaption>Various container forms and configurations</figcaption>
+                    </figure>
+                    <figure class="gallery-item gallery-item-wide">
+                        <img src="../images/project2-img05.jpg" alt="Mycelium cultivation process">
+                        <figcaption>Mycelium cultivation and growth process</figcaption>
+                    </figure>
+                    <figure class="gallery-item">
+                        <img src="../images/project2-img06.jpg" alt="Container mold fabrication">
+                        <figcaption>Custom mold fabrication for container forms</figcaption>
+                    </figure>
+                    <figure class="gallery-item">
+                        <img src="../images/project2-img07.jpg" alt="Mycelium growth stage">
+                        <figcaption>Mycelium network development in mold</figcaption>
+                    </figure>
+                    <figure class="gallery-item">
+                        <img src="../images/project2-img08.jpg" alt="Development process">
+                        <figcaption>Design and development process</figcaption>
+                    </figure>
+                    <figure class="gallery-item">
+                        <img src="../images/project2-img09.jpg" alt="Team collaboration">
+                        <figcaption>Collaborative design and fabrication process</figcaption>
+                    </figure>
+                </div>
+            </section>
+
+            <!-- Project Team -->
+            <section class="project-section">
+                <h2 class="section-heading">Project Team</h2>
+                <p class="project-text">
+                    This project was developed through collaborative research and experimentation:
+                </p>
+                <ul class="features-list">
+                    <li>Annabelle Pinto</li>
+                    <li>Ethan Anderson</li>
+                    <li>Em Huang</li>
+                    <li>Sydney Staemmer</li>
+                    <li>Zimuzo Ugwuanyi</li>
+                    <li>Malaina Ummel</li>
+                </ul>
+            </section>
+
+            <!-- Outcomes/Impact -->
+            <section class="project-section">
+                <h2 class="section-heading">Outcomes & Impact</h2>
+                <p class="project-text">
+                    Mylo To-Go demonstrates the potential of biomaterials to replace environmentally harmful single-use products. By exploring the complete fabrication cycle—from form development and mold creation to mycelium cultivation and testing—the project reveals how biological processes can create functional, sustainable alternatives to conventional manufacturing.
+                </p>
+                <p class="project-text">
+                    The containers successfully replace Styrofoam packaging while offering comparable insulation properties and superior environmental performance. Unlike traditional disposable containers that persist in landfills for centuries, Mylo containers decompose naturally in weeks, returning nutrients to the soil. This project illustrates how design can work with natural systems rather than against them, creating products that are truly circular by nature.
+                </p>
+            </section>
+
+            <!-- Project Navigation -->
+            <nav class="project-navigation">
+                <a href="project1.html" class="nav-btn nav-btn-prev">
+                    <span class="nav-label">Previous</span>
+                    <span class="nav-project">3 Little Pig Wall Assembly</span>
+                </a>
+                <a href="project3.html" class="nav-btn nav-btn-next">
+                    <span class="nav-label">Next</span>
+                    <span class="nav-project">Beaver's Burden</span>
+                </a>
+            </nav>
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Ethan Anderson. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://linkedin.com/in/yourprofile" target="_blank" aria-label="LinkedIn">LinkedIn</a>
+                <a href="https://instagram.com/yourprofile" target="_blank" aria-label="Instagram">Instagram</a>
+                <a href="mailto:ethanshig@gmail.com" aria-label="Email">Email</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/theme-and-animations.js"></script>
+    <script src="../js/page-transition.js"></script>
+    <script src="../js/image-lightbox.js"></script>
+</body>
+</html>
