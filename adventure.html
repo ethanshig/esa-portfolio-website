@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="An interactive journey through Ethan Shig Anderson's work and experiences.">
+    <title>The Road Ahead | Ethan Shig Anderson</title>
+    <link rel="stylesheet" href="adventure/css/adventure.css">
+</head>
+<body>
+    <main class="adventure-shell" id="adventure" aria-live="polite">
+        <section class="reader-intro" id="reader-intro" aria-labelledby="intro-title">
+            <p class="scene-eyebrow">A PORTFOLIO IN MOTION</p>
+            <h1 id="intro-title">Choose how you want to enter the story.</h1>
+            <p class="intro-copy">A few details help the narrator choose what to place in your path. You can leave everything blank and begin anonymously.</p>
+            <form class="reader-form" id="reader-form">
+                <label>What should I call you?
+                    <input type="text" name="name" maxlength="40" autocomplete="name" placeholder="Optional">
+                </label>
+                <label>You are visiting as a…
+                    <select name="role">
+                        <option value="curious visitor">Curious visitor</option>
+                        <option value="design student">Design student</option>
+                        <option value="architect or designer">Architect or designer</option>
+                        <option value="recruiter or collaborator">Recruiter or collaborator</option>
+                    </select>
+                </label>
+                <fieldset>
+                    <legend>What are you most interested in?</legend>
+                    <label><input type="checkbox" name="interest" value="materials"> Materials</label>
+                    <label><input type="checkbox" name="interest" value="ecology"> Ecology</label>
+                    <label><input type="checkbox" name="interest" value="research"> Research</label>
+                    <label><input type="checkbox" name="interest" value="making"> Making</label>
+                </fieldset>
+                <label>What brought you here?
+                    <select name="goal">
+                        <option value="understand the work">Understand the work</option>
+                        <option value="find a project to discuss">Find a project to discuss</option>
+                        <option value="follow the design process">Follow the design process</option>
+                        <option value="look for a collaborator">Look for a collaborator</option>
+                    </select>
+                </label>
+                <button class="begin-button" type="submit">Begin the journey <span>→</span></button>
+            </form>
+            <button class="anonymous-button" id="anonymous-button" type="button">Continue without answering</button>
+        </section>
+        <article class="scene" id="scene"></article>
+        <div class="artifact-shelf" id="artifact-shelf" hidden></div>
+        <nav class="choices" id="choices" aria-label="Choose what to do next"></nav>
+    </main>
+
+    <script src="adventure/content/story.js"></script>
+    <script>window.ADVENTURE_AI_ENDPOINT = '/api/adventure/narrate';</script>
+    <script src="adventure/js/ai-narrator.js"></script>
+    <script src="adventure/js/adventure.js"></script>
+</body>
+</html>
