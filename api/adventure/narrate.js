@@ -17,6 +17,10 @@ module.exports = async function handler(req, res) {
         return res.status(413).json({ error: 'Request too large' });
     }
 
+    if (!process.env.CS199_RESPONSES_URL) {
+        return res.status(500).json({ error: 'Narrator not configured' });
+    }
+
     const sceneId = typeof body.sceneId === 'string' ? body.sceneId : '';
     const scene = scenes[sceneId];
     if (!scene) return res.status(400).json({ error: 'Unknown scene' });
@@ -54,13 +58,17 @@ module.exports = async function handler(req, res) {
             signal: AbortSignal.timeout(15000)
         });
 
-        if (!response.ok) return res.status(502).json({ error: 'Narrator unavailable' });
+        if (!response.ok) {
+            console.error('Narrator upstream returned status', response.status);
+            return res.status(502).json({ error: 'Narrator unavailable' });
+        }
         const payload = await response.json();
         const generated = parseModelJson(payload);
         const validated = validateResponse(generated, scene, approvedFactIds);
         if (!validated) return res.status(502).json({ error: 'Narrator returned invalid content' });
         return res.status(200).json(validated);
     } catch (error) {
+        console.error('Narrator request failed', error);
         return res.status(502).json({ error: 'Narrator unavailable' });
     }
 };
