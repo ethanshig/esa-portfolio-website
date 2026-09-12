@@ -1,0 +1,274 @@
+/* ===================================================================
+   ESA LINE SYSTEM — styles
+   Spec: ESA-LINE-SYSTEM-SPEC.md. Load after the page's own stylesheets.
+   =================================================================== */
+
+:root {
+    --L: clamp(28px, 5.667vw, 96px);           /* one lattice step = one esa circle radius */
+    --L4: calc(var(--L) / 4);                  /* fine lattice */
+    --logo-h: clamp(15px, 3.1vw, 30px);
+    --ls-ink: var(--color-primary, #1a1a1a);
+}
+
+/* ---------- nav: the logo's bar is the nav rule, links stand on it ---------- */
+html.ls-on .navbar {
+    box-shadow: none !important;               /* main.js adds a scroll shadow; the bar is the edge now */
+    border-bottom: none;
+    padding-block: var(--L4);
+    padding-inline: 0;
+    background-color: var(--color-bg);
+    backdrop-filter: none;
+}
+html.ls-on .nav-container {
+    position: relative;
+    max-width: none;
+    margin: 0;
+    height: var(--logo-h);
+    padding: 0;
+    display: block;
+}
+.ls-nav-svg {
+    position: absolute;
+    left: var(--L);
+    top: 0;
+    width: calc(100% - 2 * var(--L));
+    height: 100%;
+    overflow: visible;
+    color: var(--ls-ink);
+    pointer-events: none;
+}
+html.ls-on .navbar .logo {
+    position: absolute;
+    left: var(--L);
+    top: 0;
+    height: 100%;
+    width: calc(var(--logo-h) * 2.579);       /* the word's own width, so only the mark is the link */
+    font-size: 0;
+    color: transparent;
+    z-index: 1;
+}
+html.ls-on .navbar .logo:focus-visible {
+    outline: 2px solid var(--ls-ink);
+    outline-offset: 4px;
+}
+.ls-nav-right {
+    position: absolute;
+    right: var(--L);
+    bottom: calc(50% + clamp(3px, 0.5vw, 6px));
+    display: flex;
+    align-items: flex-end;
+    gap: clamp(0.9rem, 2vw, 2rem);
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+.ls-links-in .ls-nav-right { opacity: 1; }
+html.ls-on .nav-menu { gap: clamp(0.9rem, 2vw, 2rem); align-items: flex-end; }
+html.ls-on .nav-link { line-height: 1; display: block; }
+html.ls-on .nav-link::after { display: none; }
+html.ls-on .navbar .theme-toggle {
+    border: none;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+    font-size: var(--text-sm);
+    color: var(--color-text-light);
+    background: transparent;
+}
+html.ls-on .navbar .theme-toggle:hover { color: var(--color-primary); }
+html.ls-on .theme-icon:empty { display: none; }
+
+@media (max-width: 768px) {
+    html.ls-on .nav-menu {
+        top: calc(var(--logo-h) + 2 * var(--L4));
+        align-items: center;
+        background-color: var(--color-bg);
+    }
+    html.ls-on .nav-menu .nav-link { line-height: 1.5; }
+    html.ls-on .hamburger { padding-bottom: 1px; }
+}
+
+/* ---------- outlines ---------- */
+.ls-outline-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+    overflow: visible;
+    color: var(--ls-ink);
+    z-index: 900;                              /* over content, under the fixed nav */
+}
+
+/* components the outline replaces: no CSS borders, lattice corners */
+html.ls-on .project-image-container,
+html.ls-on .project-card .project-image,
+html.ls-on .nav-btn {
+    border: none;
+    border-radius: var(--L);
+    overflow: hidden;
+}
+html.ls-on .project-hero-image {
+    border-radius: var(--L);
+    overflow: hidden;
+    margin-inline: var(--L);
+    width: round(down, calc(100% - 2 * var(--L)), var(--L));
+}
+html.ls-on .gallery-item img {
+    border-radius: var(--L);
+    border: none;
+}
+html.ls-on .download-btn,
+html.ls-on .btn,
+html.ls-on .filter-btn,
+html.ls-on .arrow-button {
+    border-color: transparent;
+    border-radius: 999px;
+    min-height: calc(2 * var(--L4));
+}
+html.ls-on .project-navigation { border-top: none; }
+html.ls-on .project-header { border-bottom: none; }
+html.ls-on .contact-form input,
+html.ls-on .contact-form textarea {
+    border-color: transparent;
+    border-radius: var(--L4);
+}
+
+/* ---------- landing ---------- */
+.ls-word {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    color: var(--ls-ink);
+    background: var(--color-bg);
+    cursor: pointer;
+    transition: background-color 0.9s ease;
+}
+.ls-word svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.ls-word.is-leaving { background-color: transparent; pointer-events: none; }
+.ls-word-prompt {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(2 * var(--L4));
+    text-align: center;
+    font-size: var(--text-xs);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-text-light);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+}
+.ls-word.is-ready .ls-word-prompt { opacity: 1; }
+.ls-word.is-leaving .ls-word-prompt { opacity: 0; }
+
+/* home: every edge on the lattice */
+.ls-home {
+    padding-top: calc(var(--logo-h) + 2 * var(--L4) + var(--L));
+    padding-inline: var(--L);
+    padding-bottom: var(--L);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, var(--L));
+    grid-auto-rows: var(--L);
+    align-content: start;
+    transition: opacity 0.8s ease;
+}
+.ls-home.is-waiting { opacity: 0; }
+.ls-home > * { min-width: 0; min-height: 0; margin: 0; }
+
+.ls-hero {
+    grid-column: 1 / span 8;
+    grid-row: 1 / span 5;
+    border-radius: var(--L);
+    overflow: hidden;
+    display: block;
+    position: relative;
+}
+.ls-hero img, .ls-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(100%);
+    transition: filter var(--transition-slow, 0.6s);
+}
+.ls-hero:hover img, .ls-thumb:hover img { filter: grayscale(0); }
+.ls-hero-caption, .ls-thumb-caption {
+    position: absolute;
+    left: var(--L4);
+    bottom: var(--L4);
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    background: var(--color-bg);
+    padding: 0.35em 0.9em;
+    border-radius: 999px;
+}
+
+.ls-intro {
+    grid-column: 10 / span 6;
+    grid-row: 1 / span 5;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.ls-intro h1 {
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    padding-top: var(--L4);
+}
+.ls-intro p {
+    font-size: var(--text-base);
+    line-height: 1.55;
+    color: var(--color-text-light);
+    max-width: 40ch;
+}
+.ls-intro .ls-rule-row { height: var(--L); display: flex; align-items: center; }
+
+.ls-thumb {
+    grid-row: 7 / span 3;
+    border-radius: var(--L);
+    overflow: hidden;
+    position: relative;
+    display: block;
+}
+.ls-thumb-1 { grid-column: 1 / span 3; }
+.ls-thumb-2 { grid-column: 6 / span 3; }
+
+.ls-cta-row {
+    grid-column: 10 / span 6;
+    grid-row: 7 / span 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: var(--L4);
+}
+.ls-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: max(calc(3 * var(--L4)), 44px);     /* touch target floor on phones */
+    padding-inline: var(--L);
+    border-radius: 999px;
+    font-size: var(--text-sm);
+    letter-spacing: 0.04em;
+    color: var(--color-primary);
+    align-self: flex-start;
+}
+.ls-cta-secondary { color: var(--color-text-light); }
+
+@media (max-width: 900px) {
+    /* narrow: stack, but every height stays a whole number of lattice steps */
+    .ls-home { display: flex; flex-wrap: wrap; gap: var(--L) var(--L); align-content: flex-start; }
+    .ls-hero   { width: 100%; height: calc(7 * var(--L)); }
+    .ls-intro  { width: 100%; gap: var(--L4); }
+    .ls-thumb  { width: calc(50% - var(--L) / 2); height: calc(5 * var(--L)); }
+    .ls-cta-row { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ls-word, .ls-home, .ls-nav-right { transition: none; }
+}
