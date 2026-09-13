@@ -17,7 +17,7 @@ const projects = [
     {
         id: 'project-1',
         title: '3 Little Pig Wall Assembly',
-        year: '2024',
+        year: '2025',
         category: 'Sustainable Construction',
         description: 'R-52 straw bale insulation wall system designed for compatibility with traditional stick framing construction.',
         image: 'images/project1-thumb.jpg',
@@ -26,7 +26,7 @@ const projects = [
     {
         id: 'project-2',
         title: 'Mylo To-Go',
-        year: '2024',
+        year: '2025',
         category: 'Sustainable Design',
         description: 'Biodegradable mycelium-based food containers grown from agricultural waste, replacing single-use Styrofoam.',
         image: 'images/project2-thumb.jpg',
@@ -35,7 +35,7 @@ const projects = [
     {
         id: 'project-3',
         title: 'Beaver\'s Burden',
-        year: '2024',
+        year: '2025',
         category: 'Ecological Design',
         description: 'Beaver-inspired devices exploring the evolving relationship between humans and beavers in rewilding the Kankakee Marsh.',
         image: 'images/project3-thumb.jpg',
