@@ -16,7 +16,7 @@
 const projects = [
     {
         id: 'project-1',
-        title: '3 Little Pig Wall Assembly',
+        title: '3 Little Pigs Wall Assembly',
         year: '2025',
         category: 'Sustainable Construction',
         description: 'R-52 straw bale insulation wall system designed for compatibility with traditional stick framing construction.',
