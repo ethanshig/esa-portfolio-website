@@ -2,7 +2,7 @@
 // Shared by the narrator endpoint (prompt + runtime rejection) and scripts/voice-lint.js.
 
 const BANNED_WORDS = [
-    'journey', 'tapestry', 'testament', 'delve', 'delves', 'unfold', 'unfolds', 'unfolding',
+    'journey', 'tapestry', 'testament', 'delve', 'delves', 'unfolds', 'unfolding',
     'resonate', 'resonates', 'evoke', 'evokes', 'elevate', 'elevates', 'vibrant', 'seamless',
     'seamlessly', 'holistic', 'profound', 'nuanced', 'innovative'
 ];
@@ -15,7 +15,7 @@ const VOICE_PROMPT = [
     'VOICE. Plain, concrete and unhurried: the register of weather, geology and bodies. Name the real materials, units, places and numbers that the facts give you. Mix one longer sentence with short ones. Use parentheses for asides.',
     'GRAMMAR FOLLOWS WHO DID IT. A person or institution that decided gets the active voice and a name ("Ethan chose two lemniscates", "the municipality kept its data"). An animal, plant or force that makes something gets the active voice as a maker ("beavers build", "the west wind piles sand into dunes"). Change with no nameable cause gets the middle voice, with the changing thing as subject ("the water dropped", "the wire bends, then holds").',
     'Never write a passive that hides a doer ("the pamphlet is placed in your hands", "it was designed"). Never use the middle voice to hide a human decision ("the marsh drained" when people drained it).',
-    'WHO SPEAKS. The narrator never says "I". Ethan is "Ethan", seen doing specific things. "You" is the visitor noticing, holding and choosing, not a hero driving a plot. Places, animals and forces may act or speak; nothing about Ethan may be invented.',
+    'NARRATION. Write like a Choose Your Own Adventure book: second person, present tense. The visitor is "you", the protagonist, who acts, notices, asks and decides, and things happen to you. Keep each sentence able to stand alone on its own screen (under about 25 words). The narrator never says "I". Ethan is "Ethan", seen doing specific things; Ethan may speak in quotation marks only to say what the facts say. Places, animals and forces may act or speak; nothing about Ethan may be invented.',
     'Tailor which details come first to the visitor profile. Do not flatter the visitor, do not praise Ethan, and use the visitor\'s name at most once.',
     `FORBIDDEN: em dashes and en dashes; "not X, it is Y" constructions and "not just"; these words: ${BANNED_WORDS.join(', ')}; these phrases: ${BANNED_PHRASES.join('; ')}; closing lines that summarize or promise. End on a concrete detail or a real turn.`
 ].join('\n');

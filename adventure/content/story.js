@@ -20,10 +20,11 @@ window.adventureContent = {
             beats: ["The river comes first, and someone is working in it.", "Ethan is introduced doing fieldwork, before any biography.", "The visitor chooses what to pay attention to."],
             factIds: ["plt-method"],
             paragraphs: [
-                "The river runs brown and quick under the bridge. You stop at the rail.",
-                "Below, someone stands knee-deep in the current and walks a measured line upstream. Ten meters. A pause. Ten meters again.",
-                "“What are you doing down there?”",
-                "“Sampling for fish.” Water runs off both sleeves as the figure wades out and offers a wet hand. “Ethan.”"
+                "You’re halfway across the bridge when you hear splashing below. You lean over the rail.",
+                "Someone is standing knee-deep in the brown current, walking a measured line upstream. Ten meters. A pause. Ten meters again.",
+                "You call down, “What are you doing down there?”",
+                "“Sampling for fish!”",
+                "The figure wades to the bank, climbs up to the road, and offers you a wet hand. “Ethan.”"
             ],
             choices: [
                 { label: "Ask about the river.", next: "river-notes" },
@@ -37,9 +38,10 @@ window.adventureContent = {
             beats: ["Ethan hands over a field pamphlet from Paraguay.", "The method and one day on the river make the research physical.", "The visitor chooses whether to read on, move on, or go back."],
             factIds: ["pltResearch", "plt-method", "plt-low-water"],
             paragraphs: [
-                "Ethan pulls a folded pamphlet out of the bicycle basket and puts it in your hands. The edges are wet.",
-                "Pilar, Paraguay, January to April 2024. Six sites on the river, six sampling days at each, ten transects of ten meters at wading depth.",
-                "A note in the margin, underlined twice: one day the water dropped. The fish crowded into what remained, the shallows warmed, and the catch came up enormous. A good day for the count and a bad one for the fish."
+                "Ethan pulls a folded pamphlet out of the bicycle basket and presses it into your hands. The edges are wet.",
+                "You unfold it. Pilar, Paraguay, January to April 2024. Six sites on the river, six sampling days at each, ten transects of ten meters at wading depth.",
+                "Ethan has underlined one note in the margin twice: one day the water dropped. The fish crowded into what remained, the shallows warmed, and the catch came up enormous.",
+                "A good day for the count. A bad one for the fish."
             ],
             artifacts: [{ title: "FIELD NOTES", detail: "Para La Tierra · Pilar, Paraguay · 2024", type: "field note", source: "resume.html" }],
             choices: [
@@ -54,9 +56,11 @@ window.adventureContent = {
             beats: ["The research question and its missing baseline.", "What the record holds instead.", "Ethan’s education comes into view."],
             factIds: ["plt-question", "plt-baseline", "plt-count", "plt-id", "education"],
             paragraphs: [
-                "The study needed a before and an after. A riverfront development, the Costanera, was going up along Pilar. Had the fish and the insects in the water already felt it?",
-                "The before belonged to the municipality of Pilar, and the municipality never shared it. So the pamphlet holds only the after: 6,569 fish from more than forty species. Many were so small and so alike that naming them was the hardest part of the job.",
-                "Ethan studies sustainable design (with a minor in architectural studies) at the University of Illinois Urbana-Champaign, finishing in December 2026."
+                "You read on. The study needed a before and an after.",
+                "A riverfront development, the Costanera, was going up along Pilar. Had the fish and the insects in the water already felt it?",
+                "The before belonged to the municipality of Pilar, and the municipality never shared it.",
+                "So all you’re holding is the after: 6,569 fish from more than forty species. Many were so small and so alike that naming them was the hardest part of the job.",
+                "You ask Ethan where anyone learns to do this. Sustainable design at the University of Illinois, it turns out, with a minor in architectural studies. “I finish in December 2026.”"
             ],
             artifacts: [{ title: "RESEARCH RECORD", detail: "6,569 fish · 40+ species · six sites · Pilar, Paraguay · 2024", type: "source card", source: "resume.html" }],
             choices: [
@@ -71,7 +75,7 @@ window.adventureContent = {
             factIds: [],
             paragraphs: [
                 "Ethan hauls the bicycle out of the grass. A rolled drawing rides under the frame, lashed on with twine.",
-                "No sign says where the road goes. There’s the drawing, and there’s the pamphlet you’re still holding, drying stiff in the sun."
+                "There’s no sign on the road and no way to tell where it goes. The pamphlet is drying stiff in your hand."
             ],
             artifacts: [{ title: "A ROLLED DRAWING", detail: "A wall, cut open", type: "illustration" }, { title: "A FIELD PAMPHLET", detail: "Six sites on a river in Paraguay", type: "document" }],
             choices: [
@@ -85,8 +89,8 @@ window.adventureContent = {
             beats: ["What Ethan carries says something about how the work gets made.", "The visitor chooses between the drawing and the road."],
             factIds: [],
             paragraphs: [
-                "Ethan has loaded the bicycle well past sense: a field bag swinging from the handlebars, a drawing lashed under the frame, tires still wet from the river.",
-                "Mud on the chain, and a kickstand that leans. Nothing about it looks ready to stop."
+                "You take a closer look at the bicycle. Ethan has loaded it well past sense: a field bag swinging from the handlebars, a drawing lashed under the frame, tires still wet from the river.",
+                "The kickstand leans. Mud cakes the chain. Nothing about it looks ready to stop."
             ],
             choices: [
                 { label: "Ask what’s in the drawing.", next: "drawing" },
@@ -100,9 +104,10 @@ window.adventureContent = {
             beats: ["The drawing shows a wall assembly in layers.", "Its name and its materials come from a children’s story, and that was the point.", "The visitor chooses whether to step into the project."],
             factIds: ["wallAssembly", "tlp-three-pigs", "tlp-rvalue"],
             paragraphs: [
-                "The paper opens across the bicycle seat: one wall, drawn as if someone sawed straight through it. Stick framing. Straw bales. Brick on the outside.",
-                "Straw for insulation brought the three little pigs to mind. So Ethan stopped choosing between the houses and built with all three.",
-                "The margin does the arithmetic, and the wall comes out at R-52. The wolf would need a better plan."
+                "Ethan unrolls the drawing across the bicycle seat, and you pin down a corner against the wind.",
+                "It’s one wall, drawn as if someone sawed straight through it. Stick framing. Straw bales. Brick on the outside.",
+                "“Straw for insulation made me think of the three little pigs,” Ethan says. “So I used all three houses.”",
+                "You find the arithmetic in the margin. The wall comes out at R-52. The wolf is going to need a better plan."
             ],
             artifacts: [{ title: "3 LITTLE PIGS WALL ASSEMBLY", detail: "Stick framing, straw bale insulation, brick veneer · R-52", type: "illustration", source: "projects/project1.html" }],
             choices: [
@@ -113,11 +118,12 @@ window.adventureContent = {
         'project-placeholder': {
             chapter: "CHAPTER 02",
             eyebrow: "THE EDGE OF THE PAPER",
-            beats: ["The visitor reaches the edge of what is written so far.", "The full project page is offered instead."],
+            beats: ["The visitor reaches the edge of what is written so far.", "The full project page is offered instead.", "The scene ends the way a CYOA ending does."],
             factIds: ["wallAssembly"],
             paragraphs: [
-                "Past the edge of the paper the lines stop. Ethan hasn’t drawn the rest of this place yet.",
-                "The whole wall, foundation to finish, hangs on its own page in the meantime."
+                "You step into the drawing, and the lines run out at the edge of the paper. Ethan hasn’t drawn the rest of this place yet.",
+                "The whole wall, foundation to finish, waits on its own page.",
+                "For now, this is THE END."
             ],
             artifacts: [{ title: "THE FULL ASSEMBLY", detail: "3 Little Pigs Wall Assembly · project page", type: "link", source: "projects/project1.html" }],
             choices: [
