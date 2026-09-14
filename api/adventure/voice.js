@@ -43,6 +43,7 @@ function voiceIssues(text) {
     for (const m of text.matchAll(/[^.!?]*(?:—|\s–|–\s)[^.!?]*/g)) add('error', 'dash', m[0], 'Use parentheses, a comma, a semicolon or a full stop.');
     for (const m of text.matchAll(/\S+\s-\s\S+/g)) add('error', 'dash', m[0], 'A spaced hyphen reads as a dash.');
     for (const m of text.matchAll(/\bnot\s+(?:just|only|merely|simply)\b/gi)) add('error', 'not-x-but-y', m[0], 'Say the thing it is.');
+    for (const m of text.matchAll(/\bjust not\b/gi)) add('error', 'not-x-but-y', m[0], 'Say the thing it is.');
     for (const m of text.matchAll(/\b(?:rather|more)\s+than\s+(?:just|merely|simply)\b/gi)) add('error', 'not-x-but-y', m[0], 'Say the thing it is.');
     const list = sentences(text);
     list.forEach((s, i) => {
