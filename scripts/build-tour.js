@@ -47,7 +47,11 @@ for (const [id, s] of Object.entries(world.scenes)) {
   Object.values(s.stage || {}).forEach((cues) => cues.forEach(([, m]) => { if (!world.media[m]) fail(`scene ${id} shows unknown media ${m}`); }));
   (s.choices || []).forEach((c) => { if (c.go && !world.scenes[c.go]) fail(`scene ${id} offers a way to unknown scene ${c.go}`); });
 }
-for (const [id, s] of Object.entries(world.settings)) if (!world.scenes[s.start]) fail(`setting ${id} starts at unknown scene ${s.start}`);
+for (const [id, s] of Object.entries(world.settings)) {
+  if (!world.scenes[s.start]) fail(`setting ${id} starts at unknown scene ${s.start}`);
+  // The tour opens cold in a place it picks, so every setting owes it a way to turn up there.
+  if (!Array.isArray(s.openings) || !s.openings.length) fail(`setting ${id} has no openings to start a story with`);
+}
 if (process.exitCode) { console.error('build-tour: nothing written'); process.exit(1); }
 
 const html = template

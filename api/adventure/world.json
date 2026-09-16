@@ -17,6 +17,11 @@
     "You and Ethan follow the water south, a long way south, until the air turns thick and warm.",
     "A wide brown river opens up ahead. The Arroyo Ñeembucú pours into it here, at Pilar."
    ],
+   "openings": [
+    "A bus sets you down in Pilar in the middle of the afternoon, and the heat comes up off the road.",
+    "You wake on the deck of a boat with the Río Paraguay going by wide and brown, and somebody cuts the engine.",
+    "Rain in the night left the road into Pilar soft, and you pick your way along the high side of it."
+   ],
    "theme": {
     "ground": "#eadfcc",
     "stage": "#e1d3bb",
@@ -44,6 +49,11 @@
    "travel": [
     "You and Ethan follow the water north until the fields are cut by ditches running dead straight.",
     "Past the last ditch, the ground goes soft and the cattails start. This is the Kankakee Marsh."
+   ],
+   "openings": [
+    "You leave the county road where a gravel track cuts off into the cattails, and you take the track.",
+    "You wake in the back of a parked truck at the edge of a drainage ditch, with your boots already wet.",
+    "Somebody drops you at a bridge over the Kankakee and drives off before you can ask which way to walk."
    ],
    "theme": {
     "ground": "#dfe3d7",
@@ -74,6 +84,11 @@
     "You and Ethan drive out across flat country, corn on one side and soybeans on the other.",
     "Grain elevators rise ahead. Champaign sits in the middle of the fields."
    ],
+   "openings": [
+    "The train from Chicago puts you out at Champaign in the evening, and the platform smells of grain dust.",
+    "You wake on the top floor of a studio building in Champaign, where the lights have been on all night.",
+    "You get off a bus in Champaign and students go around you in both directions."
+   ],
    "theme": {
     "ground": "#ede3c6",
     "stage": "#e3d6b2",
@@ -101,6 +116,11 @@
    "travel": [
     "You and Ethan drive north-east until the horizon fills with stacks and tank farms.",
     "The road drops toward the lake, and the ground here remembers what was poured into it."
+   ],
+   "openings": [
+    "A South Shore train leaves you at East Chicago, and you walk toward the water because that is where the ground opens.",
+    "You wake on a bench at a bus stop in East Chicago with the wind coming in off the lake.",
+    "You come off the interstate into East Chicago, and the stacks stand up over the houses."
    ],
    "theme": {
     "ground": "#dcd8d0",
