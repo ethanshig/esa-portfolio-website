@@ -195,6 +195,19 @@ body.look .plate { max-width: calc(100vw - 2 * var(--L)); }
 .plate .now { border-color: var(--ink) !important; }
 .plate .alt { margin: 0; max-width: 62ch; line-height: 1.45; }
 
+/* the landing word: the page waits behind it */
+.ls-word { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: var(--ground); color: var(--ink); cursor: pointer; transition: opacity 500ms ease; }
+.ls-word svg { width: 100%; height: 100%; overflow: visible; }
+.ls-word-prompt { position: absolute; left: 50%; bottom: 8vh; transform: translateX(-50%); margin: 0; color: var(--muted); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0; transition: opacity 600ms ease; }
+.ls-word.is-ready .ls-word-prompt { opacity: 1; }
+.ls-word.is-leaving { opacity: 0; pointer-events: none; }
+.ls-word.is-leaving .ls-word-prompt { opacity: 0; }
+body.ls-waiting .nav-right, body.ls-waiting main, body.ls-waiting .scrim { opacity: 0; }
+body.ls-waiting { overflow: hidden; }
+.nav-right { opacity: 0; transition: opacity 600ms ease; }
+body.page-begun .nav-right { opacity: 1; transition-delay: 2.1s; }
+main { transition: opacity 500ms ease; }
+
 @keyframes draw { to { stroke-dashoffset: 0; } }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { transform: none; } }
 @keyframes breathe { from { opacity: 0.35; } to { opacity: 1; } }
@@ -1717,11 +1730,23 @@ body.look .plate { max-width: calc(100vw - 2 * var(--L)); }
     barEnd = X0 - 80 + vw - LOGO_W / 2;
   }
   new ResizeObserver(fitNav).observe(navSvg); fitNav();
-  const loaded = now();
+  // The page has not begun until the word has unbuilt itself: nothing in the nav shows before then.
+  let pageT0 = null;
+  function beginPage() {
+    if (pageT0 !== null) return;
+    pageT0 = now();
+    document.body.classList.remove('ls-waiting');
+    requestAnimationFrame(() => document.body.classList.add('page-begun'));
+  }
   function drawNav(t) {
-    const th = reduced ? [0, 0, 0] : turns(t - loaded + 8.2);
-    LSTROKES.forEach((st, i) => arcs[i](ribbon(turnPts(st, th[st.li]), 1, LOGO_W, null, st.len)));
-    barR(ribbon([[X0, 0], [barEnd, 0]], 1, LOGO_W, null, 1e6));
+    if (pageT0 === null) { arcs.forEach((a) => a(null)); barR(null); return; }
+    const tp = t - pageT0;
+    const th = reduced ? [0, 0, 0] : turns(tp + 8.2);
+    const arcIn = reduced ? 1 : calm(tp / 1.0);
+    const barIn = reduced ? 1 : calm((tp - 0.55) / 0.70);
+    const run = reduced ? 1 : calm((tp - 1.10) / 1.60);
+    LSTROKES.forEach((st, i) => arcs[i](ribbon(turnPts(st, th[st.li]), arcIn, LOGO_W, null, st.len)));
+    barR(ribbon([[X0, 0], [X1 + (barEnd - X1) * run, 0]], barIn, LOGO_W, null, 1e6));
   }
 
   // Trace outline: a breathing ribbon drawn inside the fixed sheet of trace, so it travels with the words.
@@ -1753,8 +1778,84 @@ body.look .plate { max-width: calc(100vw - 2 * var(--L)); }
     const scale = R / (o.Lpx || 80);
     o.draw(ribbon(o.pts, p, o.basePx, reduced ? null : (x, y) => breathAt(x * scale, y * scale, t), o.len));
   }
+  // ---------- the word builds, a click unbuilds it, then the page draws in ----------
+  const SEEN_KEY = 'esa-landing-seen';
+  let landingFrame = null;
+  (function landing() {
+    let seen = false;
+    try { seen = sessionStorage.getItem(SEEN_KEY) === '1'; } catch (e) {}
+    if (seen || reduced) {
+      try { sessionStorage.setItem(SEEN_KEY, '1'); } catch (e) {}
+      beginPage();
+      return;
+    }
+    document.body.classList.add('ls-waiting');
+    const WORD_W = 30, MCX = 2 * R, CIRC = TAU * R;
+    const stage = $('div', { class: 'ls-word', role: 'button', tabindex: '0', 'aria-label': 'esa. Press to enter the site.' });
+    const svg = svgEl('svg', { preserveAspectRatio: 'xMidYMid meet', 'aria-hidden': 'true' });
+    stage.append(svg, $('p', { class: 'ls-word-prompt', text: 'click anywhere' }));
+    document.body.append(stage);
+    const fit = () => { const VW = MW / 0.34, VH = VW * (innerHeight / Math.max(1, innerWidth)); svg.setAttribute('viewBox', `${MCX - VW / 2} ${-VH / 2} ${VW} ${VH}`); };
+    fit(); addEventListener('resize', fit);
+
+    const dashTo = (node, len, p) => { node.setAttribute('visibility', p <= 0.0005 ? 'hidden' : 'visible'); node.setAttribute('stroke-dashoffset', (len * (1 - p)).toFixed(1)); };
+    const arcD = (ox, a0, a1) => {
+      const x0 = ox + R * Math.cos(a0), y0 = -R * Math.sin(a0), x1 = ox + R * Math.cos(a1), y1 = -R * Math.sin(a1);
+      return `M${x0.toFixed(2)} ${y0.toFixed(2)}A${R} ${R} 0 ${a1 - a0 > Math.PI ? 1 : 0} 0 ${x1.toFixed(2)} ${y1.toFixed(2)}`;
+    };
+    const guides = [], wordArcs = [];
+    ['e', 's', 'a'].forEach((key, i) => {
+      const ox = i * 2 * R;
+      guides.push(svg.appendChild(svgEl('circle', { cx: ox, cy: 0, r: R, fill: 'none', stroke: 'currentColor', 'stroke-width': 3,
+        'stroke-dasharray': CIRC.toFixed(1), 'stroke-dashoffset': CIRC.toFixed(1), opacity: '0', visibility: 'hidden' })));
+      RUNS[key].forEach((runSpec) => {
+        const a0 = runSpec[0] * TAU / 8, a1 = (runSpec[0] + runSpec[1]) * TAU / 8, len = (a1 - a0) * R;
+        wordArcs.push({ el: svg.appendChild(svgEl('path', { d: arcD(ox, a0, a1), fill: 'none', stroke: 'currentColor', 'stroke-width': WORD_W,
+          'stroke-linecap': 'round', 'stroke-dasharray': `${len} ${len + 2}`, 'stroke-dashoffset': len, visibility: 'hidden' })), len });
+      });
+    });
+    const wordBar = svg.appendChild(svgEl('path', { d: `M${X0} 0 L${X1} 0`, fill: 'none', stroke: 'currentColor', 'stroke-width': WORD_W,
+      'stroke-linecap': 'round', 'stroke-dasharray': `${MW} ${MW + 2}`, 'stroke-dashoffset': MW, visibility: 'hidden' }));
+
+    const T_ARC = 1.15, T_BAR = 1.95, T_FADE = 2.10, T_END = 3.40, U_PAGE = 2.10;
+    function drawBuild(e) {
+      const fade = clamp01((e - T_FADE) / 0.75);
+      guides.forEach((g, i) => { const p = ease((e - i * 0.12) / 0.70); dashTo(g, CIRC, p); g.setAttribute('opacity', (0.30 * p * (1 - fade)).toFixed(3)); });
+      const ap = ease((e - T_ARC) / 0.70);
+      wordArcs.forEach((s) => dashTo(s.el, s.len, ap));
+      dashTo(wordBar, MW, ease((e - T_BAR) / 1.30));
+    }
+    function drawUnbuild(t) {
+      const barOut = ease(t / 0.80), scafIn = ease((t - 0.30) / 0.55), arcOut = ease((t - 0.80) / 0.60), close = ease((t - 1.35) / 0.70);
+      dashTo(wordBar, MW, 1 - barOut);
+      wordArcs.forEach((s) => dashTo(s.el, s.len, 1 - arcOut));
+      guides.forEach((g) => { dashTo(g, CIRC, 1 - close); g.setAttribute('opacity', (0.30 * scafIn * (1 - close)).toFixed(3)); });
+    }
+
+    const t0 = now(); let phase = 'build', pt0 = 0;
+    landingFrame = (t) => {
+      if (phase === 'build') { const e = t - t0; drawBuild(e); if (e > T_END) stage.classList.add('is-ready'); return; }
+      const pe = t - pt0;
+      drawUnbuild(pe);
+      if (pe > 0.9) stage.classList.add('is-leaving');
+      if (pe >= U_PAGE) beginPage();
+      if (pe > U_PAGE + 0.4) { landingFrame = null; stage.remove(); removeEventListener('resize', fit); }
+    };
+    function trigger() {
+      if (phase !== 'build') return;
+      drawBuild(T_END);
+      phase = 'exit'; pt0 = now();
+      stage.classList.add('is-ready');
+      try { sessionStorage.setItem(SEEN_KEY, '1'); } catch (e) {}
+    }
+    stage.addEventListener('click', trigger);
+    stage.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); trigger(); } });
+    addEventListener('wheel', trigger, { once: true, passive: true });
+    stage.focus({ preventScroll: true });
+  })();
+
   let lastFrame = 0;
-  (function tick() { const t = now(); if (!document.hidden && t - lastFrame > 1 / 45) { drawNav(t); drawOutline(t); lastFrame = t; } if (!reduced) requestAnimationFrame(tick); else setTimeout(() => { drawNav(now()); drawOutline(now()); }, 60); })();
+  (function tick() { const t = now(); if (!document.hidden && t - lastFrame > 1 / 45) { if (landingFrame) landingFrame(t); drawNav(t); drawOutline(t); lastFrame = t; } if (!reduced) requestAnimationFrame(tick); else setTimeout(() => { drawNav(now()); drawOutline(now()); }, 60); })();
 
   // =================================================================
   // State, logging, AI availability
