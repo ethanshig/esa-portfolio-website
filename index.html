@@ -98,7 +98,9 @@ main { padding-block: calc(var(--L) * 0.6) var(--L); }
 /* ---------- the story: the drawing is the page; the words sit on a sheet of trace over it ---------- */
 body[data-view="scene"] { overflow: hidden; height: 100vh; height: 100dvh; }
 body[data-view="scene"] .nav { position: fixed; inset: 0 0 auto 0; margin: 0; background: transparent; pointer-events: none; }
-body[data-view="scene"] .nav button { pointer-events: auto; }
+/* The bar itself stays transparent so the drawing can be dragged under it; everything
+   you can actually press takes its clicks back, links included. */
+body[data-view="scene"] .nav button, body[data-view="scene"] .nav a { pointer-events: auto; }
 body[data-view="scene"] .nav .casing { opacity: 0.9; }
 body[data-view="scene"] main { padding: 0; }
 .scrim { position: fixed; inset: 0 0 auto 0; z-index: 2; height: calc(var(--nav-h) * 1.7); pointer-events: none; background: linear-gradient(to bottom, color-mix(in srgb, var(--ground) 72%, transparent), color-mix(in srgb, var(--ground) 0%, transparent)); }
