@@ -55,6 +55,10 @@ const html = template
   .replace('/*BUILD:WORLD*/', JSON.stringify(world, null, 1));
 writeFileSync(join(root, 'index.html'), html);
 
+// The narrator function reads the world from its own folder: Vercel bundles each
+// function separately, and a require that climbs out of api/ may not be shipped.
+writeFileSync(join(root, 'api/adventure/world.json'), JSON.stringify(world, null, 1) + '\n');
+
 console.log(`built index.html: ${projects.length} projects, ${Object.keys(compiled.facts).length} facts, ` +
   `${Object.keys(world.settings).length} places, ${Object.keys(world.scenes).length} scenes, ${Object.keys(world.media).length} media`);
 console.log(`records compiled at ${compiled.generatedAt}`);

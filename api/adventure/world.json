@@ -1,0 +1,1108 @@
+{
+ "settings": {
+  "pilar": {
+   "place": "Río Paraguay",
+   "region": "Pilar, Paraguay",
+   "lure": "Follow the Arroyo Ñeembucú down to where it meets the big river.",
+   "holds": "Fieldwork · 2024",
+   "start": "pilar-1",
+   "tags": [
+    "ecology",
+    "research",
+    "fieldwork",
+    "water"
+   ],
+   "truth": "Pilar is a small city in far south-western Paraguay, on the east bank of the Río Paraguay, where the Arroyo Ñeembucú runs into it; Argentina is across the river. Hot, humid, low wetland country. The river runs wide and brown. A riverfront development, the Costanera, was being built along the city in 2024.",
+   "travel": [
+    "You and Ethan follow the water south, a long way south, until the air turns thick and warm.",
+    "A wide brown river opens up ahead. The Arroyo Ñeembucú pours into it here, at Pilar."
+   ],
+   "theme": {
+    "ground": "#eadfcc",
+    "stage": "#e1d3bb",
+    "ink": "#2a2119",
+    "muted": "#7a6a58",
+    "line": "rgba(42,33,25,.22)",
+    "accent": "#6a58a6",
+    "note": "River silt and brown water; the accent is the violet of camalote (water hyacinth) drifting on the Río Paraguay."
+   }
+  },
+  "kankakee": {
+   "place": "Kankakee Marsh",
+   "region": "Illinois and Indiana",
+   "lure": "Wade into a corner of the marsh the drainage ditches missed.",
+   "holds": "Studio · 2025",
+   "start": "kankakee-1",
+   "tags": [
+    "architecture",
+    "ecology",
+    "making",
+    "animals",
+    "water"
+   ],
+   "truth": "The Grand Kankakee Marsh once spread across north-west Indiana and north-east Illinois along the Kankakee River. People drained most of it for farmland in the late 1800s and early 1900s, digging ditches and straightening the river in Indiana. Restored patches of cattail, sedge and open water remain. Beavers once shaped much of this landscape.",
+   "travel": [
+    "You and Ethan follow the water north until the fields are cut by ditches running dead straight.",
+    "Past the last ditch, the ground goes soft and the cattails start. This is the Kankakee Marsh."
+   ],
+   "theme": {
+    "ground": "#dfe3d7",
+    "stage": "#d4d9cb",
+    "ink": "#1b231d",
+    "muted": "#5d695f",
+    "line": "rgba(27,35,29,.22)",
+    "accent": "#85562c",
+    "note": "Sedge grey-green; the accent is cattail brown."
+   }
+  },
+  "champaign": {
+   "place": "Champaign-Urbana",
+   "region": "The Grand Prairie, Illinois",
+   "lure": "Walk in across the flat fields to a college town where the designs are part of daily life.",
+   "holds": "Materials · 2025",
+   "start": "champaign-1",
+   "tags": [
+    "materials",
+    "building science",
+    "making",
+    "architecture",
+    "play",
+    "collaboration"
+   ],
+   "truth": "Twin cities in east-central Illinois, surrounded by flat farmland of corn and soybeans that was once tallgrass prairie. Grain elevators on the horizon. Climate zone 5: hot summers, cold winters. Home of the University of Illinois Urbana-Champaign.",
+   "travel": [
+    "You and Ethan drive out across flat country, corn on one side and soybeans on the other.",
+    "Grain elevators rise ahead. Champaign sits in the middle of the fields."
+   ],
+   "theme": {
+    "ground": "#ede3c6",
+    "stage": "#e3d6b2",
+    "ink": "#1f1b13",
+    "muted": "#6e6550",
+    "line": "rgba(31,27,19,.22)",
+    "accent": "#a3412b",
+    "note": "Straw bale; the accent is the brick of the third little house."
+   }
+  },
+  "east-chicago": {
+   "place": "East Chicago",
+   "region": "The Calumet, Indiana",
+   "lure": "Walk out onto ground a plant poisoned, where the dunes are coming back.",
+   "holds": "Studio · 2025",
+   "start": "east-chicago-1",
+   "tags": [
+    "architecture",
+    "ecology",
+    "research",
+    "making",
+    "water"
+   ],
+   "truth": "East Chicago sits in the Calumet, the industrial edge of Lake Michigan in north-west Indiana. Oak savanna, dunes and swales covered this ground before the mills came. The USS Lead plant left lead and arsenic in the soil, and the site became a Superfund site. Canals and channels cut the land, and the west wind comes in off the lake.",
+   "travel": [
+    "You and Ethan drive north-east until the horizon fills with stacks and tank farms.",
+    "The road drops toward the lake, and the ground here remembers what was poured into it."
+   ],
+   "theme": {
+    "ground": "#dcd8d0",
+    "stage": "#cfcac1",
+    "ink": "#1d1a17",
+    "muted": "#625d55",
+    "line": "rgba(29,26,23,.22)",
+    "accent": "#4f7f6f",
+    "note": "Slag grey and pale sand; the accent is the green that comes back up through it."
+   }
+  }
+ },
+ "scenes": {
+  "pilar-1": {
+   "setting": "pilar",
+   "title": "Wading depth",
+   "factIds": [
+    "plt-method",
+    "plt-where"
+   ],
+   "tags": [
+    "fieldwork",
+    "research",
+    "water"
+   ],
+   "choices": [
+    {
+     "go": "pilar-2",
+     "label": "Ask what the fish are for"
+    },
+    {
+     "ask": "How do you catch them?"
+    }
+   ],
+   "meet": [
+    "You come down the Arroyo Ñeembucú to where it pours into the Río Paraguay.",
+    "The big river runs wide and brown past Pilar, with Argentina on the far bank.",
+    "Near the shore, someone stands knee-deep in the current, walking a measured line upstream.",
+    "Ten meters. A pause. Ten meters again.",
+    "You call down, “What are you doing down there?”",
+    "“Sampling for fish!”",
+    "The figure wades out and offers you a wet hand. “Ethan.”"
+   ],
+   "with": [
+    "The big river runs wide and brown past Pilar, with Argentina on the far bank.",
+    "Ethan wades in to the knees and starts walking a measured line upstream.",
+    "Ten meters. A pause. Ten meters again.",
+    "“Sampling for fish,” Ethan calls back over the current."
+   ],
+   "stage": {
+    "meet": [
+     [
+      0,
+      "plt-canoe"
+     ]
+    ],
+    "with": [
+     [
+      0,
+      "plt-canoe"
+     ]
+    ]
+   },
+   "records": {
+    "meet": {
+     "2": [
+      "plt-method"
+     ],
+     "3": [
+      "plt-method"
+     ],
+     "5": [
+      "plt-where",
+      "plt-question"
+     ]
+    },
+    "with": {
+     "1": [
+      "plt-method"
+     ],
+     "2": [
+      "plt-method"
+     ],
+     "3": [
+      "plt-where",
+      "plt-question"
+     ]
+    }
+   }
+  },
+  "pilar-2": {
+   "setting": "pilar",
+   "title": "A before that never arrived",
+   "lines": [
+    "Ethan hands you a folded pamphlet with wet edges.",
+    "Up the bank, the Costanera is going up along the city, built to protect Pilar and the people in it.",
+    "The question in the pamphlet: had the fish and the insects in the water already felt it?",
+    "Ethan has underlined one note twice.",
+    "One day the water dropped, the fish crowded into what remained, and the shallows warmed.",
+    "The before belonged to the municipality of Pilar, and the municipality never shared it.",
+    "So the pamphlet holds only the after: 6,569 fish from more than forty species."
+   ],
+   "factIds": [
+    "plt-costanera-purpose",
+    "plt-question",
+    "plt-low-water",
+    "plt-baseline",
+    "plt-count"
+   ],
+   "tags": [
+    "research",
+    "ecology",
+    "water"
+   ],
+   "choices": [
+    {
+     "ask": "What was hardest about the work?"
+    },
+    {
+     "go": "kankakee-1",
+     "label": "Follow the water north with Ethan"
+    },
+    {
+     "go": "champaign-1",
+     "label": "Ask Ethan what he builds"
+    }
+   ],
+   "stage": {
+    "lines": [
+     [
+      0,
+      "plt-poster"
+     ],
+     [
+      6,
+      "plt-piranha"
+     ]
+    ]
+   },
+   "records": {
+    "lines": {
+     "1": [
+      "plt-costanera-purpose"
+     ],
+     "2": [
+      "plt-question"
+     ],
+     "4": [
+      "plt-low-water"
+     ],
+     "5": [
+      "plt-baseline"
+     ],
+     "6": [
+      "plt-count"
+     ]
+    }
+   }
+  },
+  "kankakee-1": {
+   "setting": "kankakee",
+   "title": "Someone gathering",
+   "factIds": [
+    "bb-marsh",
+    "bb-wearable",
+    "bb-embody"
+   ],
+   "tags": [
+    "architecture",
+    "making",
+    "animals"
+   ],
+   "choices": [
+    {
+     "go": "kankakee-2",
+     "label": "Take the spare frame and help"
+    },
+    {
+     "ask": "Why a figure eight?"
+    }
+   ],
+   "meet": [
+    "The Kankakee River runs straight here, because people dug it straight.",
+    "Off the ditch bank, a patch of the old marsh has come back: cattails, standing water, the smell of mud.",
+    "Out in the shallows, someone is bent double under a frame of bent wire, pulling sticks from the water.",
+    "Two loops cross over their back, like a figure eight lying on its side.",
+    "One loop holds the body. The other fills with whatever the body gathers.",
+    "The figure straightens up and wades over. “Ethan.”",
+    "“Dam materials,” Ethan says, lifting the full loop. “This is how a beaver spends the day.”"
+   ],
+   "with": [
+    "Off the ditch bank, a patch of the old marsh has come back: cattails, standing water, the smell of mud.",
+    "Ethan pulls a frame of bent wire off the truck bed, shrugs into it, and wades into the shallows.",
+    "Two loops cross over the back, like a figure eight lying on its side.",
+    "One loop holds the body. The other fills with whatever the body gathers.",
+    "“Dam materials,” Ethan says, lifting a full loop of sticks. “This is how a beaver spends the day.”"
+   ],
+   "stage": {
+    "meet": [
+     [
+      0,
+      "bb-landscape"
+     ],
+     [
+      2,
+      "bb-standing"
+     ]
+    ],
+    "with": [
+     [
+      0,
+      "bb-landscape"
+     ],
+     [
+      1,
+      "bb-standing"
+     ]
+    ]
+   },
+   "records": {
+    "meet": {
+     "3": [
+      "bb-wearable"
+     ],
+     "4": [
+      "bb-wearable"
+     ],
+     "6": [
+      "bb-embody",
+      "bb-wearable"
+     ]
+    },
+    "with": {
+     "2": [
+      "bb-wearable"
+     ],
+     "3": [
+      "bb-wearable"
+     ],
+     "4": [
+      "bb-embody",
+      "bb-wearable"
+     ]
+    }
+   }
+  },
+  "kankakee-2": {
+   "setting": "kankakee",
+   "title": "Carrying it",
+   "lines": [
+    "Ethan hands you a spare frame, and it settles over your shoulders.",
+    "You crouch the way Ethan does. The second loop drags through the mud behind you.",
+    "Ethan has worn one at full scale through all of it: standing, crouching, crawling, swimming.",
+    "Downstream, a small rowing boat turns a waterwheel and pulls invasive plants off the bank.",
+    "On the far bank, boxes the size of shipping containers hold back water, and a researcher climbs out of one with a clipboard.",
+    "Past the boat, somebody else is building. A dam of sticks and mud crosses the channel."
+   ],
+   "factIds": [
+    "bb-full-scale",
+    "bb-catamaraft",
+    "bb-containers"
+   ],
+   "tags": [
+    "making",
+    "animals",
+    "architecture"
+   ],
+   "choices": [
+    {
+     "go": "kankakee-3",
+     "label": "Look at the dam"
+    },
+    {
+     "ask": "What was the studio brief?"
+    }
+   ],
+   "stage": {
+    "lines": [
+     [
+      0,
+      "bb-crawling"
+     ],
+     [
+      2,
+      "bb-loop"
+     ],
+     [
+      3,
+      "bb-catamaraft"
+     ],
+     [
+      4,
+      "bb-landscape"
+     ]
+    ]
+   },
+   "records": {
+    "lines": {
+     "2": [
+      "bb-full-scale"
+     ],
+     "3": [
+      "bb-catamaraft"
+     ],
+     "4": [
+      "bb-containers"
+     ]
+    }
+   }
+  },
+  "kankakee-3": {
+   "setting": "kankakee",
+   "title": "The other builder",
+   "lines": [
+    "A beaver built every part of this dam.",
+    "Ethan documented one the way you would document a building, in a booklet.",
+    "The foundation is branches driven into the streambed and angled upstream, so the water presses the wall tight.",
+    "Mud comes from just upstream. Where wood runs short, rocks. Now and then, an old beaver trap.",
+    "The assignment asked where a device’s parts come from, and it assumed the maker was human. Ethan traced a beaver instead."
+   ],
+   "factIds": [
+    "gbd-what",
+    "gbd-foundation",
+    "gbd-materials",
+    "gbd-assignment"
+   ],
+   "tags": [
+    "animals",
+    "research",
+    "making"
+   ],
+   "choices": [
+    {
+     "ask": "Why do some dams curve?"
+    },
+    {
+     "go": "east-chicago-1",
+     "label": "Follow the water east to poisoned ground"
+    },
+    {
+     "go": "champaign-1",
+     "label": "Drive south with Ethan to the prairie"
+    },
+    {
+     "go": "pilar-1",
+     "label": "Follow the water south to Paraguay"
+    }
+   ],
+   "stage": {
+    "lines": [
+     [
+      0,
+      "gbd-cover"
+     ],
+     [
+      2,
+      "gbd-section"
+     ],
+     [
+      3,
+      "gbd-materials"
+     ]
+    ]
+   },
+   "records": {
+    "lines": {
+     "1": [
+      "gbd-what"
+     ],
+     "2": [
+      "gbd-foundation"
+     ],
+     "3": [
+      "gbd-materials"
+     ],
+     "4": [
+      "gbd-assignment"
+     ]
+    }
+   }
+  },
+  "champaign-1": {
+   "setting": "champaign",
+   "title": "The house that stays up",
+   "factIds": [
+    "tlp-site",
+    "tlp-three-pigs",
+    "tlp-rvalue"
+   ],
+   "tags": [
+    "materials",
+    "building science",
+    "play"
+   ],
+   "choices": [
+    {
+     "go": "champaign-2",
+     "label": "Walk over to campus with Ethan"
+    },
+    {
+     "ask": "Who taught the class?"
+    }
+   ],
+   "meet": [
+    "The fields run flat to every horizon, and Champaign sits in the middle of them.",
+    "Winters here get cold enough that a wall has to earn its keep.",
+    "At the edge of town stands a house built of straw, sticks and brick, all at once.",
+    "You knock. Nothing falls down.",
+    "The door opens, and a hand comes out to shake yours. “Ethan.”",
+    "Inside the walls: stick framing and straw bales, with brick on the outside.",
+    "It is January, and the living room is warm.",
+    "The straw comes out at R-52.",
+    "The wolf is going to need a better plan."
+   ],
+   "with": [
+    "Winters here get cold enough that a wall has to earn its keep.",
+    "Ethan stops the car at the edge of town, in front of a house built of straw, sticks and brick, all at once.",
+    "You knock. Nothing falls down.",
+    "Inside the walls: stick framing and straw bales, with brick on the outside.",
+    "It is January, and the living room is warm.",
+    "The straw comes out at R-52.",
+    "The wolf is going to need a better plan."
+   ],
+   "stage": {
+    "meet": [
+     [
+      0,
+      "tlp-axon"
+     ],
+     [
+      5,
+      "tlp-section"
+     ]
+    ],
+    "with": [
+     [
+      0,
+      "tlp-axon"
+     ],
+     [
+      3,
+      "tlp-section"
+     ]
+    ]
+   },
+   "records": {
+    "meet": {
+     "1": [
+      "tlp-site"
+     ],
+     "5": [
+      "tlp-three-pigs"
+     ],
+     "7": [
+      "tlp-rvalue"
+     ]
+    },
+    "with": {
+     "0": [
+      "tlp-site"
+     ],
+     "3": [
+      "tlp-three-pigs"
+     ],
+     "5": [
+      "tlp-rvalue"
+     ]
+    }
+   }
+  },
+  "champaign-2": {
+   "setting": "champaign",
+   "title": "Lunch in a grown box",
+   "lines": [
+    "Across campus, students carry takeout in brown, grown boxes, and Ethan grabs you a soup.",
+    "Soup comes in a round Mylo container with a lid. Drinks come in a Mylo cup.",
+    "The boxes are mycelium, grown in molds made from 3D prints, silicone and containers that already existed.",
+    "Six students grew the first ones and named the mycelium Mylo, because Mylo goes with to-go.",
+    "Early on, they tried growing solo cups inside solo cups. The mycelium ran out of air.",
+    "Somebody’s water bottle has a Mylo sticker on it."
+   ],
+   "factIds": [
+    "mylo-what",
+    "mylo-products",
+    "mylo-team",
+    "mylo-name",
+    "mylo-molds",
+    "mylo-solo-cups",
+    "mylo-stickers"
+   ],
+   "tags": [
+    "materials",
+    "collaboration",
+    "play",
+    "making"
+   ],
+   "choices": [
+    {
+     "ask": "What did Ethan do on the team?"
+    },
+    {
+     "go": "kankakee-1",
+     "label": "Drive north with Ethan to the marsh"
+    },
+    {
+     "go": "pilar-1",
+     "label": "Follow Ethan south to a river in Paraguay"
+    }
+   ],
+   "stage": {
+    "lines": [
+     [
+      0,
+      "mylo-picnic"
+     ],
+     [
+      3,
+      "mylo-poster"
+     ],
+     [
+      5,
+      "mylo-logo"
+     ]
+    ]
+   },
+   "records": {
+    "lines": {
+     "1": [
+      "mylo-products"
+     ],
+     "2": [
+      "mylo-molds"
+     ],
+     "3": [
+      "mylo-team",
+      "mylo-name"
+     ],
+     "4": [
+      "mylo-solo-cups"
+     ]
+    }
+   }
+  },
+  "east-chicago-1": {
+   "setting": "east-chicago",
+   "title": "The ground that remembers",
+   "factIds": [
+    "a273-lead-source",
+    "a273-site",
+    "a273-studio"
+   ],
+   "tags": [
+    "research",
+    "ecology",
+    "architecture"
+   ],
+   "choices": [
+    {
+     "go": "east-chicago-2",
+     "label": "Look at the map Ethan is holding"
+    },
+    {
+     "ask": "What is in the soil here?"
+    }
+   ],
+   "meet": [
+    "Sand crosses the road here in low fingers, and nobody sweeps it back.",
+    "Past the fence line the ground opens flat and grey, where a plant used to stand.",
+    "The USS Lead plant put the lead in this soil.",
+    "Out at the edge of the swale someone kneels with a soil probe and a printed map.",
+    "The figure stands and holds out a hand. “Ethan.”",
+    "“East Chicago. The whole site is a Superfund site.”"
+   ],
+   "with": [
+    "Sand crosses the road here in low fingers, and nobody sweeps it back.",
+    "Ethan walks out to the edge of the swale and crouches with a soil probe.",
+    "“The plant put the lead in this ground.”",
+    "“The studio handed eight of us eight Superfund sites, and I took this one.”"
+   ],
+   "stage": {
+    "meet": [
+     [
+      0,
+      "a273-atlas"
+     ],
+     [
+      3,
+      "a273-board"
+     ]
+    ],
+    "with": [
+     [
+      0,
+      "a273-atlas"
+     ]
+    ]
+   },
+   "records": {
+    "meet": {
+     "2": [
+      "a273-lead-source"
+     ],
+     "5": [
+      "a273-site"
+     ]
+    },
+    "with": {
+     "2": [
+      "a273-lead-source"
+     ],
+     "3": [
+      "a273-studio",
+      "a273-site"
+     ]
+    }
+   }
+  },
+  "east-chicago-2": {
+   "setting": "east-chicago",
+   "title": "A map where time runs sideways",
+   "lines": [
+    "The map is three feet square and black, and it takes both of you to hold it open.",
+    "It follows this ground from oak savanna to now, and on into futures.",
+    "Time runs on a light cone: past and future open from one point, the present.",
+    "Along a diagonal band, soil samples record lead and arsenic across the site's zones.",
+    "“It borrows the lemniscate too. I keep coming back to that shape.”",
+    "“The plants do the cleaning. Roots pulling the metals back out.”",
+    "“And the aim is dunes and swales again, the way this place was.”"
+   ],
+   "factIds": [
+    "a273-atlas",
+    "a273-light-cone",
+    "a273-contaminants",
+    "a273-phyto",
+    "a273-dunes"
+   ],
+   "tags": [
+    "research",
+    "ecology",
+    "making"
+   ],
+   "choices": [
+    {
+     "go": "east-chicago-3",
+     "label": "Ask what he built out here"
+    },
+    {
+     "ask": "What is a light cone?"
+    },
+    {
+     "go": "kankakee-1",
+     "label": "Follow the water west with Ethan"
+    }
+   ],
+   "stage": {
+    "lines": [
+     [
+      0,
+      "a273-atlas"
+     ],
+     [
+      4,
+      "a273-atlas"
+     ]
+    ]
+   },
+   "records": {
+    "lines": {
+     "1": [
+      "a273-atlas"
+     ],
+     "2": [
+      "a273-light-cone"
+     ],
+     "3": [
+      "a273-contaminants"
+     ],
+     "5": [
+      "a273-phyto"
+     ],
+     "6": [
+      "a273-dunes"
+     ]
+    }
+   }
+  },
+  "east-chicago-3": {
+   "setting": "east-chicago",
+   "title": "The village that grows dunes",
+   "lines": [
+    "Out on the sand, white forms lean into the wind, each one already half buried.",
+    "The channels cut through this region set the question, and a leaning gable was the answer.",
+    "Together the gables became the EcoLounge Village.",
+    "The building types take after the Dutch dikes: Guardian, Dreamer, Sleeper.",
+    "Guardians are the anchors that dunes build up on.",
+    "Dreamers hold utilities and storage, and Sleepers connect and support.",
+    "Each one is shaped and turned so sand gathers on it and the dune rebuilds itself.",
+    "The dunes are made of remediated soil, carried out of the swales and channels.",
+    "Inside, people do the work that keeps the dunes growing and the soil clearing."
+   ],
+   "factIds": [
+    "a273-gables",
+    "a273-village",
+    "a273-dikes",
+    "a273-guardians",
+    "a273-dreamers",
+    "a273-sleepers",
+    "a273-dune-growth",
+    "a273-dune-soil",
+    "a273-stewardship"
+   ],
+   "tags": [
+    "architecture",
+    "making",
+    "ecology"
+   ],
+   "choices": [
+    {
+     "ask": "Who is Hazel?"
+    },
+    {
+     "ask": "How would someone read this without seeing it?"
+    },
+    {
+     "go": "champaign-1",
+     "label": "Drive south with Ethan to the prairie"
+    },
+    {
+     "go": "kankakee-1",
+     "label": "Follow the water west with Ethan"
+    }
+   ],
+   "stage": {
+    "lines": [
+     [
+      0,
+      "a273-gable"
+     ],
+     [
+      1,
+      "a273-board"
+     ],
+     [
+      6,
+      "a273-gable"
+     ]
+    ]
+   },
+   "records": {
+    "lines": {
+     "1": [
+      "a273-gables"
+     ],
+     "2": [
+      "a273-village"
+     ],
+     "3": [
+      "a273-dikes"
+     ],
+     "4": [
+      "a273-guardians"
+     ],
+     "5": [
+      "a273-dreamers",
+      "a273-sleepers"
+     ],
+     "6": [
+      "a273-dune-growth"
+     ],
+     "7": [
+      "a273-dune-soil"
+     ],
+     "8": [
+      "a273-stewardship"
+     ]
+    }
+   }
+  }
+ },
+ "interests": [
+  "architecture",
+  "ecology",
+  "materials",
+  "building science",
+  "making",
+  "research",
+  "fieldwork",
+  "animals",
+  "water",
+  "play",
+  "collaboration"
+ ],
+ "media": {
+  "plt-canoe": {
+   "src": "images/tour/plt-canoe.jpg",
+   "kind": "image",
+   "project": "para-la-tierra",
+   "label": "Line-traced photo, Pilar",
+   "alt": "A photo traced with bold outlines: a small boat moored beside a grassy riverbank reinforced with a concrete grid, under a cloudy sky.",
+   "w": 1060,
+   "h": 795,
+   "fit": "cover"
+  },
+  "plt-poster": {
+   "src": "images/tour/plt-poster.jpg",
+   "kind": "image",
+   "project": "para-la-tierra",
+   "label": "Research poster",
+   "alt": "Research poster titled \"Anthropogenic Effects of Construction on Freshwater Aquatic Biodiversity\" with the Para La Tierra logo: study objectives, hypothesis and methods, a photo of two people seining in shallow water, a table of fish counts by site, and two stacked bar charts of fish caught at each site.",
+   "w": 1600,
+   "h": 1131,
+   "fit": "contain"
+  },
+  "plt-piranha": {
+   "src": "images/tour/plt-piranha.jpg",
+   "kind": "image",
+   "project": "para-la-tierra",
+   "label": "Specimen photo",
+   "alt": "A small spotted piranha lying on a white mesh board beneath a ruler, photographed for identification, with the date and GPS coordinates stamped along the edge.",
+   "w": 1600,
+   "h": 1200,
+   "fit": "cover"
+  },
+  "plt-mugshot": {
+   "src": "images/tour/plt-mugshot.jpg",
+   "kind": "image",
+   "project": "para-la-tierra",
+   "label": "Fish “mugshot”",
+   "alt": "A sepia booking photo of a fish in profile, holding a placard that reads \"PARALATIERRA 53263\".",
+   "w": 202,
+   "h": 247,
+   "fit": "contain"
+  },
+  "bb-standing": {
+   "src": "images/tour/bb-standing.jpg",
+   "kind": "image",
+   "project": "beavers-burden",
+   "label": "Standing",
+   "alt": "Black-and-white collage: Ethan stands in front of drawn marsh grass wearing a large woven wire shell on their back, which trails behind them into a long tapered net resting on the ground.",
+   "w": 1600,
+   "h": 1035,
+   "fit": "cover"
+  },
+  "bb-crawling": {
+   "src": "images/tour/bb-crawling.jpg",
+   "kind": "image",
+   "project": "beavers-burden",
+   "label": "Crawling",
+   "alt": "The wearer crawls on hands and knees through drawn marsh grass, the wire shell covering their back like a carapace and the net trailing behind.",
+   "w": 1600,
+   "h": 1035,
+   "fit": "cover"
+  },
+  "bb-loop": {
+   "src": "images/tour/bb-loop.mp4",
+   "kind": "video",
+   "project": "beavers-burden",
+   "label": "Wearable, stop-motion loop",
+   "alt": "A one-minute stop-motion loop in black and white: Ethan, traced as a white outline over photographs, wears the full-scale wire wearable and moves from standing to crouching, crawling and swimming in front of drawn marsh grass.",
+   "w": 960,
+   "h": 540,
+   "fit": "cover"
+  },
+  "bb-catamaraft": {
+   "src": "images/tour/bb-catamaraft.jpg",
+   "kind": "image",
+   "project": "beavers-burden",
+   "label": "Catama-raft, model",
+   "alt": "A small boat model on a pale grey backdrop: a folded white paper hull, a black wire frame rising over the stern, fine netting strung between the wires, and a length of tan twine trailing to a hook at the bow. A tiny white figure sits in the middle.",
+   "w": 1600,
+   "h": 1067,
+   "fit": "cover"
+  },
+  "bb-landscape": {
+   "src": "images/tour/bb-landscape.jpg",
+   "kind": "image",
+   "project": "beavers-burden",
+   "label": "Landscape axonometric",
+   "alt": "A tall axonometric landscape in pale blue and grey. Boardwalks of dark posts loop across it in circles and figure-eights, joining a field at the top, a band of bare winter trees, open water with small greenhouse-like structures, and a marsh at the bottom dotted with shipping-container-sized boxes in purple, brown and green.",
+   "w": 533,
+   "h": 1600,
+   "fit": "contain"
+  },
+  "gbd-cover": {
+   "src": "images/tour/gbd-cover.jpg",
+   "kind": "image",
+   "project": "genealogy-of-a-beaver-dam",
+   "label": "Booklet, title page",
+   "alt": "Booklet title page: the words Genealogy of a Beaver Dam over a photograph of a beaver dam.",
+   "w": 1540,
+   "h": 1190,
+   "fit": "contain"
+  },
+  "gbd-materials": {
+   "src": "images/tour/gbd-materials.jpg",
+   "kind": "image",
+   "project": "genealogy-of-a-beaver-dam",
+   "label": "Booklet, materials",
+   "alt": "Booklet page: a collage of dam materials, including mud, rocks, reeds, a gnawed log and a piece of blue plastic.",
+   "w": 1540,
+   "h": 1190,
+   "fit": "contain"
+  },
+  "gbd-plan": {
+   "src": "images/tour/gbd-plan.jpg",
+   "kind": "image",
+   "project": "genealogy-of-a-beaver-dam",
+   "label": "Booklet, dam shapes",
+   "alt": "Booklet page: a plan diagram comparing arched dams in fast water with straight dams in slow water.",
+   "w": 1540,
+   "h": 1190,
+   "fit": "contain"
+  },
+  "gbd-section": {
+   "src": "images/tour/gbd-section.jpg",
+   "kind": "image",
+   "project": "genealogy-of-a-beaver-dam",
+   "label": "Booklet, foundation",
+   "alt": "Booklet page titled Foundation: a section through a stream bed where branches and logs are driven in and angled upstream, with packed mud and stones at the base and a beaver swimming past.",
+   "w": 1540,
+   "h": 1190,
+   "fit": "contain"
+  },
+  "tlp-axon": {
+   "src": "images/tour/tlp-axon.jpg",
+   "kind": "image",
+   "project": "three-little-pigs",
+   "label": "Cutaway axonometric",
+   "alt": "Cutaway axonometric of a wall corner, peeled back layer by layer from brick veneer and board siding through yellow straw bale insulation to the stud frame, slab and concrete foundation, with every layer labeled.",
+   "w": 1600,
+   "h": 1035,
+   "fit": "contain"
+  },
+  "tlp-section": {
+   "src": "images/tour/tlp-section.jpg",
+   "kind": "image",
+   "project": "three-little-pigs",
+   "label": "Wall section",
+   "alt": "Wall section from the foundation footing up to the double top plate: a thick yellow band of straw bale insulation sits on a concrete pony wall, with labeled layers on both sides.",
+   "w": 1600,
+   "h": 1141,
+   "fit": "contain"
+  },
+  "mylo-picnic": {
+   "src": "images/tour/mylo-picnic.jpg",
+   "kind": "image",
+   "project": "mylo-to-go",
+   "label": "Picnic photoshoot",
+   "alt": "A picnic on red gingham: a mycelium takeout box holding a burger, a mycelium bowl of fruit, wooden utensils and ivy, with hands reaching in for a glass and an apple.",
+   "w": 1600,
+   "h": 1067,
+   "fit": "cover"
+  },
+  "mylo-poster": {
+   "src": "images/tour/mylo-poster.jpg",
+   "kind": "image",
+   "project": "mylo-to-go",
+   "label": "Poster",
+   "alt": "Poster reading \"mylo, rooted in nature\" in dark green above a round, ribbed mycelium container on a wooden board, surrounded by mushrooms and ivy leaves.",
+   "w": 1108,
+   "h": 1600,
+   "fit": "contain"
+  },
+  "mylo-logo": {
+   "src": "images/tour/mylo-logo.jpg",
+   "kind": "image",
+   "project": "mylo-to-go",
+   "label": "Logo",
+   "alt": "Illustrated logo: a green takeout container sprouting pale mushrooms, labeled \"MYLO to go\".",
+   "w": 1600,
+   "h": 1600,
+   "fit": "contain"
+  },
+  "a273-atlas": {
+   "src": "images/tour/a273-atlas.jpg",
+   "kind": "image",
+   "project": "uss-lead-revival",
+   "label": "Temporal site atlas",
+   "alt": "A square black atlas: a diagonal timeline band crosses from corner to corner; at the centre a point of light opens into purple, green, blue, orange, red and yellow cones toward the upper right, surrounded by collaged birds, trees, a wind turbine, a figure in a gas mask, marsh vegetation, axonometric buildings and atomic diagrams of lead and arsenic.",
+   "w": 2600,
+   "h": 2600,
+   "fit": "contain"
+  },
+  "a273-gable": {
+   "src": "images/tour/a273-gable.jpg",
+   "kind": "image",
+   "project": "uss-lead-revival",
+   "label": "Gable prototype, Form A",
+   "alt": "A white paper model on a black ground: a shallow, wide gable roof that slopes down to both sides, lifted on a single slim white support, its underside mirrored in the glossy surface below.",
+   "w": 2000,
+   "h": 1545,
+   "fit": "contain"
+  },
+  "a273-board": {
+   "src": "images/tour/a273-board.jpg",
+   "kind": "image",
+   "project": "uss-lead-revival",
+   "label": "M2 pin-up board",
+   "alt": "A square board of nine named studies in three rows, each an isometric above with a plan and an elevation or section below: 45, 90 and 180; Crawling, Leaning and Reaching; Inlet A, Inlet B and Parallel. In every study a white gable form meets a long bar on a pale site crossed by turquoise water, and the two change angle, length and position from study to study.",
+   "w": 2200,
+   "h": 2200,
+   "fit": "contain"
+  }
+ }
+}

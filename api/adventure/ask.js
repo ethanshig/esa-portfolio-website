@@ -15,7 +15,7 @@
  * returns; that check is the one the visitor sees, and this is the first pass.
  */
 const compiled = require('./portfolio-data');
-const world = require('../../adventure/content/world.json');
+const world = require('./world.json'); // copied beside this file by scripts/build-tour.js
 const { VOICE_PROMPT } = require('./voice');
 
 const FACTS = compiled.facts;
