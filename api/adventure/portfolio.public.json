@@ -1,0 +1,887 @@
+{
+  "generatedAt": "2026-09-16T16:59:27.266Z",
+  "projects": [
+    {
+      "id": "three-little-pigs",
+      "title": "3 Little Pigs Wall Assembly",
+      "oneLine": "A straw-bale wall assembly that ordinary builders can put up: conventional stick framing, R-52 insulation.",
+      "status": "complete",
+      "dates": {
+        "start": "2025-01",
+        "end": "2025-03"
+      },
+      "context": {
+        "type": "course",
+        "course": "FAA 330",
+        "institution": "University of Illinois Urbana-Champaign"
+      },
+      "role": "Sole designer",
+      "tracks": [
+        "architecture"
+      ],
+      "themes": [
+        "natural-materials",
+        "building-science",
+        "straw-bale"
+      ],
+      "ai": {
+        "used": false,
+        "how": null
+      },
+      "links": {
+        "site": "projects/three-little-pigs.html",
+        "repo": null,
+        "live": null
+      },
+      "team": [],
+      "mediums": [
+        "axonometric",
+        "section",
+        "digital collage"
+      ],
+      "tools": [
+        "Rhino",
+        "Photoshop",
+        "Illustrator"
+      ],
+      "skills": [
+        "wall assembly detailing",
+        "thermal performance",
+        "material research"
+      ],
+      "story": "Ever wonder why the three little pigs didn't just work together? Me too.\n\nThis wall uses all three pigs' materials: straw bale insulation, stick framing, and a brick veneer. It combines what each pig got right. Its traditional stick framing fits the way contractors already build, and its straw bale insulation reaches R-52. That means healthy, thermally comfortable rooms and big energy savings.\n\nThe project explores natural materials and what their properties can do. The point is that a natural material only spreads if it plugs into construction methods people already use.",
+      "whatIDid": "- Researched the materials and designed the full assembly, from foundation to finish\n- Drew the annotated axonometric and section in Rhino and composited them in Photoshop",
+      "process": "- Layers include a masonry water table, a stick frame and straw bale insulation (worksheet row 4)\n- The drawing documents the insulation math: straw bales at 36 × 18 × 14 in and R-1.4 per inch, giving R-52 through the wall and R-40 behind the pony wall\n- Designed for Champaign, Illinois (climate zone 5), with platform framing and either brick veneer or horizontal board siding\n- Below grade: crushed foam glass under the slab (R-8) and extruded polystyrene at the foundation (R-10)",
+      "outcome": "- Annotated axonometric and section drawings, 8.5 × 11 in\n- Straw-bale insulation value of R-52 (as documented)",
+      "reflection": "I want my work to bring joy and to be fun. Nobody thinks of play when they think of wall sections. But choosing straw bales as insulation reminded me of the children's story and made me smile, so I decided to build with all three pigs' materials.",
+      "facts": [
+        {
+          "id": "tlp-what",
+          "text": "The 3 Little Pigs Wall Assembly is a wall system that pairs traditional stick framing with straw bale insulation."
+        },
+        {
+          "id": "tlp-rvalue",
+          "text": "The assembly's straw bale insulation is documented at R-52 through the wall and R-40 behind the pony wall, based on R-1.4 per inch."
+        },
+        {
+          "id": "tlp-site",
+          "text": "The assembly was designed for Champaign, Illinois, in climate zone 5."
+        },
+        {
+          "id": "tlp-layers",
+          "text": "The assembly includes stick framing, a masonry water table and straw bale insulation."
+        },
+        {
+          "id": "tlp-course",
+          "text": "It was made for FAA 330 at the University of Illinois, taught by Professor Mark Taylor, and dated February–March 2025."
+        },
+        {
+          "id": "tlp-three-pigs",
+          "text": "The assembly uses the materials of all three little pigs from the children's story: straw bale insulation, stick framing and brick veneer."
+        }
+      ],
+      "media": [
+        {
+          "file": "Images/250207 - 3 Little Pigs Wall Assembly copy for portfolio-01.jpg",
+          "label": "Annotated axonometric",
+          "kind": "image",
+          "format": "8.5×11 in",
+          "medium": "Rhino + Photoshop",
+          "date": "2025-02",
+          "alt": "Cutaway axonometric of a wall corner, peeled back layer by layer from brick veneer and board siding through yellow straw bale insulation to the stud frame, slab and concrete foundation, with every layer labeled.",
+          "use": "hero"
+        },
+        {
+          "file": "Images/250207 - 3 Little Pigs Wall Assembly copy for portfolio-02.jpg",
+          "label": "Wall section",
+          "kind": "image",
+          "format": "8.5×11 in",
+          "medium": "Rhino + Photoshop",
+          "date": "2025-02",
+          "alt": "Wall section from the foundation footing up to the double top plate: a thick yellow band of straw bale insulation sits on a concrete pony wall, with labeled layers on both sides.",
+          "use": "gallery"
+        }
+      ]
+    },
+    {
+      "id": "para-la-tierra",
+      "title": "Anthropogenic Effects of Construction on Freshwater Aquatic Biodiversity",
+      "oneLine": "Four months of river fieldwork in Pilar, Paraguay, testing whether building the Costanera changed the fish and invertebrates living there.",
+      "status": "complete",
+      "dates": {
+        "start": "2024-01",
+        "end": "2024-04"
+      },
+      "context": {
+        "type": "research",
+        "course": null,
+        "institution": "Para La Tierra, Pilar, Paraguay"
+      },
+      "role": "Research intern: led project design, sampling, species identification and data analysis",
+      "tracks": [
+        "ecology"
+      ],
+      "themes": [
+        "freshwater",
+        "biodiversity",
+        "construction-impact",
+        "fieldwork"
+      ],
+      "ai": {
+        "used": false,
+        "how": null
+      },
+      "links": {
+        "site": null,
+        "repo": null,
+        "live": null
+      },
+      "team": [],
+      "mediums": [
+        "field data",
+        "poster",
+        "photography"
+      ],
+      "tools": [
+        "PowerPoint",
+        "Illustrator"
+      ],
+      "skills": [
+        "field sampling",
+        "species identification",
+        "data analysis",
+        "science communication"
+      ],
+      "story": "Construction of the Costanera, a riverfront development, was still under way along the Paraguay River. The question was whether it had already changed life in the water: fish and macroinvertebrate diversity, population sizes, distribution and species abundance.\n\nThe hypothesis was that post-construction data would show less diversity and smaller populations than the pre-construction record.\n\nThe comparison depended on pre-construction data held by the municipality of Pilar. The municipality never shared it, so the study couldn't draw conclusions about the Costanera's effect. What remained was a record of the rivers as they are now, and four months of watching them change.",
+      "whatIDid": "- Led the project design, site sampling, species identification and data analysis\n- Sampled six sites: six sampling days per site, 10 transects of 10 m each, morning and afternoon, at wading depth\n- Photographed every fish and macroinvertebrate against a ruler and identified species with PLT keys and ID books\n- Made the research poster",
+      "process": "- Unidentified fish were grouped by genus or into provisional groups, with some left for later identification (poster figure 1)\n- **Water levels swung more than expected.** On one very low-water day the fish crowded together and the catch was enormous. The shallow water also ran warm, which is hard on the fish.\n- **Identification was the hardest part:** many fish were very small and looked alike.\n- Returning to the same sites again and again made the change something you could feel through the work, not just read in the data.",
+      "outcome": "- 6,569 fish collected and cataloged, across 40+ species from 6 research sites (résumé)\n- Research poster, February 2024\n- No conclusions about construction impact: the municipality of Pilar didn't share the pre-construction baseline\n- No Para La Tierra report was produced from the results",
+      "reflection": "This was hands-on experience of how the built environment affects native ecologies. The Costanera was built to protect the city and the people who live in it, but that protection didn't extend to life beyond humans. I resolved to always design with that life in mind.",
+      "facts": [
+        {
+          "id": "plt-where",
+          "text": "Ethan was a research intern at Para La Tierra in Pilar, Paraguay, from January through April 2024."
+        },
+        {
+          "id": "plt-question",
+          "text": "The research asked whether ongoing construction of the Costanera had affected fish and macroinvertebrate diversity, population sizes, distribution and abundance."
+        },
+        {
+          "id": "plt-method",
+          "text": "Sampling used six days at each site, with 10 transects of 10 m each in the morning and afternoon, at wading depth."
+        },
+        {
+          "id": "plt-count",
+          "text": "The project collected and cataloged 6,569 fish across more than 40 species from six research sites."
+        },
+        {
+          "id": "plt-role",
+          "text": "Ethan led project design, site sampling, species identification and data analysis."
+        },
+        {
+          "id": "plt-baseline",
+          "text": "The study could not draw conclusions about the Costanera's impact because the municipality of Pilar did not share its pre-construction data."
+        },
+        {
+          "id": "plt-low-water",
+          "text": "During one low-water sampling day, fish crowded into the remaining water, producing a very large catch in unusually warm conditions."
+        },
+        {
+          "id": "plt-id",
+          "text": "Many specimens were small and similar-looking, which made species identification the hardest part of the work."
+        },
+        {
+          "id": "plt-costanera-purpose",
+          "text": "The Costanera was built to protect the city of Pilar and its inhabitants."
+        }
+      ],
+      "media": [
+        {
+          "file": "Images/240225 Fishy Poster.pptx.jpg",
+          "label": "Research poster",
+          "kind": "image",
+          "format": "8.5×11 in",
+          "medium": "poster",
+          "date": "2024-02",
+          "alt": "Research poster titled \"Anthropogenic Effects of Construction on Freshwater Aquatic Biodiversity\" with the Para La Tierra logo: study objectives, hypothesis and methods, a photo of two people seining in shallow water, a table of fish counts by site, and two stacked bar charts of fish caught at each site.",
+          "use": "hero"
+        },
+        {
+          "file": "Images/Fishy Mugshot.png",
+          "label": "Fish \"mugshot\" photo",
+          "kind": "image",
+          "format": "—",
+          "medium": "photo edit",
+          "date": "2024",
+          "alt": "A sepia booking photo of a fish in profile, holding a placard that reads \"PARALATIERRA 53263\".",
+          "use": "agent-artifact"
+        },
+        {
+          "file": "Images/Line Traced Canoe.jpg",
+          "label": "Line-traced canoe",
+          "kind": "image",
+          "format": "—",
+          "medium": "traced photograph",
+          "date": "2024",
+          "alt": "A photo traced with bold outlines: a small boat moored beside a grassy riverbank reinforced with a concrete grid, under a cloudy sky.",
+          "use": "gallery"
+        },
+        {
+          "file": "Images/Piranha.jpg",
+          "label": "Piranha",
+          "kind": "image",
+          "format": "—",
+          "medium": "field photograph",
+          "date": "2024-01",
+          "alt": "A small spotted piranha lying on a white mesh board beneath a ruler, photographed for identification, with the date and GPS coordinates stamped along the edge.",
+          "use": "gallery"
+        }
+      ]
+    },
+    {
+      "id": "beavers-burden",
+      "title": "Beaver's Burden",
+      "oneLine": "Gizmo architecture that works alongside beavers to rewild the Kankakee Marsh: something you wear, a boat, and a field of shipping-container-sized interventions.",
+      "status": "complete",
+      "dates": {
+        "start": "2025-01",
+        "end": "2025-05"
+      },
+      "context": {
+        "type": "studio",
+        "course": "ARCH 172",
+        "institution": "University of Illinois Urbana-Champaign"
+      },
+      "role": "Sole designer",
+      "tracks": [
+        "architecture",
+        "ecology",
+        "outdoor-product"
+      ],
+      "themes": [
+        "rewilding",
+        "animal-architecture",
+        "gizmos",
+        "wetlands"
+      ],
+      "ai": {
+        "used": false,
+        "how": null
+      },
+      "links": {
+        "site": "projects/beavers-burden.html",
+        "repo": null,
+        "live": null
+      },
+      "team": [],
+      "mediums": [
+        "wire models",
+        "photography",
+        "collage",
+        "GIF",
+        "CAD",
+        "hand drafting",
+        "figure drawing"
+      ],
+      "tools": [
+        "Rhino",
+        "Illustrator",
+        "Photoshop"
+      ],
+      "skills": [
+        "mechanism design",
+        "ecological design",
+        "representation",
+        "motion"
+      ],
+      "story": "The studio spent the semester on one brief: rewild the Kankakee Marsh, and design gizmos that help do it. This gizmo had to be wearable.\n\nBeavers are a keystone species, especially for wetland habitat. They were once central to Midwestern river ecosystems, holding water on the land, making habitat and supporting biodiversity, so I followed them all semester. The wearable lets a person embody the beaver's experience.\n\nThe **Beaver's Burden** is a wearable apparatus that gathers dam-building materials. It combines two lemniscates into two volumes, one for the person and one for what they collect. The **Catama-raft** is a rowing-powered vessel whose netted hold and waterwheel mechanism clear invasive plants from riverbanks, making room for native species.\n\nAt the scale of infrastructure, a field of shipping-container-sized interventions manages water flow, supports field research and creates habitat. Together they bridge human engineering and animal architecture.",
+      "whatIDid": "- Designed and modeled each device and the landscape-scale system\n- Built wire models, drew, collaged and animated the mechanism as a GIF\n- Figure drawings of classmates, used to study how a body carries the burden",
+      "process": "- The wearable was photographed in five positions: standing, crouching, crawling and two swimming poses (boards dated February 17, 2025)\n- Figure drawing (January 2025) → shipping crate gizmos: volumes named Solar, Blow, Fold and Orbit (April 2025) → Beaver's Burden and Catama-raft → landscape axonometric (May 2025)\n- **Why lemniscates:** I love when complexity comes out of simplicity. The lemniscate is a simple form, but it could carry this design: it gave the two volumes the brief needed, one for the human body and one for the collected materials.\n- **Material:** the studio required modeling in rebar tie wire, and a lemniscate was a form I could bend easily from it.\n- **Built at full scale and worn:** I made the wearable full size and filmed myself acting out its use (standing, crouching, crawling, swimming). The film became a stop-motion loop with my figure traced in outline.",
+      "outcome": "- Final title-blocked boards, a 3 × 6 ft landscape axonometric, a video and a mechanism GIF",
+      "reflection": "I love when complexity comes out of simplicity. One simple curve, doubled, could hold a body and a burden, and I could bend it by hand from tie wire. Wearing it was the point: to feel, for a moment, what a beaver's work asks of a body.",
+      "facts": [
+        {
+          "id": "bb-marsh",
+          "text": "Beaver's Burden is a series of devices that support beaver-led rewilding of the Kankakee Marsh."
+        },
+        {
+          "id": "bb-keystone",
+          "text": "The project is based on beavers having been a keystone species in Midwestern riparian ecosystems."
+        },
+        {
+          "id": "bb-wearable",
+          "text": "The Beaver's Burden is a wearable apparatus for gathering dam-building materials, formed from two lemniscates that create one volume for the wearer and one for the gathered materials."
+        },
+        {
+          "id": "bb-catamaraft",
+          "text": "The Catama-raft is a rowing-powered vessel with a netted storage system and a waterwheel mechanism for removing invasive plants from riverbanks."
+        },
+        {
+          "id": "bb-containers",
+          "text": "At the landscape scale, shipping-container-sized interventions manage water flow, support field research and create habitat."
+        },
+        {
+          "id": "bb-course",
+          "text": "The project was completed for ARCH 172 at the University of Illinois in May 2025."
+        },
+        {
+          "id": "bb-brief",
+          "text": "The ARCH 172 studio asked students to design gizmos for rewilding the Kankakee Marsh; this one had to be wearable."
+        },
+        {
+          "id": "bb-embody",
+          "text": "The wearable was designed to let a person embody the experience of a beaver."
+        },
+        {
+          "id": "bb-tie-wire",
+          "text": "The studio required models made from rebar tie wire, and Ethan chose the lemniscate partly because it could be bent from that material."
+        },
+        {
+          "id": "bb-full-scale",
+          "text": "Ethan built the wearable at full scale and filmed himself acting out standing, crouching, crawling and swimming in it."
+        }
+      ],
+      "media": [
+        {
+          "file": "Images/Final Images HiRes/Final Images Titleblocked.jpg",
+          "label": "Standing",
+          "kind": "image",
+          "format": "11×17 in",
+          "medium": "photo collage, wire model",
+          "date": "2025-02",
+          "alt": "Black-and-white collage: Ethan stands in front of drawn marsh grass wearing a large woven wire shell on their back, which trails behind them into a long tapered net resting on the ground.",
+          "use": "hero"
+        },
+        {
+          "file": "Images/Final Images HiRes/Final Images Titleblocked2.jpg",
+          "label": "Crouching",
+          "kind": "image",
+          "format": "11×17 in",
+          "medium": "photo collage, wire model",
+          "date": "2025-02",
+          "alt": "The same wearer crouches and reaches toward the ground, the wire shell arched over their back and the net stretched out behind.",
+          "use": "gallery"
+        },
+        {
+          "file": "Images/Final Images HiRes/Final Images Titleblocked3.jpg",
+          "label": "Crawling",
+          "kind": "image",
+          "format": "11×17 in",
+          "medium": "photo collage, wire model",
+          "date": "2025-02",
+          "alt": "The wearer crawls on hands and knees through drawn marsh grass, the wire shell covering their back like a carapace and the net trailing behind.",
+          "use": "gallery"
+        },
+        {
+          "file": "Images/Final Images HiRes/Final Images Titleblocked4.jpg",
+          "label": "Swimming 1",
+          "kind": "image",
+          "format": "11×17 in",
+          "medium": "photo collage, wire model",
+          "date": "2025-02",
+          "alt": "The wearer lies flat in a swimming pose, propped on stools, one arm stretched forward; the shell and net extend in a single streamlined line.",
+          "use": "gallery"
+        },
+        {
+          "file": "Images/Final Images HiRes/Final Images Titleblocked5.jpg",
+          "label": "Swimming 2",
+          "kind": "image",
+          "format": "11×17 in",
+          "medium": "photo collage, wire model",
+          "date": "2025-02",
+          "alt": "A second swimming pose: the wearer stretched out on stools with both arms reaching forward, the shell low over the back and the net trailing.",
+          "use": "gallery"
+        },
+        {
+          "file": "Videos/FINAL Gizmo GIF.mp4",
+          "label": "Wearable loop",
+          "kind": "video",
+          "format": "1 min",
+          "medium": "stop-motion",
+          "date": "2025-05",
+          "alt": "A one-minute stop-motion loop in black and white: Ethan, traced as a white outline over photographs, wears the full-scale wire wearable and moves from standing to crouching, crawling and swimming in front of drawn marsh grass.",
+          "use": "gallery"
+        },
+        {
+          "file": "Images/Catamaraft/IMG_9735.jpg",
+          "label": "Catama-raft, model",
+          "kind": "image",
+          "format": "photo",
+          "medium": "wire, paper, twine",
+          "date": "2025-05",
+          "alt": "A small boat model on a pale grey backdrop: a folded white paper hull, a black wire frame rising over the stern, fine netting strung between the wires, and a length of tan twine trailing to a hook at the bow. A tiny white figure sits in the middle.",
+          "use": "gallery"
+        },
+        {
+          "file": "Images/Figure Drawings/250128 - Assignment 1 - Ethan Anderson.pdf",
+          "label": "Figure drawings, Assignment 1",
+          "kind": "pdf",
+          "format": "11×17 in",
+          "medium": "charcoal",
+          "date": "2025-01",
+          "alt": "A quick charcoal gesture drawing of a reaching figure: an oval head, a blocky torso and bent legs described in a few heavy, broken lines, with a long curved stroke sweeping up past the head.",
+          "use": "process"
+        },
+        {
+          "file": "Images/Shipping Containers/IMG_9714.jpg",
+          "label": "Shipping crate gizmo, paper model",
+          "kind": "image",
+          "format": "photo",
+          "medium": "folded paper",
+          "date": "2025-04",
+          "alt": "A white paper box on a black background, open along its long side. Inside, the paper is folded into a row of sharp triangular pleats that zigzag from one end to the other, leaving an empty square bay at the right.",
+          "use": "process"
+        },
+        {
+          "file": "Images/Landscape/Final Test Linework.ai",
+          "label": "Landscape axonometric",
+          "kind": "image",
+          "format": "3×6 ft",
+          "medium": "Rhino + Illustrator + hand drawing",
+          "date": "2025-05",
+          "alt": "A tall axonometric landscape in pale blue and grey. Boardwalks of dark posts loop across it in circles and figure-eights, joining a field at the top, a band of bare winter trees, open water with small greenhouse-like structures, and a marsh at the bottom dotted with shipping-container-sized boxes in purple, brown and green.",
+          "use": "gallery"
+        }
+      ]
+    },
+    {
+      "id": "mylo-to-go",
+      "title": "Mylo To-Go",
+      "oneLine": "Takeout containers grown from mycelium rather than manufactured, designed to replace single-use Styrofoam and decompose without a trace.",
+      "status": "complete",
+      "dates": {
+        "start": "2025-01",
+        "end": "2025-05"
+      },
+      "context": {
+        "type": "course",
+        "course": "ArtD 326",
+        "institution": "University of Illinois Urbana-Champaign"
+      },
+      "role": "Team member: form development, mold fabrication, mycelium cultivation, documentation, iteration",
+      "tracks": [
+        "outdoor-product",
+        "ecology"
+      ],
+      "themes": [
+        "biomaterials",
+        "mycelium",
+        "packaging",
+        "plastic-waste"
+      ],
+      "ai": {
+        "used": false,
+        "how": null
+      },
+      "links": {
+        "site": "projects/mylo-to-go.html",
+        "repo": null,
+        "live": null
+      },
+      "team": [
+        "Annabelle Pinto",
+        "Em Huang",
+        "Sydney Staemmer",
+        "Zimuzo Ugwuanyi",
+        "Malaina Ummel"
+      ],
+      "mediums": [
+        "grown mycelium products",
+        "3D-printed molds",
+        "silicone molds",
+        "poster",
+        "video",
+        "report"
+      ],
+      "tools": [
+        "3D printing",
+        "silicone casting",
+        "Illustrator"
+      ],
+      "skills": [
+        "biofabrication",
+        "mold making",
+        "product iteration",
+        "branding"
+      ],
+      "story": "In a world drowning in plastic waste, our team turned to fungi. Mylo containers aren't just biodegradable; they're grown, and they break down naturally after use.\n\nWe took mycelium fabrication through its whole development cycle as a small team, ending with a full line: a rectangular to-go box, a round soup container and lid, a scaled square container and lid, and a scaled cup.",
+      "whatIDid": "- Contributed to every stage: form development, mold fabrication, mycelium cultivation, visual documentation and iteration",
+      "process": "- Molds came from 3D prints, silicone and existing containers\n- Dated photo series from February to April 2025 documents the grows\n- **A second batch that failed:** to keep replacing single-use food items, we tried growing solo cups, using solo cups themselves as the molds. The mycelium couldn't get enough air to breathe, and the cups failed.\n- **Naming for fun:** we named our mycelium \"Mylo\", which paired nicely with \"to-go\"\n- **Photoshoot:** we staged a picnic to show the containers in use",
+      "outcome": "- Six finished products, a 27 × 39 in poster, a logo and tags, a vlog and a written report\n- Shown at the ArtD 326 Spring 2025 exhibition (photo folder \"ARTD 326 SP 25 Exhibition-selected\"), where our stickers were popular at the table",
+      "reflection": "A great group project, helped by being clear about everyone's roles. I looked for fun in it again: naming our mycelium Mylo, making stickers that people at the exhibition loved, and staging a picnic for the photoshoot.",
+      "facts": [
+        {
+          "id": "mylo-what",
+          "text": "Mylo To-Go is a line of takeout containers grown from mycelium, designed to replace single-use Styrofoam."
+        },
+        {
+          "id": "mylo-products",
+          "text": "The final line includes a rectangular to-go box, a circular soup container and lid, a scaled square container and lid, and a scaled cup."
+        },
+        {
+          "id": "mylo-team",
+          "text": "Mylo To-Go was a six-person team project for ArtD 326 at the University of Illinois, completed in May 2025."
+        },
+        {
+          "id": "mylo-role",
+          "text": "Ethan contributed to form development, mold fabrication, mycelium cultivation, documentation and iteration."
+        },
+        {
+          "id": "mylo-molds",
+          "text": "Molds were made from 3D prints, silicone and existing containers."
+        },
+        {
+          "id": "mylo-solo-cups",
+          "text": "A second batch tried to grow solo cups using solo cups as molds; it failed because the mycelium could not get enough air."
+        },
+        {
+          "id": "mylo-name",
+          "text": "The team named its mycelium \"Mylo\", a name that pairs with \"to-go\"."
+        },
+        {
+          "id": "mylo-stickers",
+          "text": "Mylo stickers were popular at the team's exhibition table."
+        }
+      ],
+      "media": [
+        {
+          "file": "Images/FINAL POSTER.pdf",
+          "label": "Final poster",
+          "kind": "pdf",
+          "format": "27×39 in",
+          "medium": "poster",
+          "date": "2025-05",
+          "alt": "Poster reading \"mylo, rooted in nature\" in dark green above a round, ribbed mycelium container on a wooden board, surrounded by mushrooms and ivy leaves.",
+          "use": "hero"
+        },
+        {
+          "file": "Images/250401 Mylo To-Go32.jpg",
+          "label": "Picnic with Mylo containers",
+          "kind": "image",
+          "format": "—",
+          "medium": "photograph",
+          "date": "2025-04",
+          "alt": "A picnic on red gingham: a mycelium takeout box holding a burger, a mycelium bowl of fruit, wooden utensils and ivy, with hands reaching in for a glass and an apple.",
+          "use": "gallery"
+        },
+        {
+          "file": "Images/Mycellium To Go Logo 5-05-05.png",
+          "label": "Logo",
+          "kind": "image",
+          "format": "3×5 in",
+          "medium": "logo",
+          "date": "2025-05",
+          "alt": "Illustrated logo: a green takeout container sprouting pale mushrooms, labeled \"MYLO to go\".",
+          "use": "gallery"
+        },
+        {
+          "file": "Videos/MYLO - Mycelium To-go Box Vlog (with credits).mp4",
+          "label": "Process vlog with team credits",
+          "kind": "video",
+          "format": "5 min 10 s, 1080p H.264",
+          "medium": "video",
+          "date": "2025",
+          "alt": "A five-minute process vlog: team members in a makerspace, 3D printers making molds, hands working a plastic mold, substrate packed into a bag beside stacked red cups, a staged picnic photoshoot, and the posters, ending on a card crediting all six team members.",
+          "use": "process"
+        }
+      ]
+    },
+    {
+      "id": "uss-lead-revival",
+      "title": "The Dark Side of Chicago · USS Lead (ARCH 273)",
+      "oneLine": "A semester on East Chicago's USS Lead Superfund site: a time-bending atlas, gable prototypes that dunes could grow on, a village modeled on Dutch dikes, and a hundred-year story told by birds and wind.",
+      "status": "complete",
+      "dates": {
+        "start": "2025-08",
+        "end": "2025-12"
+      },
+      "context": {
+        "type": "studio",
+        "course": "ARCH 273",
+        "institution": "University of Illinois Urbana-Champaign"
+      },
+      "role": "Student",
+      "tracks": [
+        "architecture",
+        "ecology",
+        "accessibility",
+        "computational"
+      ],
+      "themes": [
+        "superfund",
+        "remediation",
+        "phytoremediation",
+        "dunes and swales",
+        "time",
+        "eco-lounge",
+        "accessibility"
+      ],
+      "ai": {
+        "used": false,
+        "how": null
+      },
+      "links": {
+        "site": null,
+        "repo": null,
+        "live": null
+      },
+      "team": [],
+      "mediums": [
+        "temporal site atlas",
+        "collage",
+        "paper models",
+        "Rhino",
+        "Grasshopper",
+        "3D prints",
+        "graphic novel",
+        "tactile graphics"
+      ],
+      "tools": [
+        "Rhino",
+        "Grasshopper",
+        "Photoshop",
+        "Illustrator",
+        "3D printer",
+        "laser cutter",
+        "PIAF"
+      ],
+      "skills": [
+        "site research",
+        "orthographic representation",
+        "speculative futures"
+      ],
+      "story": "The Revival Architecture Studio gave each of us one of eight Superfund sites and asked for regenerative interventions. Mine was USS Lead in East Chicago. Lead and arsenic are in the soil there, and the ground needs remediation, so I built the semester around phytoremediation: plants drawing the contamination back out.\n\n**M1, The Dark Side of Chicago,** is a 3 × 3 ft temporal site atlas. It follows East Chicago from oak savanna to the present and out into possible futures, drawn on the light cone.\n\n**M2, the gable prototypes,** answered the channel forms that run all through the region. I explored how the land relates to those channels, and whether the gables could take part in the remediation and let the ground go back to the dunes and swales that were native to it.\n\n**M3, the EcoLounge Village,** is what the gables became when I combined them. It takes its system from the Netherlands' dikes. The buildings' geometry, placement and orientation are set so that dunes grow on them naturally, rebuilding the dune and swale ecology, and the buildings are places where people work to help the dunes grow and the soil recover. The dunes are built from remediated soil taken out of the swales and channels that connect the landscape. There are three building types:\n\n- **Guardians** are the anchors that dunes build up on.\n- **Dreamers** are smaller utility and storage spaces.\n- **Sleepers** are connective and supportive.\n\n**M4** is an architectural graphic novel covering a hundred years of the site. Birds tell it, through their run-ins with the land and with the forces that shape it (the west wind piling sand into dunes and swales). Hazel the Naturalist is based on Hazel M. Johnson, an environmental justice activist from the area.\n\nFrom M3 on, the work changed because of who I was working with. A partnership with a classmate, and my start with the Radical Accessibility Project, moved my thinking about stakeholders from who a design affects to who takes part in the design itself.",
+      "whatIDid": "- M1 · Temporal site atlas, 3 × 3 ft (September–October 2025)\n- M2 · Gable prototypes: paper models photographed as Forms A–E (October 8, 2025), a Grasshopper gable prototype, 3D prints and a 36 × 36 in pin-up board\n- M3 · EcoLounge Village: a Guardian, Dreamer and Sleeper building system modeled on Dutch dikes, with Rhino and Grasshopper studies of dunes and walkways, working from a map of the dunes and swales before industry\n- M4 · Architectural graphic novel, with a cast that includes Zephyrus the West Wind, Ben Bittern, Cary Piper, Annie the Canal Nymph and Hazel the Naturalist\n- Made the M4 models and pages readable by touch: model files with braille labels and tactile scale rulers, a braille north arrow, and PIAF swell-paper layers for graphic novel spreads",
+      "process": "- **I built the atlas on the light cone,** the spacetime diagram where past and future cones meet at a single point, the present. A bright point sits at the centre of the sheet. The past runs back along a diagonal timeline, and coloured cones open toward possible futures.\n- The atlas also borrows features of the lemniscate, a shape I keep coming back to across my work\n- The diagonal band records soil sampling for lead and arsenic across the site's zones; atomic diagrams of lead (Pb) and arsenic (As) sit in the corner\n- M1 sketch sequence from August 28 to September 7, 2025, then Part B (September 8–14) and the midterm print (October 1)\n- **The gables and the channels:** the region's channels set the question for M2 (how does this land meet water that people cut into it?), and the leaning gable was the answer I carried forward\n- **Wind as a character:** in M4 the west wind builds the dunes and swales, and a bird asks whether it can land on the sand\n- **Tactile tests:** PIAF test prints in M3, then paired \"PIAF layer\" and \"no PIAF\" versions of M4 spreads, and layered laser-cut and 3D-printed versions of the Sleeper, Guardian and Dreamer types",
+      "outcome": "- A 358-page semester book and M1–M4 compendiums (December 13, 2025)\n- 3 × 3 ft atlas, printed for the October 1 midterm\n- Tactile model and page files for M4 (braille labels, tactile rulers, PIAF layers)",
+      "reflection": "TODO(ethan): only if you want one, in your own words.",
+      "facts": [
+        {
+          "id": "a273-site",
+          "text": "Ethan's ARCH 273 studio project addresses the USS Lead Superfund site in East Chicago."
+        },
+        {
+          "id": "a273-atlas",
+          "text": "The Dark Side of Chicago is a temporal site atlas that follows East Chicago from its oak savanna past to the present and projected futures."
+        },
+        {
+          "id": "a273-studio",
+          "text": "The Revival Architecture Studio asked students to design regenerative interventions for eight Superfund sites."
+        },
+        {
+          "id": "a273-date",
+          "text": "The studio ran in Fall 2025."
+        },
+        {
+          "id": "a273-light-cone",
+          "text": "The temporal atlas is organized on the light cone, with past and future cones meeting at a point representing the present."
+        },
+        {
+          "id": "a273-contaminants",
+          "text": "The atlas maps soil sampling for lead and arsenic at the USS Lead site."
+        },
+        {
+          "id": "a273-phyto",
+          "text": "Ethan's studio work responded to soil contamination at the USS Lead site and the need for remediation, applying phytoremediation techniques."
+        },
+        {
+          "id": "a273-gables",
+          "text": "Ethan's M2 gable prototypes responded to the channel forms prominent in the region and explored their potential to help remediate the site."
+        },
+        {
+          "id": "a273-lead-source",
+          "text": "The USS Lead plant put the lead in the site's soil."
+        },
+        {
+          "id": "a273-dunes",
+          "text": "The project aimed to return the site to its native ecology of dunes and swales."
+        },
+        {
+          "id": "a273-village",
+          "text": "Combined, the gable prototypes became the M3 EcoLounge Village."
+        },
+        {
+          "id": "a273-dikes",
+          "text": "The village's Guardian, Dreamer and Sleeper building system is inspired by the Netherlands' system of dikes."
+        },
+        {
+          "id": "a273-guardians",
+          "text": "Guardians are the anchors that dunes build up on."
+        },
+        {
+          "id": "a273-dreamers",
+          "text": "Dreamers are smaller utility and storage spaces."
+        },
+        {
+          "id": "a273-sleepers",
+          "text": "Sleepers are connective and supportive buildings."
+        },
+        {
+          "id": "a273-dune-growth",
+          "text": "The buildings' geometries, placements and orientations are designed so dunes grow on them naturally, reestablishing the site's dune and swale ecology."
+        },
+        {
+          "id": "a273-stewardship",
+          "text": "The buildings are spaces where people take actions that support dune growth and soil remediation."
+        },
+        {
+          "id": "a273-dune-soil",
+          "text": "The dunes are built from remediated soil taken from the swales and channels that connect the landscape."
+        },
+        {
+          "id": "a273-graphic-novel",
+          "text": "The M4 architectural graphic novel tells a hundred years of the site through birds interacting with the land and the forces that shape it, such as wind forming dunes and swales."
+        },
+        {
+          "id": "a273-cast",
+          "text": "The graphic novel's characters include Zephyrus the West Wind, Ben Bittern, Cary Piper, Annie the Canal Nymph and Hazel the Naturalist."
+        },
+        {
+          "id": "a273-hazel",
+          "text": "Hazel the Naturalist is based on Hazel M. Johnson, an environmental justice activist from the area."
+        },
+        {
+          "id": "a273-tactile",
+          "text": "For M4, Ethan prepared tactile versions of the work, including model files with braille labels and tactile scale rulers and PIAF swell-paper layers for graphic novel spreads."
+        },
+        {
+          "id": "a273-process-shift",
+          "text": "From M3 onward, Ethan's partnership with a classmate through the Radical Accessibility Project expanded his idea of stakeholders from the people a design affects to the people who take part in designing it."
+        }
+      ],
+      "media": [
+        {
+          "file": "Images/The Dark Side of Chicago/",
+          "label": "Temporal site atlas",
+          "kind": "folder",
+          "format": "3×3 ft",
+          "medium": "collage",
+          "date": "2025-10",
+          "alt": "A square black atlas: a diagonal timeline band crosses from corner to corner; at the centre a point of light opens into purple, green, blue, orange, red and yellow cones toward the upper right, surrounded by collaged birds, trees, a wind turbine, a figure in a gas mask, marsh vegetation, axonometric buildings and atomic diagrams of lead and arsenic.",
+          "use": "hero"
+        },
+        {
+          "file": "(OneDrive - UIUC) Fall 2025/Arch 273/M1/250930 M1 Temporal Site Atlas.jpg",
+          "label": "Atlas, final",
+          "kind": "image",
+          "format": "3×3 ft",
+          "medium": "digital collage",
+          "date": "2025-09",
+          "alt": "Same as above; the master file.",
+          "use": "agent-artifact"
+        },
+        {
+          "file": "Images/Gables/Model Photos.pdf",
+          "label": "Gable prototype, Form A",
+          "kind": "pdf",
+          "format": "7 pages, letter",
+          "medium": "paper model, photo",
+          "date": "2025-10",
+          "alt": "A white paper model on a black ground: a shallow, wide gable roof that slopes down to both sides, lifted on a single slim white support, its underside mirrored in the glossy surface below.",
+          "use": "gallery"
+        },
+        {
+          "file": "Images/Gables/251005 Assignment 2 PRINT.pdf",
+          "label": "M2 pin-up board",
+          "kind": "pdf",
+          "format": "36×36 in",
+          "medium": "Rhino renders, orthographic drawings",
+          "date": "2025-10",
+          "alt": "A square board of nine named studies in three rows, each an isometric above with a plan and an elevation/section below: 45, 90 and 180; Crawling, Leaning and Reaching; Inlet A, Inlet B and Parallel. In every study a white gable form meets a long bar on a pale site crossed by turquoise water, and the two change angle, length and position from study to study.",
+          "use": "process"
+        }
+      ]
+    },
+    {
+      "id": "genealogy-of-a-beaver-dam",
+      "title": "Genealogy of a Beaver Dam",
+      "oneLine": "A construction manual for a building made by beavers: its materials, site, foundation and walls, drawn the way you'd document human architecture.",
+      "status": "complete",
+      "dates": {
+        "start": "2025-04",
+        "end": "2025-05"
+      },
+      "context": {
+        "type": "course",
+        "course": "ArtD 326",
+        "institution": "University of Illinois Urbana-Champaign"
+      },
+      "role": "Sole author",
+      "tracks": [
+        "ecology",
+        "architecture"
+      ],
+      "themes": [
+        "beavers",
+        "more-than-human-builders",
+        "material-genealogy",
+        "construction-drawing"
+      ],
+      "ai": {
+        "used": false,
+        "how": null
+      },
+      "links": {
+        "site": null,
+        "repo": null,
+        "live": null
+      },
+      "team": [],
+      "mediums": [
+        "illustrated booklet",
+        "CAD renderings",
+        "collage",
+        "hand sketches"
+      ],
+      "tools": [
+        "Rhino",
+        "Illustrator",
+        "InDesign"
+      ],
+      "skills": [
+        "research synthesis",
+        "construction diagramming",
+        "illustration"
+      ],
+      "story": "The assignment was a genealogy of a device: trace where its parts come from, the way a smartphone battery is mined in one country and assembled in another. It assumed the maker is human, *homo faber*.\n\nI wanted to push back on that. There are builders in the more-than-human world too, so I traced a beaver dam instead. The booklet documents it like architecture: what it's made of and where each material comes from, how a site is chosen, how the foundation is set, and how the walls go up.\n\nIt grew out of the same semester's beaver research as Beaver's Burden, and it goes back to Paraguay, where a structure built to protect people didn't account for anything else living in the river.",
+      "whatIDid": "- Researched beaver dam construction and designed a five-page illustrated booklet\n- Modeled the stream and dam foundation in Rhino and layered the renders with collage and hand sketches in Illustrator",
+      "process": "- **Materials:** beavers are opportunistic. Mud comes from the stream bottom just upstream; rocks and coarse debris stand in where woody vegetation is scarce; the wood is aspen, willow, conifers, alders, sagebrush, tamarisk, birch and poplar; herbaceous and aquatic plants and agricultural residue fill in; so do human leftovers like fence posts and old beaver traps.\n- **Site:** narrow, shallow stretches take less material. Fast water gets an arched, curved dam; slow water, a straight one.\n- **Foundation:** larger branches and logs are driven into the streambed, thick ends anchored in mud, leaning upstream so the water's weight compresses the materials into a tight seal. Packed mud and stones secure the base.\n- **Raising the walls:** sticks, twigs, plant matter and mud are piled on the foundation's upstream face. The current pulls material into the gaps, sealing leaks on its own. The wall is wide at the base and tapers toward the top, raising the waterline.",
+      "outcome": "- Five-page illustrated booklet (8.5 × 11 in), May 2025",
+      "reflection": "Builders aren't only human. Documenting a beaver's dam with the same drawing conventions as a building was a way to give its maker the same standing.",
+      "facts": [
+        {
+          "id": "gbd-what",
+          "text": "Genealogy of a Beaver Dam is an illustrated booklet by Ethan that documents how beavers build dams: materials, site selection, foundation and walls."
+        },
+        {
+          "id": "gbd-assignment",
+          "text": "It answered an ArtD 326 assignment to diagram the genealogy of a device's parts, which Ethan turned toward a non-human builder to challenge the assignment's human-centered framing."
+        },
+        {
+          "id": "gbd-materials",
+          "text": "The booklet notes that beavers use mud from just upstream, woody vegetation, rocks where wood is scarce, and even human objects such as fence posts and old beaver traps."
+        },
+        {
+          "id": "gbd-foundation",
+          "text": "It shows dam foundations built from branches driven into the streambed and angled upstream, so water pressure compresses the materials into a seal."
+        },
+        {
+          "id": "gbd-site",
+          "text": "It shows arched dams used in fast-moving water and straight dams in slow-moving water."
+        }
+      ],
+      "media": [
+        {
+          "file": "Images/Genealogy of a Beaver Dam.pdf",
+          "label": "Booklet",
+          "kind": "pdf",
+          "format": "8.5×11 in, 5 pages",
+          "medium": "booklet",
+          "date": "2025-05",
+          "alt": "A five-page booklet: a title page over a photo of a beaver dam, a collage of dam materials (mud, rocks, reeds, a gnawed log, blue plastic), a plan diagram comparing arched and straight dams by water speed, a section of logs angled upstream in the streambed, and a 3D stream model with the dam wall rising.",
+          "use": "hero"
+        }
+      ]
+    }
+  ]
+}
