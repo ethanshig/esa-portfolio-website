@@ -385,13 +385,40 @@ body.look .plate { max-width: calc(100vw - 2 * var(--L)); }
     flushTimer = setTimeout(async () => { const db = await dbPromise; if (!db) return; try { await db.collection('sessions').doc(session.id).set({ startedAt: session.startedAt, updatedAt: new Date().toISOString(), prototype: 'v8', events: session.events }); } catch (e) { /* never blocks the tour */ } }, 700);
   }
   let aiMode = 'pending';
-  const samplePromise = (window.claude && typeof window.claude.use === 'function')
-    ? window.claude.use('sample').then((s) => { aiMode = s ? 'on' : 'off'; updateNote(); return s; }).catch(() => { aiMode = 'off'; updateNote(); return null; })
-    : Promise.resolve(null).then(() => { aiMode = 'off'; return null; });
+  // On the site the narrator lives at /api/adventure/ask: the browser sends where the visitor is and what
+  // they asked, and the server builds the prompt from the approved records. Inside a Claude artifact the
+  // page can sample directly instead, which is how the prototype runs.
+  const ASK_ENDPOINT = '/api/adventure/ask';
+  async function askServer(payload, signal) {
+    const res = await fetch(ASK_ENDPOINT, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload), signal
+    });
+    if (!res.ok) { const e = new Error('narrator ' + res.status); e.code = res.status === 500 ? 'not_configured' : 'unavailable'; throw e; }
+    return res.json();
+  }
+  const serverEngine = {
+    answer: (question, signal) => askServer({
+      mode: 'answer', question,
+      setting: state.setting, scene: state.scene, media: state.media,
+      visited: [...state.visited], story: state.story.slice(-40),
+      interests: state.interests, metEthan: state.metEthan
+    }, signal),
+    verify: (claims) => askServer({ mode: 'verify', claims: claims.map((c) => ({ i: c.i, text: c.text, facts: c.facts, words: c.words })) })
+  };
+  const enginePromise = (window.claude && typeof window.claude.use === 'function')
+    ? window.claude.use('sample').then((s) => {
+        aiMode = s ? 'on' : 'off'; updateNote();
+        return s && {
+          answer: (question, signal) => s.json(buildPrompt(question), { modelTier: 'quick', cache: false, signal }),
+          verify: (claims) => s.json(verifyPrompt(claims), { modelTier: 'quick', cache: false })
+        };
+      }).catch(() => { aiMode = 'off'; updateNote(); return null; })
+    : Promise.resolve(serverEngine).then((e) => { aiMode = 'on'; updateNote(); return e; });
   function noteText() {
-    if (aiMode === 'on') return 'Answers come from Claude, checked against Ethan’s approved notes. This prototype saves the conversation so Ethan can review it.';
+    if (aiMode === 'on') return 'Answers are written for your question and checked against Ethan’s approved notes. Questions are logged so Ethan can see what people ask.';
     if (aiMode === 'declined') return 'Answers now come straight from Ethan’s notes, without Claude.';
-    if (aiMode === 'off') return 'In this preview, answers come straight from Ethan’s notes.';
+    if (aiMode === 'off') return 'Answers come straight from Ethan’s notes right now.';
     return 'Ask in your own words.';
   }
   function updateNote() { document.querySelectorAll('.ask-note').forEach((n) => { n.textContent = noteText(); }); }
@@ -807,15 +834,17 @@ body.look .plate { max-width: calc(100vw - 2 * var(--L)); }
     let answer = null;
     const record = { question, place: state.setting, scene: state.scene, metEthan: state.metEthan };
     const started = Date.now();
-    const sample = await samplePromise;
-    if (sample && aiMode === 'on') {
+    const engine = await enginePromise;
+    if (engine && aiMode === 'on') {
       const check = (value) => { const c = value ? validate(value) : { ok: false, reason: 'unrepairable JSON' }; if (c.dropped && c.dropped.length) record.dropped = c.dropped; if (c.ok) answer = c.answer; else record.rejected = c.reason; };
-      try { const raw = await sample.json(buildPrompt(question), { modelTier: 'quick', cache: false, signal: ctl.signal }); record.raw = JSON.stringify(raw).slice(0, 6000); check(raw); }
+      try { const raw = await engine.answer(question, ctl.signal); record.raw = JSON.stringify(raw).slice(0, 6000); check(raw); }
       catch (e) {
         record.error = e && e.code; if (e && e.text) record.raw = String(e.text).slice(0, 6000);
         if (e && e.code === 'invalid_json' && e.text) { check(repairJson(e.text)); if (answer) record.repaired = true; }
         if (e && e.code === 'cancelled') { log('ask', { ...record, stopped: true }); return; }
         if (e && e.code === 'not_granted') aiMode = 'declined';
+        if (e && (e.code === 'not_configured' || e.code === 'unavailable')) { aiMode = 'off'; updateNote(); }
+        if (e && e.name === 'AbortError') { log('ask', { ...record, stopped: true }); return; }
       }
     } else record.aiMode = aiMode;
     if (ctl.signal.aborted) return;
@@ -832,10 +861,10 @@ body.look .plate { max-width: calc(100vw - 2 * var(--L)); }
     if (answer.show && state.queue.length && answer.show !== state.media) state.queue[0].show = answer.show; else if (state.queue.length) state.queue[0].show = undefined;
     state.verdict = { done: true, unsupported: new Set() };
     const claims = answer.items.map((it, i) => ({ ...it, i })).filter((it) => it.claim);
-    if (claims.length && sample && aiMode === 'on' && record.source === 'claude') {
+    if (claims.length && engine && aiMode === 'on' && record.source === 'claude') {
       state.verdict = { done: false, unsupported: new Set() };
       const verdict = state.verdict;
-      verify(sample, claims).then((bad) => {
+      verify(engine, claims).then((bad) => {
         record.unsupportedItems = bad.map((x) => x.line);
         record.verified = bad.map((x) => ({ text: answer.items[x.line].text.slice(0, 160), claim: String(x.claim || '').slice(0, 160) }));
       }).catch((e) => { record.verifyError = (e && e.code) || String(e); }).finally(() => {
@@ -869,17 +898,19 @@ body.look .plate { max-width: calc(100vw - 2 * var(--L)); }
     if (state.waiting) { state.waiting = false; const c = document.getElementById('checking'); if (c) c.remove(); advance(); }
   }
 
-  async function verify(sample, claims) {
+  function verifyPrompt(claims) {
     const cited = new Set(); const words = new Set();
     // A line that cites a project is checked against that project's approved facts as well as Ethan's words.
     claims.forEach((c) => { c.facts.forEach((f) => cited.add(f)); c.words.forEach((p) => { words.add(p); projectFacts(p).forEach((f) => cited.add(f)); }); });
     const sources = [...cited].map((id) => `[${id}] ${FACTS[id]}`).concat([...words].map((id) => { const p = PROJECTS.find((x) => x.id === id); return `[${id}, Ethan’s own words] ${Object.values(p.ethansWords).filter(Boolean).join(' ')}`; }));
-    const prompt = [
+    return [
       'You check a narrator’s lines against source notes. For each numbered line, list every claim about Ethan, his team, his research or his designs that the SOURCES do not directly state. Staging (movement, gestures, weather, what the visitor sees) needs no support. Paraphrase is fine; added details, causes, reasons, lessons, numbers, names, species, materials, durations or feelings are not.',
       'Reply with ONLY JSON: {"unsupported": [{"line": number, "claim": string}]}. Use an empty array when everything is supported.',
       '', 'SOURCES:', ...sources, '', 'LINES:', ...claims.map((c) => `${c.i}. ${c.text}`)
     ].join('\n');
-    const out = await sample.json(prompt, { modelTier: 'quick', cache: false });
+  }
+  async function verify(engine, claims) {
+    const out = await engine.verify(claims);
     const list = Array.isArray(out && out.unsupported) ? out.unsupported.filter((u) => Number.isInteger(u.line) && claims.some((c) => c.i === u.line)) : [];
     return list;
   }
