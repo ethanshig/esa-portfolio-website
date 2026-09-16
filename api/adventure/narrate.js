@@ -1,4 +1,5 @@
 const { facts, scenes } = require('./story-data');
+const { VOICE_PROMPT, hasVoiceErrors } = require('./voice');
 
 const MAX_BODY_BYTES = 24000;
 const MAX_PATH_LENGTH = 40;
@@ -51,7 +52,7 @@ module.exports = async function handler(req, res) {
             body: JSON.stringify({
                 model: process.env.CS199_MODEL || 'gpt-5.6-luna',
                 input: prompt,
-                temperature: 0.7,
+                temperature: 0.5,
                 max_output_tokens: 700,
                 text: { format: { type: 'json_object' } }
             }),
@@ -77,7 +78,7 @@ function buildPrompt({ sceneId, decision, path, profile, blueprint }) {
     return [
         'You are the narrator for a personal architecture and sustainable design portfolio presented as a choice-driven novel.',
         'Return only valid JSON with: eyebrow (string), paragraphs (array of 2-6 short strings), factIds (array), and choiceLabels (object keyed by choice id).',
-        'Write in second person. Tailor emphasis and imagery to the visitor profile, but do not overuse their name.',
+        VOICE_PROMPT,
         'Cover every beat in order. Use only facts from the supplied facts object. Never invent dates, credentials, projects, locations, or links.',
         'You may rewrite choice labels, but you must return only the supplied choice IDs. Do not create destinations.',
         `SCENE ID: ${sceneId}`,
@@ -101,6 +102,7 @@ function validateResponse(value, scene, allowedFactIds) {
     if (!Array.isArray(value.factIds) || !value.factIds.every((id) => allowedFactIds.includes(id))) return null;
     if (typeof value.eyebrow !== 'string' || value.eyebrow.length > 120) return null;
     if (!value.choiceLabels || typeof value.choiceLabels !== 'object' || Array.isArray(value.choiceLabels)) return null;
+    if (hasVoiceErrors([value.eyebrow, ...value.paragraphs, ...Object.values(value.choiceLabels).filter((label) => typeof label === 'string')])) return null;
     if (!Object.keys(value.choiceLabels).every((id) => /^choice-\d+$/.test(id) && Number(id.slice(7)) >= 1 && Number(id.slice(7)) <= scene.choices.length && typeof value.choiceLabels[id] === 'string' && value.choiceLabels[id].length <= 160)) return null;
     return { eyebrow: value.eyebrow, paragraphs: value.paragraphs, factIds: value.factIds, choiceLabels: value.choiceLabels };
 }

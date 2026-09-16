@@ -8,12 +8,13 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/grid-system.css">
     <link rel="stylesheet" href="css/projects-slideshow.css">
-    <link rel="stylesheet" href="css/page-transition.css">
+    <link rel="stylesheet" href="css/line-system.css">
     <script>
         // Apply theme immediately to prevent flash
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
+    <link rel="icon" href="images/favicon.svg">
 </head>
 <body>
     <!-- Navigation -->
@@ -71,11 +72,12 @@
         <div class="container">
             <h2 class="section-title">Selected Works</h2>
             <div class="filter-buttons">
-                <button class="filter-btn active" data-filter="all">All Projects</button>
-                <button class="filter-btn" data-filter="residential">Residential</button>
-                <button class="filter-btn" data-filter="commercial">Commercial</button>
-                <button class="filter-btn" data-filter="urban">Urban Planning</button>
-                <button class="filter-btn" data-filter="conceptual">Conceptual</button>
+                <button class="filter-btn active" data-filter="all">All projects</button>
+                <button class="filter-btn" data-filter="architecture">Architecture</button>
+                <button class="filter-btn" data-filter="ecology">Ecology</button>
+                <button class="filter-btn" data-filter="outdoor-product">Outdoor product</button>
+                <button class="filter-btn" data-filter="accessibility">Accessibility</button>
+                <button class="filter-btn" data-filter="computational">Computational</button>
             </div>
         </div>
     </section>
@@ -84,155 +86,75 @@
     <section class="projects-grid grid-section" id="projects-grid">
         <div class="container">
             <div class="grid">
-                <!-- Project 1 -->
-                <article class="project-card" data-category="residential">
-                    <a href="projects/project1.html" class="project-link">
-                        <div class="project-image">
-                            <img src="images/project1-thumb.jpg" alt="3 Little Pig Wall Assembly">
-                            <div class="project-overlay">
-                                <span class="view-project">View Project →</span>
-                            </div>
+                <article class="project-card" data-category="architecture">
+                    <a href="projects/three-little-pigs.html" class="project-link">
+                        <div class="project-image"><img src="images/tour/tlp-axon.jpg" alt="Cutaway axonometric of a wall corner, peeled back layer by layer from brick veneer and board siding through yellow straw bale insulation to the stud frame, slab and concrete foundation, with every layer labeled." loading="lazy">
+                            <div class="project-overlay"><span class="view-project">View Project →</span></div>
                         </div>
                         <div class="project-info">
-                            <h3 class="project-title">3 Little Pig Wall Assembly</h3>
-                            <p class="project-category">Sustainable Construction • 2024</p>
-                            <p class="project-description">R-52 straw bale insulation wall system designed for compatibility with traditional stick framing construction</p>
+                            <h3 class="project-title">3 Little Pigs Wall Assembly</h3>
+                            <p class="project-category">FAA 330 · 2025</p>
+                            <p class="project-description">A straw-bale wall assembly that ordinary builders can put up: conventional stick framing, R-52 insulation.</p>
                         </div>
                     </a>
                 </article>
-
-                <!-- Project 2 -->
-                <article class="project-card" data-category="conceptual">
-                    <a href="projects/project2.html" class="project-link">
-                        <div class="project-image">
-                            <img src="images/project2-thumb.jpg" alt="Mylo To-Go">
-                            <div class="project-overlay">
-                                <span class="view-project">View Project →</span>
-                            </div>
+                <article class="project-card" data-category="ecology">
+                    <a href="projects/para-la-tierra.html" class="project-link">
+                        <div class="project-image"><img src="images/tour/plt-canoe.jpg" alt="A photo traced with bold outlines: a small boat moored beside a grassy riverbank reinforced with a concrete grid, under a cloudy sky." loading="lazy">
+                            <div class="project-overlay"><span class="view-project">View Project →</span></div>
                         </div>
                         <div class="project-info">
-                            <h3 class="project-title">Mylo To-Go</h3>
-                            <p class="project-category">Sustainable Design • 2024</p>
-                            <p class="project-description">Biodegradable mycelium-based food containers grown from agricultural waste, replacing single-use Styrofoam</p>
+                            <h3 class="project-title">Anthropogenic Effects of Construction on Freshwater Aquatic Biodiversity</h3>
+                            <p class="project-category">2024</p>
+                            <p class="project-description">Four months of river fieldwork in Pilar, Paraguay, testing whether building the Costanera changed the fish and invertebrates living there.</p>
                         </div>
                     </a>
                 </article>
-
-                <!-- Project 3 -->
-                <article class="project-card" data-category="conceptual">
-                    <a href="projects/project3.html" class="project-link">
-                        <div class="project-image">
-                            <img src="images/project3-thumb.jpg" alt="Beaver's Burden">
-                            <div class="project-overlay">
-                                <span class="view-project">View Project →</span>
-                            </div>
+                <article class="project-card" data-category="architecture ecology outdoor-product">
+                    <a href="projects/beavers-burden.html" class="project-link">
+                        <div class="project-image"><img src="images/tour/bb-standing.jpg" alt="Black-and-white collage: Ethan stands in front of drawn marsh grass wearing a large woven wire shell on their back, which trails behind them into a long tapered net resting on the ground." loading="lazy">
+                            <div class="project-overlay"><span class="view-project">View Project →</span></div>
                         </div>
                         <div class="project-info">
                             <h3 class="project-title">Beaver's Burden</h3>
-                            <p class="project-category">Ecological Design • 2024</p>
-                            <p class="project-description">Beaver-inspired devices exploring the evolving relationship between humans and beavers in rewilding the Kankakee Marsh</p>
+                            <p class="project-category">ARCH 172 · 2025</p>
+                            <p class="project-description">Gizmo architecture that works alongside beavers to rewild the Kankakee Marsh: something you wear, a boat, and a field of shipping-container-sized interventions.</p>
                         </div>
                     </a>
                 </article>
-
-                <!-- Project 4 -->
-                <article class="project-card" data-category="residential">
-                    <a href="projects/project4.html" class="project-link">
-                        <div class="project-image">
-                            <img src="images/project4-thumb.jpg" alt="Project 4">
-                            <div class="project-overlay">
-                                <span class="view-project">View Project →</span>
-                            </div>
+                <article class="project-card" data-category="outdoor-product ecology">
+                    <a href="projects/mylo-to-go.html" class="project-link">
+                        <div class="project-image"><img src="images/tour/mylo-picnic.jpg" alt="A picnic on red gingham: a mycelium takeout box holding a burger, a mycelium bowl of fruit, wooden utensils and ivy, with hands reaching in for a glass and an apple." loading="lazy">
+                            <div class="project-overlay"><span class="view-project">View Project →</span></div>
                         </div>
                         <div class="project-info">
-                            <h3 class="project-title">Modular Eco-Home</h3>
-                            <p class="project-category">Residential • 2023</p>
-                            <p class="project-description">Prefabricated modular home design with cross-laminated timber construction</p>
+                            <h3 class="project-title">Mylo To-Go</h3>
+                            <p class="project-category">ArtD 326 · 2025</p>
+                            <p class="project-description">Takeout containers grown from mycelium rather than manufactured, designed to replace single-use Styrofoam and decompose without a trace.</p>
                         </div>
                     </a>
                 </article>
-
-                <!-- Project 5 -->
-                <article class="project-card" data-category="commercial">
-                    <a href="projects/project5.html" class="project-link">
-                        <div class="project-image">
-                            <img src="images/project5-thumb.jpg" alt="Project 5">
-                            <div class="project-overlay">
-                                <span class="view-project">View Project →</span>
-                            </div>
+                <article class="project-card" data-category="architecture ecology accessibility computational">
+                    <a href="projects/uss-lead-revival.html" class="project-link">
+                        <div class="project-image"><img src="images/tour/a273-atlas.jpg" alt="A square black atlas: a diagonal timeline band crosses from corner to corner; at the centre a point of light opens into purple, green, blue, orange, red and yellow cones toward the upper right, surrounded by collaged birds, trees, a wind turbine, a figure in a gas mask, marsh vegetation, axonometric buildings and atomic diagrams of lead and arsenic." loading="lazy">
+                            <div class="project-overlay"><span class="view-project">View Project →</span></div>
                         </div>
                         <div class="project-info">
-                            <h3 class="project-title">Community Learning Center</h3>
-                            <p class="project-category">Commercial • 2023</p>
-                            <p class="project-description">Educational facility powered by geothermal energy and solar panels</p>
+                            <h3 class="project-title">The Dark Side of Chicago · USS Lead (ARCH 273)</h3>
+                            <p class="project-category">ARCH 273 · 2025</p>
+                            <p class="project-description">A semester on East Chicago's USS Lead Superfund site: a time-bending atlas, gable prototypes that dunes could grow on, a village modeled on Dutch dikes, and a hundred-year story told by birds and wind.</p>
                         </div>
                     </a>
                 </article>
-
-                <!-- Project 6 -->
-                <article class="project-card" data-category="conceptual">
-                    <a href="projects/project6.html" class="project-link">
-                        <div class="project-image">
-                            <img src="images/project6-thumb.jpg" alt="Project 6">
-                            <div class="project-overlay">
-                                <span class="view-project">View Project →</span>
-                            </div>
+                <article class="project-card" data-category="ecology architecture">
+                    <a href="projects/genealogy-of-a-beaver-dam.html" class="project-link">
+                        <div class="project-image"><img src="images/tour/gbd-cover.jpg" alt="Booklet title page: the words Genealogy of a Beaver Dam over a photograph of a beaver dam." loading="lazy">
+                            <div class="project-overlay"><span class="view-project">View Project →</span></div>
                         </div>
                         <div class="project-info">
-                            <h3 class="project-title">Floating Wetland Park</h3>
-                            <p class="project-category">Conceptual • 2023</p>
-                            <p class="project-description">Biomimetic floating structure for urban water purification and habitat creation</p>
-                        </div>
-                    </a>
-                </article>
-
-                <!-- Project 7 -->
-                <article class="project-card" data-category="urban">
-                    <a href="projects/project7.html" class="project-link">
-                        <div class="project-image">
-                            <img src="images/project7-thumb.jpg" alt="Project 7">
-                            <div class="project-overlay">
-                                <span class="view-project">View Project →</span>
-                            </div>
-                        </div>
-                        <div class="project-info">
-                            <h3 class="project-title">Transit-Oriented Development</h3>
-                            <p class="project-category">Urban Planning • 2022</p>
-                            <p class="project-description">Mixed-use development reducing car dependency with walkable design</p>
-                        </div>
-                    </a>
-                </article>
-
-                <!-- Project 8 -->
-                <article class="project-card" data-category="residential">
-                    <a href="projects/project8.html" class="project-link">
-                        <div class="project-image">
-                            <img src="images/project8-thumb.jpg" alt="Project 8">
-                            <div class="project-overlay">
-                                <span class="view-project">View Project →</span>
-                            </div>
-                        </div>
-                        <div class="project-info">
-                            <h3 class="project-title">Adaptive Reuse Studio</h3>
-                            <p class="project-category">Residential • 2022</p>
-                            <p class="project-description">Warehouse conversion into live-work lofts preserving embodied carbon</p>
-                        </div>
-                    </a>
-                </article>
-
-                <!-- Project 9 -->
-                <article class="project-card" data-category="conceptual">
-                    <a href="projects/project9.html" class="project-link">
-                        <div class="project-image">
-                            <img src="images/project9-thumb.jpg" alt="Project 9">
-                            <div class="project-overlay">
-                                <span class="view-project">View Project →</span>
-                            </div>
-                        </div>
-                        <div class="project-info">
-                            <h3 class="project-title">Climate Resilient Pavilion</h3>
-                            <p class="project-category">Conceptual • 2022</p>
-                            <p class="project-description">Temporary structure exploring passive cooling and biodegradable materials</p>
+                            <h3 class="project-title">Genealogy of a Beaver Dam</h3>
+                            <p class="project-category">ArtD 326 · 2025</p>
+                            <p class="project-description">A construction manual for a building made by beavers: its materials, site, foundation and walls, drawn the way you'd document human architecture.</p>
                         </div>
                     </a>
                 </article>
@@ -251,8 +173,10 @@
     </footer>
 
     <script src="js/main.js"></script>
+    <script src="js/projects-data.js"></script>
     <script src="js/projects-slideshow.js"></script>
     <script src="js/theme-and-animations.js"></script>
-    <script src="js/page-transition.js"></script>
+    <script src="js/line-system.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', function () { LineSystem.init(); });</script>
 </body>
 </html>
