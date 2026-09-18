@@ -24,21 +24,21 @@
   --logo-h: clamp(15px, 3.1vw, 30px);
   --nav-top: max(var(--L4), 26px);
   --nav-h: calc(var(--logo-h) + var(--L4) + var(--nav-top));
-  --ground: #e9e5d9;
-  --ink: #161616;
-  --muted: #6e6b62;
-  --line: rgba(22, 22, 22, 0.2);
-  --accent: #bb3c28;
-  --record: #9a2f1f;
-  --card: rgba(255, 255, 255, 0.3);
+  /* One room, everywhere. The neutrals are black and white pulled warm: an ink
+     of charcoal rather than pure black, a ground of ash rather than pure white.
+     The accent is terracotta, and the interface spends it on one thing only -
+     the mark that says a line came from Ethan's records. */
+  --ground: #eeece7;
+  --ink: #1f1d1a;
+  --muted: #6f6b64;
+  --line: rgba(31, 29, 26, 0.15);
+  --accent: #a1573b;
+  --record: #a1573b;
+  --card: rgba(255, 255, 255, 0.34);
   --trace-w: clamp(340px, 33vw, 520px);
   --sheet-h: 52vh;
   --peek: 118px;
 }
-[data-place="pilar"]     { --ground: #eadfcc; --ink: #2a2119; --muted: #6f604f; --line: rgba(42,33,25,.22); --accent: #6a58a6; --record: #4f3f8c; }
-[data-place="kankakee"]  { --ground: #dfe3d7; --ink: #1b231d; --muted: #56625a; --line: rgba(27,35,29,.22); --accent: #85562c; --record: #6c4420; }
-[data-place="champaign"] { --ground: #ede3c6; --ink: #1f1b13; --muted: #665d49; --line: rgba(31,27,19,.22); --accent: #a3412b; --record: #8a3321; }
-[data-place="east-chicago"] { --ground: #dcd8d0; --ink: #1d1a17; --muted: #625d55; --line: rgba(29,26,23,.22); --accent: #4f7f6f; --record: #3c6557; }
 
 * { box-sizing: border-box; }
 html { background: var(--ground); transition: background-color 1.2s ease; }
@@ -66,7 +66,7 @@ button, input { font: inherit; color: inherit; }
 @media (max-width: 620px) { .nav-right a.linkish[href="about.html"], .nav-right a.linkish[href="resume.html"] { display: none; } }
 
 main { padding-block: calc(var(--L) * 0.6) var(--L); }
-.eyebrow { margin: 0; color: var(--accent); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; }
+.eyebrow { margin: 0; color: var(--muted); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; }
 
 /* ---------- cover ---------- */
 .center { min-height: calc(100vh - var(--nav-h) - 2 * var(--L)); display: flex; flex-direction: column; justify-content: center; max-width: 900px; margin: 0 auto; }
@@ -87,7 +87,6 @@ main { padding-block: calc(var(--L) * 0.6) var(--L); }
 .portal .ring { fill: none; stroke: var(--ink); stroke-width: 1.2; }
 .portal .glyph path { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .portal .draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 1.4s cubic-bezier(.6,0,.2,1) forwards; }
-.portal .swatch { width: 44px; height: 6px; border-radius: 3px; }
 .portal:hover .ring, .portal:focus-visible .ring, .portal:hover .glyph path, .portal:focus-visible .glyph path { stroke: var(--portal-accent); }
 .portal:focus-visible { outline: none; }
 .portal .place { font-weight: 700; font-size: clamp(1.05rem, 2vw, 1.25rem); }
@@ -153,14 +152,14 @@ body.look .story-tab { opacity: 1; pointer-events: auto; }
 .continue:hover { border-color: var(--ink); }
 .continue kbd { color: var(--muted); font-family: inherit; font-size: 0.72rem; }
 .card { padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
-.card .kind { display: block; color: var(--accent); font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
+.card .kind { display: block; color: var(--muted); font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
 .card strong { display: block; font-size: 0.98rem; }
 .card .ctx { color: var(--muted); font-size: 0.76rem; margin: 3px 0 6px; }
 .card p { margin: 0; opacity: 0.85; font-size: 0.88rem; line-height: 1.35; }
 .choices { display: flex; flex-wrap: wrap; gap: 8px; }
 .choice { display: inline-flex; align-items: baseline; gap: 10px; min-height: 42px; padding: 9px 14px; border: 1px solid var(--ink); border-radius: 999px; background: transparent; text-align: left; cursor: pointer; font-size: 0.92rem; animation: rise 450ms ease both; }
 .choice:hover { background: var(--ink); color: var(--ground); }
-.choice .mark { color: var(--accent); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.choice .mark { color: var(--muted); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; }
 .choice:hover .mark { color: var(--ground); }
 .choice.ask { border-style: dashed; }
 .choice.reach { border-color: var(--accent); }
@@ -177,7 +176,7 @@ body.look .story-tab { opacity: 1; pointer-events: auto; }
 .dots { display: flex; }
 .dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--muted); }
 .dot + .dot { margin-left: -1px; }
-.dot.on { background: var(--accent); border-color: var(--accent); }
+.dot.on { background: var(--ink); border-color: var(--ink); }
 .noticed b { color: var(--ink); font-weight: 500; }
 
 /* The plate: what you are looking at, and the tools to look closer. */
@@ -1988,9 +1987,9 @@ main { transition: opacity 500ms ease; }
   function renderPlaces() {
     stopAsk(); state.view = 'places'; setView('places'); setTheme(null); document.getElementById('restart').hidden = false;
     const portals = Object.entries(WORLD.settings).map(([id, s], i) => $('button', {
-      class: 'portal', type: 'button', style: `--portal-accent: ${s.theme.accent};` + (reduced ? '' : `animation: rise 600ms ease ${i * 120}ms both`),
+      class: 'portal', type: 'button', style: `--portal-accent: var(--accent);` + (reduced ? '' : `animation: rise 600ms ease ${i * 120}ms both`),
       onclick: () => { log('portal', { place: s.place }); noticeTags(s.tags, 2); goScene(s.start); }
-    }, [portalSvg(id), $('span', { class: 'place', text: s.place }), $('span', { class: 'region', text: s.region }), $('span', { class: 'lure', text: s.lure }), $('span', { class: 'swatch', style: `background:${s.theme.accent}` })]));
+    }, [portalSvg(id), $('span', { class: 'place', text: s.place }), $('span', { class: 'region', text: s.region }), $('span', { class: 'lure', text: s.lure })]));
     main.replaceChildren($('section', { class: 'center' }, [
       $('div', { class: 'portals-head' }, [
         $('p', { class: 'eyebrow', text: state.metEthan ? 'The map' : 'The first page' }),
