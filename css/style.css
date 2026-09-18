@@ -38,18 +38,19 @@
    =================================== */
 :root {
     /* Colors - Light Mode (Default) */
-    /* Black and white pulled warm, so the pages and the tour are one room.
-       Every hue here is within a few points of neutral: the color on screen
-       should come from the work, not from the interface. */
-    --color-primary: #1f1d1a;        /* Charcoal */
-    --color-secondary: #575249;      /* Warm slate */
-    --color-accent: #a1573b;         /* Terracotta, the one accent */
-    --color-bg: #eeece7;             /* Ash */
-    --color-bg-alt: #e6e3db;         /* Ash, one shade down */
-    --color-text: #1f1d1a;           /* Charcoal */
-    --color-text-light: #6f6b64;     /* Warm grey */
-    --color-utility-gray: #6f6b64;   /* Captions, metadata */
-    --color-border: #dcd8cf;         /* Whisper borders, warm */
+    /* A cool black room, everywhere. The structure drawn over it carries no
+       colour of its own: see css/line-system.css, where the mark, the bar and
+       the outlines are blended by difference and read as an inversion of
+       whatever lies behind them. */
+    --color-primary: #e9ecee;        /* Cool near-white */
+    --color-secondary: #a2a9ad;      /* Cool light grey */
+    --color-accent: #c47a5c;         /* Terracotta, the one accent */
+    --color-bg: #0d0f11;             /* Cool black */
+    --color-bg-alt: #14171a;         /* Cool black, one shade up */
+    --color-text: #e9ecee;           /* Cool near-white */
+    --color-text-light: #8a9196;     /* Cool grey */
+    --color-utility-gray: #8a9196;   /* Captions, metadata */
+    --color-border: #23272a;         /* Whisper borders, cool */
 
     /* Typography - Scalable System */
     --font-primary: 'Sato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;

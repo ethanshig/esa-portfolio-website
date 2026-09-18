@@ -34,7 +34,8 @@ html.ls-on .nav-container {
     width: calc(100% - 2 * var(--L));
     height: 100%;
     overflow: visible;
-    color: var(--ls-ink);
+    color: #fff;
+    mix-blend-mode: difference;
     pointer-events: none;
 }
 html.ls-on .navbar .logo {
@@ -89,13 +90,16 @@ html.ls-on .theme-icon:empty { display: none; }
 }
 
 /* ---------- outlines ---------- */
+/* Structure as inversion: painted white, blended by difference, so each stroke
+   reads as the negative of whatever it crosses. */
 .ls-outline-layer {
     position: absolute;
     left: 0;
     top: 0;
     pointer-events: none;
     overflow: visible;
-    color: var(--ls-ink);
+    color: #fff;
+    mix-blend-mode: difference;
     z-index: 900;                              /* over content, under the fixed nav */
 }
 
