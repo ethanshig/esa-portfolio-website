@@ -61,8 +61,8 @@ button, input { font: inherit; color: inherit; }
 .nav svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; color: currentColor; }
 .nav .casing { display: none; }
 .nav-right { position: absolute; right: 0; bottom: calc(50% + 5px); display: flex; gap: 18px; align-items: flex-end; }
-.linkish { background: none; border: 0; padding: 0; color: #9aa0a4; font-size: 0.85rem; cursor: pointer; }
-.linkish:hover { color: #fff; }
+.linkish { background: none; border: 0; padding: 0; color: #fff; opacity: 0.62; font-size: 0.85rem; cursor: pointer; transition: opacity 180ms ease; }
+.linkish:hover { opacity: 1; }
 .nav-right a.linkish { text-decoration: none; }
 @media (max-width: 620px) { .nav-right a.linkish[href="about.html"], .nav-right a.linkish[href="resume.html"] { display: none; } }
 
@@ -102,7 +102,7 @@ body[data-view="scene"] .nav { position: fixed; inset: 0 0 auto 0; margin: 0; po
    you can actually press takes its clicks back, links included. */
 body[data-view="scene"] .nav button, body[data-view="scene"] .nav a { pointer-events: auto; }
 body[data-view="scene"] main { padding: 0; }
-.scrim { position: fixed; inset: 0 0 auto 0; z-index: 2; height: calc(var(--nav-h) * 1.7); pointer-events: none; background: linear-gradient(to bottom, color-mix(in srgb, var(--ground) 72%, transparent), color-mix(in srgb, var(--ground) 0%, transparent)); }
+.scrim { position: fixed; inset: 0 0 auto 0; z-index: 2; height: calc(var(--nav-h) * 1.7); pointer-events: none; background: linear-gradient(to bottom, color-mix(in srgb, var(--ground) 14%, transparent), color-mix(in srgb, var(--ground) 0%, transparent)); }
 body:not([data-view="scene"]) .scrim, body:not([data-view="scene"]) .canvas, body:not([data-view="scene"]) .plate, body:not([data-view="scene"]) .story-tab { display: none; }
 
 .canvas { position: fixed; inset: 0; z-index: 1; overflow: hidden; touch-action: none; cursor: grab; outline: none; }
@@ -237,7 +237,144 @@ main { transition: opacity 500ms ease; }
   *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
   .portal .draw { stroke-dashoffset: 0; }
 }
+
+/* ---------------------------------------------------------------------------
+   Narration surfaces. Three ways the story can sit in the room, switched with
+   ?n=a|b|c so they can be looked at side by side. Unset = the panel as built.
+   --------------------------------------------------------------------------- */
+
+/* A - the column. No panel: a veil that fades in from the right edge with no
+   edge of its own, text set wide and loose, the read lines dissolving off the
+   top of the screen instead of stopping at a border. */
+html[data-narration="a"] .trace {
+  top: 0; right: 0; bottom: 0; width: calc(clamp(360px, 34vw, 540px) + var(--L) * 2);
+  border-radius: 0; isolation: auto;
+  background: linear-gradient(to right, transparent, color-mix(in srgb, var(--ground) 46%, transparent) 18%, color-mix(in srgb, var(--ground) 88%, transparent) 46%, color-mix(in srgb, var(--ground) 97%, transparent) 72%);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 13%, #000 84%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 13%, #000 84%, transparent 100%);
+}
+html[data-narration="a"] .trace::before,
+html[data-narration="a"] .trace .outline { display: none; }
+html[data-narration="a"] .trace-scroll {
+  padding: 22vh var(--L) 44vh calc(var(--L) * 1.4);
+  scrollbar-width: none;
+}
+html[data-narration="a"] .trace-scroll::-webkit-scrollbar { width: 0; height: 0; }
+html[data-narration="a"] .trace-head { margin-bottom: 34px; }
+html[data-narration="a"] .legend, html[data-narration="a"] .lift { display: none; }
+html[data-narration="a"] .page { gap: 34px; }
+html[data-narration="a"] .line { font-size: 1.02rem; line-height: 1.85; opacity: 0.46; text-shadow: 0 0 16px var(--ground); }
+html[data-narration="a"] .line.current { font-size: clamp(1.2rem, 1.6vw, 1.46rem); line-height: 1.6; opacity: 1; text-shadow: 0 0 18px var(--ground); }
+html[data-narration="a"] .line[data-media]:hover, html[data-narration="a"] .line.open { opacity: 0.7; }
+html[data-narration="a"] .controls { margin-top: 38px; gap: 20px; }
+html[data-narration="a"] .trail { border-top: 0; margin-top: 44px; opacity: 0.55; }
+html[data-narration="a"] .card, html[data-narration="b"] .card, html[data-narration="c"] .card {
+  border: 0; border-left: 1px solid var(--line); border-radius: 0; background: none;
+  padding: 2px 0 2px 16px; text-shadow: 0 0 16px var(--ground);
+}
+
+/* B - the page. The drawing stays nailed to the viewport and the story is the
+   document scrolling over it, so the browser's own bar on the right is the
+   progress indicator. */
+html[data-narration="b"] body[data-view="scene"] { overflow: visible; height: auto; }
+html[data-narration="b"] body[data-view="scene"] main { padding: 0; }
+html[data-narration="b"] .trace {
+  position: relative; top: auto; right: auto; bottom: auto;
+  width: min(48ch, 40vw); margin-left: auto;
+  border-radius: 0; isolation: auto;
+  background: none; -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+html[data-narration="b"] .trace::before,
+html[data-narration="b"] .trace .outline { display: none; }
+html[data-narration="b"] .trace-scroll {
+  position: static; overflow: visible;
+  padding: 42vh 0 62vh 0;
+}
+html[data-narration="b"] .trace-head { margin-bottom: 30px; }
+html[data-narration="b"] .legend, html[data-narration="b"] .lift { display: none; }
+html[data-narration="b"] .page { gap: 32px; }
+html[data-narration="b"] .line { font-size: 1.02rem; line-height: 1.8; opacity: 0.46; text-shadow: 0 0 20px var(--ground), 0 0 7px var(--ground); }
+html[data-narration="b"] .line.current { font-size: clamp(1.18rem, 1.55vw, 1.42rem); line-height: 1.58; opacity: 1; text-shadow: 0 0 24px var(--ground), 0 0 8px var(--ground); }
+html[data-narration="b"] .controls, html[data-narration="b"] .trail { text-shadow: 0 1px 14px var(--ground); }
+html[data-narration="b"] .trail { border-top: 0; margin-top: 44px; }
+html[data-narration="b"] .scrim { height: calc(var(--nav-h) * 2.2); z-index: 6; }
+html[data-narration="b"] body[data-view="scene"]::after {
+  content: ""; position: fixed; z-index: 5; top: 0; right: 0; bottom: 0;
+  width: calc(min(48ch, 40vw) + var(--L) * 2.6); pointer-events: none;
+  background: linear-gradient(to right, transparent, color-mix(in srgb, var(--ground) 46%, transparent) 18%, color-mix(in srgb, var(--ground) 88%, transparent) 46%, color-mix(in srgb, var(--ground) 97%, transparent) 72%);
+}
+html[data-narration="b"] .trace { z-index: 10; }
+
+/* C - the subtitle. One line, held still at the foot of the drawing, crossed
+   over to the next when the reader asks for it. The line before it stays at a
+   whisper for continuity; hovering brings the rest of the page back. */
+html[data-narration="c"] .trace {
+  top: auto; right: 0; bottom: 0; left: 0; width: auto;
+  border-radius: 0; isolation: auto;
+  background: linear-gradient(to top, color-mix(in srgb, var(--ground) 97%, transparent), color-mix(in srgb, var(--ground) 90%, transparent) 38%, color-mix(in srgb, var(--ground) 48%, transparent) 68%, transparent);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+html[data-narration="c"] .trace::before,
+html[data-narration="c"] .trace .outline { display: none; }
+html[data-narration="c"] .trace-scroll {
+  position: static; overflow: hidden;
+  max-height: 46vh; padding: 16vh var(--L) calc(var(--L) * 0.8);
+  display: flex; flex-direction: column; justify-content: flex-end;
+}
+html[data-narration="c"] .trace-head, html[data-narration="c"] .legend,
+html[data-narration="c"] .trail { display: none; }
+html[data-narration="c"] .page { gap: 14px; }
+html[data-narration="c"] .line { display: none; }
+html[data-narration="c"] .line:has(+ .line.current) {
+  display: block; opacity: 0.34; max-width: 40ch; margin: 0 auto;
+  text-align: center; font-size: 1rem; line-height: 1.5;
+  text-shadow: 0 0 18px var(--ground);
+}
+html[data-narration="c"] .line.current {
+  display: block; opacity: 1; max-width: 36ch; margin: 0 auto;
+  text-align: center; font-size: clamp(1.3rem, 2.05vw, 1.8rem); line-height: 1.45;
+  text-shadow: 0 0 22px var(--ground), 0 0 7px var(--ground);
+}
+html[data-narration="c"] .line .thumb { float: none; display: inline-block; vertical-align: -8px; margin: 0 0 0 10px; }
+html[data-narration="c"] .controls { margin-top: 22px; justify-items: center; }
+html[data-narration="c"] .continue, html[data-narration="c"] .stop { justify-self: center; }
+html[data-narration="c"] .choices { justify-content: center; }
+html[data-narration="c"] .source { max-width: 52ch; margin-inline: auto; text-align: left; }
+/* Look back without leaving: the stack returns when it is asked for, not when the
+   pointer happens to be over the controls. */
+html[data-narration="c"] .lift { display: block; justify-self: center; opacity: 0.5; }
+html[data-narration="c"] .lift:hover { opacity: 1; }
+html[data-narration="c"] .trace-head { display: flex; justify-content: center; order: 2; margin: 18px 0 0; }
+html[data-narration="c"] .trace-head .eyebrow { display: none; }
+html[data-narration="c"] body.unfurl .trace-scroll,
+body.unfurl html[data-narration="c"] .trace-scroll { overflow-y: auto; max-height: 64vh; }
+html[data-narration="c"] .trace-scroll { transition: max-height 400ms cubic-bezier(.3,.7,.2,1); }
+body.unfurl[data-view="scene"] .trace-scroll { overflow-y: auto; max-height: 64vh; }
+body.unfurl[data-view="scene"] .page .line {
+  display: block; opacity: 0.3; max-width: 48ch; margin-inline: auto;
+  font-size: 0.97rem; line-height: 1.6; text-shadow: 0 0 18px var(--ground);
+}
+body.unfurl[data-view="scene"] .page .line.current { opacity: 1; }
+html[data-narration="c"] .ask-form { max-width: 46ch; margin-inline: auto; width: 100%; }
+html[data-narration="c"] .ask-note { text-align: center; }
+html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom: auto; top: calc(var(--nav-h) + var(--L4)); }
 </style>
+
+<script>
+  // Narration surface under test: ?n=a|b|c. Sticky for the tab so following a
+  // nav link and coming back does not silently drop you into another design.
+  (function () {
+    try {
+      var n = new URLSearchParams(location.search).get('n');
+      if (n === null) n = sessionStorage.getItem('esa-narration');
+      if (/^[abc]$/.test(n || '')) {
+        document.documentElement.dataset.narration = n;
+        sessionStorage.setItem('esa-narration', n);
+      }
+    } catch (e) { /* storage off */ }
+  })();
+</script>
 
 <header class="nav">
   <div class="nav-inner">
@@ -1674,6 +1811,7 @@ main { transition: opacity 500ms ease; }
   const projectOfFact = {};
   PROJECTS.forEach((p) => p.factIds.forEach((id) => { projectOfFact[id] = p.id; }));
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const narration = document.documentElement.dataset.narration || '';
   const main = document.getElementById('main');
   const $ = (tag, props = {}, kids = []) => {
     const el = document.createElement(tag);
@@ -1887,6 +2025,74 @@ main { transition: opacity 500ms ease; }
   // =================================================================
   const state = { view: 'cover', setting: null, scene: null, metEthan: false, visited: new Set(), seenProjects: new Set(), cardsShown: new Set(), interests: {}, queue: [], story: [], busy: false, ctl: null, media: null, waiting: false };
 
+  // The story a reader has built by choosing is theirs. Following a nav link out to
+  // Projects and pressing Back used to hand them the cover and an empty page; the
+  // transcript now rides in sessionStorage so the same tab can pick the book back up.
+  const Persist = (() => {
+    const KEY = 'esa-tour-session';
+    const SCHEMA_VERSION = 1;
+    const transcript = [];
+    let replaying = false;
+    let saveTimer = 0;
+
+    const saveNow = () => {
+      try {
+        sessionStorage.setItem(KEY, JSON.stringify({
+          v: SCHEMA_VERSION, setting: state.setting, scene: state.scene, metEthan: state.metEthan,
+          visited: [...state.visited], seenProjects: [...state.seenProjects], cardsShown: [...state.cardsShown],
+          interests: state.interests, transcript
+        }));
+      } catch (e) { /* private window or quota */ }
+    };
+    const scheduleSave = () => { if (replaying) return; clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 400); };
+    try { addEventListener('pagehide', saveNow); } catch (e) {}
+
+    const recordLine = (text, cls, meta = {}) => {
+      if (replaying) return;
+      try {
+        transcript.push({ text, cls: cls || '', facts: meta.facts || [], words: meta.words || [], intro: meta.intro || null });
+        if (transcript.length > 400) transcript.shift();
+        scheduleSave();
+      } catch (e) {}
+    };
+
+    const clearSession = () => { try { sessionStorage.removeItem(KEY); } catch (e) {} transcript.length = 0; };
+
+    const restore = () => {
+      try {
+        const raw = sessionStorage.getItem(KEY);
+        if (!raw) return false;
+        const saved = JSON.parse(raw);
+        if (!saved || saved.v !== SCHEMA_VERSION) return false;
+        if (!saved.scene || !Array.isArray(saved.transcript) || !saved.transcript.length) return false;
+        const scene = WORLD.scenes[saved.scene];
+        const setting = WORLD.settings[saved.setting];
+        if (!scene || !setting) return false;
+        replaying = true;
+        state.view = 'scene'; storyShell();
+        saved.transcript.forEach((e) => {
+          transcript.push(e);
+          const el = addLine(e.text, e.cls, { facts: e.facts, words: e.words, intro: e.intro });
+          el.classList.remove('enter');
+        });
+        requestAnimationFrame(() => requestAnimationFrame(() => { try { scrollEl.scrollTop = scrollEl.scrollHeight; } catch (e) {} }));
+        Object.assign(state, {
+          setting: saved.setting, scene: saved.scene, metEthan: !!saved.metEthan,
+          visited: new Set(saved.visited || []), seenProjects: new Set(saved.seenProjects || []),
+          cardsShown: new Set(saved.cardsShown || []), interests: saved.interests || {}
+        });
+        setTheme(state.setting);
+        headEl.textContent = setting.place + ' · ' + scene.title;
+        renderTrail();
+        renderEnd(scene.choices, scene.factIds);
+        replaying = false;
+        return true;
+      } catch (e) { replaying = false; return false; }
+    };
+
+    return { recordLine, scheduleSave, restore, clearSession };
+  })();
+
   const dbPromise = (window.claude && typeof window.claude.use === 'function') ? window.claude.use('db').catch(() => null) : Promise.resolve(null);
   const session = { id: new Date().toISOString().replace(/[:.]/g, '-') + '-' + Math.random().toString(36).slice(2, 6), startedAt: new Date().toISOString(), events: [] };
   let flushTimer = 0;
@@ -1895,6 +2101,7 @@ main { transition: opacity 500ms ease; }
     if (session.events.length > 300) session.events.shift();
     clearTimeout(flushTimer);
     flushTimer = setTimeout(async () => { const db = await dbPromise; if (!db) return; try { await db.collection('sessions').doc(session.id).set({ startedAt: session.startedAt, updatedAt: new Date().toISOString(), prototype: 'v8', events: session.events }); } catch (e) { /* never blocks the tour */ } }, 700);
+    Persist.scheduleSave();
   }
   let aiMode = 'pending';
   // On the site the narrator lives at /api/adventure/ask: the browser sends where the visitor is and what
@@ -2026,7 +2233,7 @@ main { transition: opacity 500ms ease; }
     trailEl = $('footer', { class: 'trail' });
     const handle = $('button', { class: 'handle', type: 'button', 'aria-label': 'Raise or lower the story' });
     scrollEl = $('div', { class: 'trace-scroll' }, [
-      $('div', { class: 'trace-head' }, [headEl, $('button', { class: 'lift', type: 'button', text: 'Just the drawing', onclick: () => setLook(true) })]),
+      $('div', { class: 'trace-head' }, [headEl, $('button', { class: 'lift', type: 'button', text: narration === 'c' ? 'Read back' : 'Just the drawing', onclick: () => { if (narration === 'c') document.body.classList.toggle('unfurl'); else setLook(true); } })]),
       $('p', { class: 'legend' }, [$('i', { 'aria-hidden': 'true' }), $('span', { text: 'Marked lines come from Ethan’s records. Tap one to read the note. The rest is the story.' })]),
       pageEl, controlsEl, trailEl
     ]);
@@ -2272,6 +2479,7 @@ main { transition: opacity 500ms ease; }
     if (meta.intro && state.media === meta.intro) { pageEl.querySelectorAll('.line.showing').forEach((l) => l.classList.remove('showing')); el.classList.add('showing'); }
     pageEl.append(el);
     state.story.push(text); if (state.story.length > 60) state.story.shift();
+    Persist.recordLine(text, cls, meta);
     requestAnimationFrame(() => {
       const box = scrollEl.getBoundingClientRect(), r = el.getBoundingClientRect();
       if (r.bottom > box.top + box.height * 0.8 || r.top < box.top + box.height * 0.3) scrollEl.scrollTo({ top: scrollEl.scrollTop + r.top - box.top - box.height * 0.45, behavior: reduced ? 'auto' : 'smooth' });
@@ -2630,8 +2838,8 @@ main { transition: opacity 500ms ease; }
     return { reach: true, items: [{ text: 'Ethan pulls out a notebook and finds the page.', claim: false, kind: 'scene', facts: [], words: [] }, { text: FACTS[best], claim: true, kind: 'claim', facts: [best], words: [] }], factIds: [best], projects: [], show: null, suggest: [], interests: [] };
   }
 
-  document.getElementById('restart').addEventListener('click', () => { stopAsk(); Object.assign(state, { view: 'cover', setting: null, scene: null, metEthan: false, visited: new Set(), seenProjects: new Set(), cardsShown: new Set(), interests: {}, story: [], queue: [], media: null, liveMedia: null }); trailEl = null; view.node = null; canvasEl.replaceChildren(); plateEl.hidden = true; renderCover(); });
-  renderCover();
+  document.getElementById('restart').addEventListener('click', () => { stopAsk(); Persist.clearSession(); Object.assign(state, { view: 'cover', setting: null, scene: null, metEthan: false, visited: new Set(), seenProjects: new Set(), cardsShown: new Set(), interests: {}, story: [], queue: [], media: null, liveMedia: null }); trailEl = null; view.node = null; canvasEl.replaceChildren(); plateEl.hidden = true; renderCover(); });
+  if (!Persist.restore()) renderCover();
 })();
 </script>
 
