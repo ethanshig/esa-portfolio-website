@@ -329,7 +329,11 @@ main { transition: opacity 500ms ease; }
     LSTROKES.push({ pts, len: (a1 - a0) * R, li: i, ox });
   }));
   const TURN_DIR = [1, -1, 1];
-  function turns(t) { const c = ((t % 12) + 12) % 12; return [0, 1, 2].map((i) => ((TAU * calm((c - 0.6 - i * 2.2) / 3.2)) % TAU) * TURN_DIR[i]); }
+  /* The relay, slowed until it reads as still. A glance shows "esa"; look back a
+     minute later and a letter has quietly gone over. Every turn is still a full
+     circle, so the mark always lands back on the word. Seconds. */
+  const CYCLE = 600, FIRST = 20, GAP = 170, TURN = 150, REST = FIRST + 2 * GAP + TURN;
+  function turns(t) { const c = ((t % CYCLE) + CYCLE) % CYCLE; return [0, 1, 2].map((i) => ((TAU * calm((c - FIRST - i * GAP) / TURN)) % TAU) * TURN_DIR[i]); }
   function turnPts(st, th) { const cs = Math.cos(th), sn = Math.sin(th); return st.pts.map((p) => { const dx = p[0] - st.ox, dy = p[1]; return [st.ox + dx * cs + dy * sn, dy * cs - dx * sn]; }); }
 
   // Nav: the mark on the left, its bar running to the right edge.
@@ -356,7 +360,7 @@ main { transition: opacity 500ms ease; }
   function drawNav(t) {
     if (pageT0 === null) { arcs.forEach((a) => a(null)); barR(null); return; }
     const tp = t - pageT0;
-    const th = reduced ? [0, 0, 0] : turns(tp + 8.2);
+    const th = reduced ? [0, 0, 0] : turns(tp + REST);
     const arcIn = reduced ? 1 : calm(tp / 1.0);
     const barIn = reduced ? 1 : calm((tp - 0.55) / 0.70);
     const run = reduced ? 1 : calm((tp - 1.10) / 1.60);

@@ -103,9 +103,13 @@
 
   /* Relay, 12 s: e 0.6–3.8, s 2.8–6.0, a 5.0–8.2, rest. Touching circles mesh: e, a anticlockwise; s clockwise. */
   var TURN_DIR = [1, -1, 1];
+  /* The relay, slowed until it reads as still. A glance shows "esa"; look back a
+     minute later and a letter has quietly gone over. Every turn is still a full
+     circle, so the mark always lands back on the word. Seconds. */
+  var CYCLE = 600, FIRST = 20, GAP = 170, TURN = 150, REST = FIRST + 2 * GAP + TURN;
   function turns(t) {
-    var c = ((t % 12) + 12) % 12, th = [0, 0, 0];
-    for (var i = 0; i < 3; i++) th[i] = ((TAU * calm((c - 0.6 - i * 2.2) / 3.2)) % TAU) * TURN_DIR[i];
+    var c = ((t % CYCLE) + CYCLE) % CYCLE, th = [0, 0, 0];
+    for (var i = 0; i < 3; i++) th[i] = ((TAU * calm((c - FIRST - i * GAP) / TURN)) % TAU) * TURN_DIR[i];
     return th;
   }
   function turnPts(st, th) {
@@ -162,14 +166,14 @@
       var arcP, barP, extP, th;
       if (state.built) {
         arcP = barP = extP = 1;
-        th = reduce ? [0, 0, 0] : turns(t - state.loaded + 8.2);          /* rest ~4 s, then the relay */
+        th = reduce ? [0, 0, 0] : turns(t - state.loaded + REST);         /* land on the word, then the slow relay */
       } else if (tp < 0) {
         arcP = barP = extP = 0; th = [0, 0, 0];
       } else {
         arcP = calm(tp / 1.0);
         barP = calm((tp - 0.55) / 0.7);
         extP = calm((tp - 1.1) / 1.6);
-        th = tp < 2.7 ? [0, 0, 0] : turns(tp - 2.7 + 9.7);
+        th = tp < 2.7 ? [0, 0, 0] : turns(tp - 2.7 + REST);
         if (tp >= 2.1) container.classList.add('ls-links-in');
       }
       LSTROKES.forEach(function (st, i) { arcsR[i](ribbon(turnPts(st, th[st.li]), arcP, LOGO_W, null, st.len)); });
