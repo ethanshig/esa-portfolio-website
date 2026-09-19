@@ -361,31 +361,32 @@ html[data-narration="c"] .lift, html[data-narration="c"] .keepsake {
 html[data-narration="c"] .lift:hover, html[data-narration="c"] .keepsake:hover { opacity: 1; border-color: transparent; }
 
 /* Read back: the lines behind, returned only when asked for. */
-/* Scrolling back should feel like the lines arriving did: text rising out of nothing
-   and dissolving again, never meeting an edge. The mask does both ends at once, so a
-   line fades as it leaves the top exactly as it faded in at the bottom.
-   overscroll-behavior: contain keeps the wheel inside the text - the page never moves. */
+/* A container-wide mask cannot do this job. It fades the top and bottom of the BOX,
+   so every line between them sits at whatever flat opacity it was given and the first
+   line can never be bright. What is wanted is a reading position: whichever line is
+   crossing the middle of the readback is the line you are on, at full strength, and
+   its neighbours fall away in both directions - so a line brightens as you scroll it
+   in and dims as you pass it, going back through the story the way you came. That is
+   per-line and depends on scroll offset, so focusLines() sets it. The block padding is
+   what lets the first and last lines reach the middle at all. */
 body.unfurl[data-view="scene"] .trace-scroll {
   overflow-y: auto; max-height: 62vh;
   overscroll-behavior: contain;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 84%, transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 84%, transparent 100%);
   scrollbar-width: none;
 }
 body.unfurl[data-view="scene"] .trace-scroll::-webkit-scrollbar { width: 0; height: 0; }
-@media (prefers-reduced-motion: reduce) {
-  body.unfurl[data-view="scene"] .trace-scroll {
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 8%, #000 92%, transparent 100%);
-    mask-image: linear-gradient(to bottom, transparent 0, #000 8%, #000 92%, transparent 100%);
-  }
-}
 body.unfurl[data-view="scene"] .page { display: flex; flex-direction: column; gap: 13px; }
+/* While reading back, the present is put away: the card, the choices and the ask field
+   all belong to where the story currently is, not to where it has been. Only the way
+   out stays. This is also what lets the last line reach the middle of the box. */
+body.unfurl[data-view="scene"] .controls > *:not(.aside-row) { display: none; }
+body.unfurl[data-view="scene"] .controls { margin-top: 0; }
 body.unfurl[data-view="scene"] .page .line {
-  display: block; opacity: 0.3; max-width: 56ch; margin-inline: auto;
+  display: block; max-width: 56ch; margin-inline: auto;
   font-size: 0.93rem; line-height: 1.6; text-shadow: 0 0 18px var(--ground);
+  transition: none;
 }
-body.unfurl[data-view="scene"] .page .line.current { opacity: 1; }
-html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom: auto; top: calc(var(--nav-h) + var(--L4)); }
+body.unfurl[data-view="scene"] .page .eyebrow { transition: none; }
 html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom: auto; top: calc(var(--nav-h) + var(--L4)); }
 </style>
 
@@ -2260,6 +2261,7 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
       $('div', { class: 'trace-head' }, [headEl, $('button', { class: 'lift', type: 'button', text: 'Just the drawing', onclick: () => setLook(true) })]),
       pageEl, controlsEl, trailEl
     ]);
+    scrollEl.addEventListener('scroll', queueFocus, { passive: true });
     traceEl = $('section', { class: 'trace', 'aria-label': 'Story' }, [outline, handle, scrollEl]);
     main.replaceChildren(traceEl);
     document.body.dataset.view = 'scene';
@@ -2499,6 +2501,57 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
     });
     return el;
   }
+  // ---------- the reading position in the readback ----------
+  // Going back through the story should feel like going back through it, not like
+  // scanning a dim list. Whichever line crosses the middle of the readback is the line
+  // being read - full strength, exactly as when it first arrived - and everything above
+  // and below falls off with distance from it.
+  const FOCUS_FLOOR = 0.07;
+  let focusPending = false;
+  // The first and last lines have to be able to reach the middle of the box, or the
+  // story appears to begin and end in the dark. Modelling the air needed is fragile -
+  // the scroll box has its own padding, a place mark can sit above line one, controls
+  // sit below the last - so measure it: zero the padding, look at where the end lines
+  // actually land, and add exactly the difference.
+  function padForFocus() {
+    if (!pageEl || !scrollEl) return;
+    const lines = pageEl.querySelectorAll('.line');
+    if (!lines.length) return;
+    const last = lines[lines.length - 1];
+    pageEl.style.paddingTop = pageEl.style.paddingBottom = '0px';
+    const box = scrollEl.getBoundingClientRect(), half = box.height / 2;
+
+    scrollEl.scrollTop = 0;
+    const f = lines[0].getBoundingClientRect();
+    pageEl.style.paddingTop = Math.max(0, half - (f.top + f.height / 2 - box.top)) + 'px';
+
+    scrollEl.scrollTop = scrollEl.scrollHeight;
+    const l = last.getBoundingClientRect();
+    pageEl.style.paddingBottom = Math.max(0, half - (box.bottom - (l.top + l.height / 2))) + 'px';
+  }
+  function focusLines() {
+    focusPending = false;
+    if (!pageEl || !scrollEl || !document.body.classList.contains('unfurl')) return;
+    const box = scrollEl.getBoundingClientRect();
+    const eye = box.top + box.height / 2, reach = box.height / 2;
+    pageEl.querySelectorAll('.line, .eyebrow').forEach((el) => {
+      const r = el.getBoundingClientRect();
+      const t = Math.min(1, Math.abs(r.top + r.height / 2 - eye) / reach);
+      el.style.opacity = (FOCUS_FLOOR + (1 - FOCUS_FLOOR) * (0.5 + 0.5 * Math.cos(Math.PI * t))).toFixed(3);
+    });
+  }
+  function queueFocus() {
+    if (focusPending) return;
+    focusPending = true;
+    requestAnimationFrame(focusLines);
+  }
+  function clearFocus() {
+    if (!pageEl) return;
+    pageEl.querySelectorAll('.line, .eyebrow').forEach((el) => { el.style.opacity = ''; });
+    pageEl.style.paddingTop = pageEl.style.paddingBottom = '';
+  }
+  addEventListener('resize', () => { if (document.body.classList.contains('unfurl')) { padForFocus(); queueFocus(); } });
+
   function advance() {
     if (state.busy || !state.queue.length) return;
     const next = state.queue[0];
@@ -2558,7 +2611,8 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
           const on = document.body.classList.toggle('unfurl');
           // Opening the readback should put you where you are, not at the beginning:
           // you scroll up into what you have already read.
-          if (on) requestAnimationFrame(() => { scrollEl.scrollTop = scrollEl.scrollHeight; });
+          if (on) requestAnimationFrame(() => { padForFocus(); scrollEl.scrollTop = scrollEl.scrollHeight; focusLines(); });
+          else clearFocus();
         } }),
         $('a', { class: 'keepsake', href: 'transcript.html', text: 'Keep this →' })
       ]));
