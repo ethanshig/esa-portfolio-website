@@ -90,10 +90,6 @@ html {
     transition: filter var(--transition-medium);
 }
 
-[data-theme="dark"] .theme-icon {
-    filter: brightness(0) invert(1); /* Make white in dark mode */
-}
-
 /* ===================================
    FLIP CARD STRUCTURE
    =================================== */

@@ -87,10 +87,6 @@
     transition: filter var(--transition-medium);
 }
 
-[data-theme="dark"] .theme-icon {
-    filter: brightness(0) invert(1);
-}
-
 /* ===================================
    FLIP CARD FOR NAVIGATION
    =================================== */
@@ -210,12 +206,6 @@
     color: #fafafa;
 }
 
-/* Dark mode: light background with dark text for back layer */
-[data-theme="dark"] .card-back-layer {
-    background-color: #fafafa;
-    color: #0a0a0a;
-}
-
 /* Force text colors for all content inside back layer - Light Mode */
 :root .card-back-layer .card-content,
 :root .card-back-layer .card-content-detailed,
@@ -234,26 +224,6 @@
 /* Force bullet colors - Light Mode */
 :root .card-back-layer .detail-list li::before {
     color: #fafafa !important;
-}
-
-/* Force text colors for all content inside back layer - Dark Mode */
-[data-theme="dark"] .card-back-layer .card-content,
-[data-theme="dark"] .card-back-layer .card-content-detailed,
-[data-theme="dark"] .card-back-layer h3,
-[data-theme="dark"] .card-back-layer .institution,
-[data-theme="dark"] .card-back-layer .date,
-[data-theme="dark"] .card-back-layer .detail,
-[data-theme="dark"] .card-back-layer .detail-list li,
-[data-theme="dark"] .card-back-layer .skill-group h4,
-[data-theme="dark"] .card-back-layer .skill-group p,
-[data-theme="dark"] .card-back-layer a.cta-link,
-[data-theme="dark"] .card-back-layer a.download-link {
-    color: #0a0a0a !important;
-}
-
-/* Force bullet colors - Dark Mode */
-[data-theme="dark"] .card-back-layer .detail-list li::before {
-    color: #0a0a0a !important;
 }
 
 /* Show back content when card is hovered (flipped) */
@@ -439,12 +409,6 @@
     color: #fafafa;
 }
 
-/* Dark mode: light background with dark text */
-[data-theme="dark"] .flip-card-back-resume {
-    background-color: #fafafa;
-    color: #0a0a0a;
-}
-
 /* Force text colors for all content inside flipped cards - Light Mode */
 :root .flip-card-back-resume .card-content,
 :root .flip-card-back-resume .card-content-detailed,
@@ -457,20 +421,6 @@
 :root .flip-card-back-resume .skill-group p,
 :root .flip-card-back-resume a {
     color: #fafafa !important;
-}
-
-/* Force text colors for all content inside flipped cards - Dark Mode */
-[data-theme="dark"] .flip-card-back-resume .card-content,
-[data-theme="dark"] .flip-card-back-resume .card-content-detailed,
-[data-theme="dark"] .flip-card-back-resume h3,
-[data-theme="dark"] .flip-card-back-resume .institution,
-[data-theme="dark"] .flip-card-back-resume .date,
-[data-theme="dark"] .flip-card-back-resume .detail,
-[data-theme="dark"] .flip-card-back-resume .detail-list li,
-[data-theme="dark"] .flip-card-back-resume .skill-group h4,
-[data-theme="dark"] .flip-card-back-resume .skill-group p,
-[data-theme="dark"] .flip-card-back-resume a {
-    color: #0a0a0a !important;
 }
 
 .flip-card-back-resume .card-content {
@@ -571,10 +521,6 @@
     color: #fafafa;
 }
 
-[data-theme="dark"] .flip-card-back-resume .detail-list li::before {
-    color: #0a0a0a;
-}
-
 /* ===================================
    SKILLS CONTENT
    =================================== */
@@ -630,25 +576,6 @@
     background-color: transparent !important;
     color: #fafafa !important;
     border-color: #fafafa;
-}
-
-/* Dark mode: Links on light flipped card background (inside .card-back-layer or .flip-card-back-resume) */
-[data-theme="dark"] .card-back-layer .download-link,
-[data-theme="dark"] .card-back-layer .cta-link,
-[data-theme="dark"] .flip-card-back-resume .download-link,
-[data-theme="dark"] .flip-card-back-resume .cta-link {
-    background-color: #0a0a0a !important;
-    color: #fafafa !important;
-    border: 1px solid #0a0a0a;
-}
-
-[data-theme="dark"] .card-back-layer .download-link:hover,
-[data-theme="dark"] .card-back-layer .cta-link:hover,
-[data-theme="dark"] .flip-card-back-resume .download-link:hover,
-[data-theme="dark"] .flip-card-back-resume .cta-link:hover {
-    background-color: transparent !important;
-    color: #0a0a0a !important;
-    border-color: #0a0a0a;
 }
 
 /* ===================================

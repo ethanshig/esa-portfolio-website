@@ -80,19 +80,6 @@
     --transition-slow: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark Mode */
-[data-theme="dark"] {
-    --color-primary: #eeece7;        /* Ash */
-    --color-secondary: #b2ada4;      /* Warm light grey */
-    --color-accent: #c47a5c;         /* Terracotta, lifted to carry on dark */
-    --color-bg: #1f1d1a;             /* Charcoal */
-    --color-bg-alt: #29261f;         /* Charcoal, one shade up */
-    --color-text: #eeece7;           /* Ash */
-    --color-text-light: #a7a299;     /* Warm grey */
-    --color-utility-gray: #a7a299;   /* Captions, metadata */
-    --color-border: #36322a;         /* Dark borders, warm */
-}
-
 /* ===================================
    RESET & BASE STYLES
    =================================== */
@@ -554,40 +541,6 @@ ul {
     .hero {
         padding: var(--spacing-xl) var(--spacing-md);
     }
-
-    .theme-toggle {
-        margin-left: var(--spacing-sm);
-    }
-}
-
-/* ===================================
-   THEME TOGGLE
-   =================================== */
-.theme-toggle {
-    position: relative;
-    background: transparent;
-    border: 1px solid var(--color-border);
-    padding: 0.5rem 0.75rem;
-    cursor: pointer;
-    color: var(--color-text-light);
-    font-size: var(--text-xs);
-    font-family: var(--font-primary);
-    font-weight: 400;
-    letter-spacing: 0.02em;
-    transition: all var(--transition-medium);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-left: var(--spacing-md);
-}
-
-.theme-toggle:hover {
-    border-color: var(--color-primary);
-    color: var(--color-primary);
-}
-
-.theme-icon {
-    font-size: 1rem;
 }
 
 /* ===================================
@@ -622,11 +575,6 @@ ul {
     z-index: 2;
     animation: tracePath 20s infinite;
     offset-rotate: 0deg;
-}
-
-[data-theme="dark"] .esa-glow {
-    background: radial-gradient(circle, rgba(255, 240, 200, 1) 0%, rgba(255, 230, 180, 0.8) 30%, rgba(255, 200, 100, 0.3) 60%, transparent 80%);
-    filter: blur(8px);
 }
 
 @keyframes tracePath {

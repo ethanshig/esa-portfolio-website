@@ -7,6 +7,7 @@
     --L: clamp(28px, 5.667vw, 96px);           /* one lattice step = one esa circle radius */
     --L4: calc(var(--L) / 4);                  /* fine lattice */
     --logo-h: clamp(15px, 3.1vw, 30px);
+    --nav-top: max(var(--L4), 26px);           /* the tour's nav rhythm, shared */
     --ls-ink: var(--color-primary, #1a1a1a);
 }
 
@@ -14,8 +15,7 @@
 html.ls-on .navbar {
     box-shadow: none !important;               /* main.js adds a scroll shadow; the bar is the edge now */
     border-bottom: none;
-    padding-block: var(--L4);
-    padding-inline: 0;
+    padding: var(--nav-top) 0 var(--L4);       /* same rhythm as the tour's header */
     background-color: var(--color-bg);
     backdrop-filter: none;
 }
@@ -65,19 +65,20 @@ html.ls-on .navbar .logo:focus-visible {
 }
 .ls-links-in .ls-nav-right { opacity: 1; }
 html.ls-on .nav-menu { gap: clamp(0.9rem, 2vw, 2rem); align-items: flex-end; }
-html.ls-on .nav-link { line-height: 1; display: block; }
-html.ls-on .nav-link::after { display: none; }
-html.ls-on .navbar .theme-toggle {
-    border: none;
-    padding: 0;
-    margin: 0;
+/* The tour's links: white, held back to 62% until you reach for them. The bar stays
+   opaque here rather than difference-blended like the tour's, because body text scrolls
+   under it on about and resume - the tour can be transparent only because a full-bleed
+   drawing sits behind it. */
+html.ls-on .nav-link {
     line-height: 1;
-    font-size: var(--text-sm);
-    color: var(--color-text-light);
-    background: transparent;
+    display: block;
+    color: #fff;
+    opacity: 0.62;
+    font-size: 0.85rem;
+    transition: opacity 180ms ease;
 }
-html.ls-on .navbar .theme-toggle:hover { color: var(--color-primary); }
-html.ls-on .theme-icon:empty { display: none; }
+html.ls-on .nav-link:hover, html.ls-on .nav-link.active { opacity: 1; color: #fff; }
+html.ls-on .nav-link::after { display: none; }
 
 @media (max-width: 768px) {
     html.ls-on .nav-menu {

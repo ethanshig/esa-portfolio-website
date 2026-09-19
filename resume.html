@@ -9,11 +9,6 @@
     <link rel="stylesheet" href="css/grid-system.css">
     <link rel="stylesheet" href="css/grid-content.css">
     <link rel="stylesheet" href="css/line-system.css">
-    <script>
-        // Apply theme immediately to prevent flash
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-    </script>
     <link rel="icon" href="images/favicon.svg">
 </head>
 <body>
@@ -24,13 +19,9 @@
             <ul class="nav-menu">
                 <li><a href="projects.html" class="nav-link">Projects</a></li>
                 <li><a href="about.html" class="nav-link">About</a></li>
-                <li><a href="resume.html" class="nav-link active">Resume</a></li>
+                <li><a href="resume.html" class="nav-link active">Résumé</a></li>
                 <li><a href="contact.html" class="nav-link">Contact</a></li>
             </ul>
-            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
-                <span class="theme-icon" id="theme-icon"></span>
-                <span id="theme-label">Light</span>
-            </button>
             <div class="hamburger">
                 <span></span>
                 <span></span>
@@ -44,7 +35,7 @@
         <div class="page-grid">
             <!-- Hero Section with PDF Download -->
             <section class="grid-item grid-span-full grid-margin-vertical">
-                <h1 class="page-title">Resume</h1>
+                <h1 class="page-title">Résumé</h1>
                 <p class="page-subtitle">
                     Ethan Anderson is a design student passionate about the intersection of architecture, sustainability, and technology. Experienced in professional practice at RATIO and in leading sustainable design initiatives such as Kingfisher Composting.
                 </p>

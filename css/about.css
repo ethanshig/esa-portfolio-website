@@ -377,35 +377,6 @@
 /* ===================================
    DARK MODE ADJUSTMENTS
    =================================== */
-[data-theme="dark"] .flip-card-back-about .timeline-item {
-    border-bottom-color: rgba(10, 10, 10, 0.2);
-}
-
-[data-theme="dark"] .flip-card-back-about h2,
-[data-theme="dark"] .flip-card-back-about h3,
-[data-theme="dark"] .flip-card-back-about h4 {
-    color: var(--color-bg);
-}
-
-[data-theme="dark"] .flip-card-back-about p,
-[data-theme="dark"] .flip-card-back-about .card-intro,
-[data-theme="dark"] .flip-card-back-about .skills-list li,
-[data-theme="dark"] .flip-card-back-about .timeline-inst,
-[data-theme="dark"] .flip-card-back-about .cta-text {
-    color: rgba(10, 10, 10, 0.8);
-}
-
-[data-theme="dark"] .flip-card-back-about .timeline-date,
-[data-theme="dark"] .flip-card-back-about .timeline-desc,
-[data-theme="dark"] .flip-card-back-about .skills-list li::before {
-    color: rgba(10, 10, 10, 0.6);
-}
-
-[data-theme="dark"] .cta-link-outline {
-    border-color: rgba(10, 10, 10, 0.5);
-    border-style: solid;
-}
-
 /* ===================================
    RESPONSIVE DESIGN
    =================================== */

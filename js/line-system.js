@@ -141,7 +141,7 @@
 
     var right = document.createElement('div');
     right.className = 'ls-nav-right';
-    [container.querySelector('.nav-menu'), container.querySelector('.theme-toggle'), container.querySelector('.hamburger')]
+    [container.querySelector('.nav-menu'), container.querySelector('.hamburger')]
       .forEach(function (n) { if (n) right.appendChild(n); });
     container.appendChild(right);
 
