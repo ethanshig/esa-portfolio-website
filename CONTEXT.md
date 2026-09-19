@@ -8,8 +8,9 @@ that world.
 ## The world
 
 **Place**:
-One of the four real locations the tour visits, each with a region, a lure and its own
-palette. Places are authored in `world.json`.
+One of the real locations the tour visits, each with a region and a lure. Places are authored
+in `world.json`. A Place has no colour of its own — the site runs one ground everywhere — so
+a Place is told apart by where it sits and what it holds, never by hue.
 _Avoid_: setting (the data key, not the word we use), portal, location, destination
 
 **Region**:
