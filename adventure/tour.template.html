@@ -127,7 +127,7 @@ body.look .story-tab { opacity: 1; pointer-events: auto; }
 .page { display: flex; flex-direction: column; gap: 11px; }
 .line { position: relative; margin: 0; font-size: 1rem; line-height: 1.5; opacity: 0.76; transition: opacity 300ms ease; }
 .line[data-media] { cursor: pointer; }
-.line[data-media]:hover, .line.open { opacity: 0.95; }
+.line[data-media]:hover { opacity: 0.95; }
 .line.current { font-size: clamp(1.14rem, 1.55vw, 1.4rem); line-height: 1.32; letter-spacing: -0.01em; opacity: 1; }
 .line.record { color: var(--record); }
 .line.record::before { content: ""; position: absolute; left: -18px; top: calc(0.75em - 4px); width: 8px; height: 8px; border-radius: 50%; background: var(--record); }
@@ -136,10 +136,6 @@ body.look .story-tab { opacity: 1; pointer-events: auto; }
 .line.thinking { color: var(--muted); opacity: 1; animation: breathe 1.1s ease-in-out infinite alternate; }
 .line .thumb { float: right; width: 30px; height: 30px; margin: 1px 0 4px 12px; border-radius: 6px; background: var(--line) center / cover no-repeat; box-shadow: 0 0 0 1px var(--line); transition: box-shadow 200ms ease; }
 .line.showing .thumb { box-shadow: 0 0 0 2px var(--ground), 0 0 0 3.5px var(--ink); }
-.source { margin: -2px 0 4px; padding: 9px 12px; border-left: 2px solid var(--record); border-radius: 0 8px 8px 0; background: color-mix(in srgb, var(--ground) 55%, transparent); font-size: 0.8rem; line-height: 1.45; color: var(--ink); animation: rise 300ms ease both; }
-.source .from { display: block; margin-bottom: 4px; color: var(--record); font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; }
-.source p { margin: 0; }
-.source p + p { margin-top: 5px; }
 .place-mark { margin: 26px 0 2px; }
 .place-mark:first-child { margin-top: 0; }
 .divider { width: 44px; height: 1px; background: var(--line); margin: 8px 0; }
@@ -263,7 +259,7 @@ html[data-narration="a"] .legend, html[data-narration="a"] .lift { display: none
 html[data-narration="a"] .page { gap: 34px; }
 html[data-narration="a"] .line { font-size: 1.02rem; line-height: 1.85; opacity: 0.46; text-shadow: 0 0 16px var(--ground); }
 html[data-narration="a"] .line.current { font-size: clamp(1.2rem, 1.6vw, 1.46rem); line-height: 1.6; opacity: 1; text-shadow: 0 0 18px var(--ground); }
-html[data-narration="a"] .line[data-media]:hover, html[data-narration="a"] .line.open { opacity: 0.7; }
+html[data-narration="a"] .line[data-media]:hover { opacity: 0.7; }
 html[data-narration="a"] .controls { margin-top: 38px; gap: 20px; }
 html[data-narration="a"] .trail { border-top: 0; margin-top: 44px; opacity: 0.55; }
 html[data-narration="a"] .card, html[data-narration="b"] .card, html[data-narration="c"] .card {
@@ -337,7 +333,6 @@ html[data-narration="c"] .line.current {
   letter-spacing: 0; text-shadow: 0 0 20px var(--ground), 0 0 7px var(--ground);
 }
 html[data-narration="c"] .line .thumb { float: none; display: inline-block; width: 22px; height: 22px; vertical-align: -5px; margin: 0 0 0 9px; }
-html[data-narration="c"] .source { max-width: 60ch; margin: 8px auto 0; text-align: left; font-size: 0.76rem; }
 
 /* The card shrinks to what a caption can carry: the name, and that there is more. */
 html[data-narration="c"] .controls { margin-top: 10px; justify-items: center; gap: 9px; }
@@ -366,14 +361,23 @@ html[data-narration="c"] .lift, html[data-narration="c"] .keepsake {
 html[data-narration="c"] .lift:hover, html[data-narration="c"] .keepsake:hover { opacity: 1; border-color: transparent; }
 
 /* Read back: the lines behind, returned only when asked for. */
+/* Scrolling back should feel like the lines arriving did: text rising out of nothing
+   and dissolving again, never meeting an edge. The mask does both ends at once, so a
+   line fades as it leaves the top exactly as it faded in at the bottom.
+   overscroll-behavior: contain keeps the wheel inside the text - the page never moves. */
 body.unfurl[data-view="scene"] .trace-scroll {
   overflow-y: auto; max-height: 62vh;
-  overscroll-behavior: contain; scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--ink) 28%, transparent) transparent;
+  overscroll-behavior: contain;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 84%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 84%, transparent 100%);
+  scrollbar-width: none;
 }
-body.unfurl[data-view="scene"] .trace-scroll::-webkit-scrollbar { width: 6px; }
-body.unfurl[data-view="scene"] .trace-scroll::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--ink) 26%, transparent); border-radius: 3px;
+body.unfurl[data-view="scene"] .trace-scroll::-webkit-scrollbar { width: 0; height: 0; }
+@media (prefers-reduced-motion: reduce) {
+  body.unfurl[data-view="scene"] .trace-scroll {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 8%, #000 92%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 8%, #000 92%, transparent 100%);
+  }
 }
 body.unfurl[data-view="scene"] .page { display: flex; flex-direction: column; gap: 13px; }
 body.unfurl[data-view="scene"] .page .line {
@@ -1014,30 +1018,11 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
   }
 
   // ---------- where lines come from ----------
-  function sourceNote(facts = [], words = [], text = '') {
-    const kids = [];
-    const pids = [...new Set([...facts.map((f) => projectOfFact[f]), ...words])].filter(Boolean);
-    const titles = pids.map((id) => PROJECTS.find((p) => p.id === id).title);
-    kids.push($('span', { class: 'from', text: `From Ethan’s records${titles.length ? ' · ' + titles.join(', ') : ''}` }));
-    facts.forEach((f) => kids.push($('p', { text: FACTS[f] })));
-    words.forEach((id) => {
-      const p = PROJECTS.find((x) => x.id === id); if (!p || !p.ethansWords) return;
-      const want = new Set(text.toLowerCase().match(/[a-z]{4,}/g) || []);
-      const sentences = Object.values(p.ethansWords).filter(Boolean).join(' ').split(/(?<=[.!?])\s+/);
-      const ranked = sentences.map((s, k) => [k, (s.toLowerCase().match(/[a-z]{4,}/g) || []).filter((w) => want.has(w)).length]).sort((x, y) => y[1] - x[1]).slice(0, 2).map(([k]) => k).sort((x, y) => x - y);
-      kids.push($('p', { text: `In his own words: “${ranked.map((k) => sentences[k]).join(' ')}”` }));
-    });
-    return $('div', { class: 'source' }, kids);
-  }
+  // Tapping a line brings its drawing back. The mark says the line came from Ethan's
+  // records and that is the whole claim - which record it came from is not a question
+  // the story owes an answer to.
   function openLine(el) {
     if (el.dataset.media && el.dataset.media !== state.media) { showMedia(el.dataset.media, el.dataset.media === state.liveMedia ? 'live' : 'past'); log('recall', { media: el.dataset.media }); }
-    if (!el.classList.contains('record')) return;
-    const next = el.nextElementSibling;
-    if (next && next.classList.contains('source')) { next.remove(); el.classList.remove('open'); el.setAttribute('aria-expanded', 'false'); return; }
-    const meta = el._meta || {};
-    el.after(sourceNote(meta.facts, meta.words, el.textContent));
-    el.classList.add('open'); el.setAttribute('aria-expanded', 'true');
-    log('source', { facts: meta.facts, words: meta.words });
   }
 
   const arrivalOf = (setting) => WORLD.settings[setting].start;
@@ -1082,11 +1067,11 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
     pageEl.querySelectorAll('.line.current').forEach((l) => l.classList.remove('current'));
     const record = (meta.facts && meta.facts.length) || (meta.words && meta.words.length);
     const el = $('p', { class: `line current enter ${cls} ${record ? 'record' : ''}`.replace(/\s+/g, ' ').trim() });
-    if (record) { el.append($('span', { class: 'sr', text: 'From Ethan’s records: ' })); el._meta = { facts: meta.facts || [], words: meta.words || [] }; }
+    if (record) el.append($('span', { class: 'sr', text: 'From Ethan’s records: ' }));
     if (meta.intro && MEDIA[meta.intro]) { el.dataset.intro = meta.intro; el.append($('span', { class: 'thumb', 'aria-hidden': 'true', style: `background-image:url("${MEDIA[meta.intro].src.replace(/\.mp4$/, '.jpg')}")` })); }
     el.append(text);
     if (state.liveMedia) el.dataset.media = state.liveMedia;
-    if (el.dataset.media || record) { el.tabIndex = 0; el.setAttribute('role', 'button'); if (record) el.setAttribute('aria-expanded', 'false'); }
+    if (el.dataset.media) { el.tabIndex = 0; el.setAttribute('role', 'button'); }
     el.addEventListener('click', () => openLine(el));
     el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); openLine(el); } });
     if (meta.intro && state.media === meta.intro) { pageEl.querySelectorAll('.line.showing').forEach((l) => l.classList.remove('showing')); el.classList.add('showing'); }
@@ -1097,7 +1082,7 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
       teachMark();
       el.append($('span', { class: 'mark-lesson' }, [
         $('i', { 'aria-hidden': 'true' }),
-        $('span', { text: 'This mark means the line comes from Ethan\u2019s own records. Tap it to read the note it came from.' })
+        $('span', { text: 'This mark means the line comes straight from Ethan\u2019s own records, not from the storytelling.' })
       ]));
     }
     state.story.push(text); if (state.story.length > 60) state.story.shift();
@@ -1162,7 +1147,13 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
     // back through the lines already read, or out to the page that hands them over.
     if (narration === 'c') {
       controlsEl.append($('div', { class: 'aside-row' }, [
-        $('button', { class: 'lift', type: 'button', text: 'Read back', onclick: (e) => { e.stopPropagation(); document.body.classList.toggle('unfurl'); } }),
+        $('button', { class: 'lift', type: 'button', text: 'Read back', onclick: (e) => {
+          e.stopPropagation();
+          const on = document.body.classList.toggle('unfurl');
+          // Opening the readback should put you where you are, not at the beginning:
+          // you scroll up into what you have already read.
+          if (on) requestAnimationFrame(() => { scrollEl.scrollTop = scrollEl.scrollHeight; });
+        } }),
         $('a', { class: 'keepsake', href: 'transcript.html', text: 'Keep this →' })
       ]));
     }
