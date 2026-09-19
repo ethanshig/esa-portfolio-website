@@ -41,13 +41,10 @@
 * { box-sizing: border-box; }
 html { background: var(--ground); transition: background-color 1.2s ease; }
 body { margin: 0; padding-inline: var(--L); min-height: 100vh; background: var(--ground); color: var(--ink); font-family: Sato, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; transition: background-color 1.2s ease, color 1.2s ease; }
-/* The lattice: touching circles of radius L, the geometry the esa letters are cut from. */
-body::before, .trace::before {
-  position: fixed; inset: 0; z-index: -1; pointer-events: none; content: ""; opacity: 0.55;
-  background-image: radial-gradient(circle at var(--L) var(--L), transparent calc(var(--L) - 1px), var(--line) var(--L), transparent calc(var(--L) + 1px));
-  background-size: calc(2 * var(--L)) calc(2 * var(--L));
-  background-position: 0 calc(var(--nav-h) - var(--L));
-}
+/* The lattice is a measure, not a drawing: --L is the step every edge and rule snaps
+   to, and it does its work without being painted. The circles it was once drawn with
+   are gone - they competed with the drawings, which are the only thing on this page
+   that should be asking to be looked at. */
 button, input { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -140,7 +137,7 @@ body.look .looking { opacity: 1; }
 /* The one-time lessons: what the red mark means, and that the drawing moves. */
 .mark-lesson { display: flex; align-items: baseline; gap: 8px; margin: 10px auto 0; max-width: 44ch; color: var(--muted); font-size: 0.74rem; line-height: 1.45; text-align: left; animation: rise 700ms ease 400ms both; }
 .mark-lesson i { flex: none; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--record); transform: translateY(-1px); }
-.hint { margin: 9px auto 0; max-width: 44ch; color: var(--muted); font-size: 0.72rem; line-height: 1.45; text-align: center; animation: rise 700ms ease 600ms both; }
+.hint { display: block; margin: 9px auto 0; max-width: 44ch; color: var(--muted); font-size: 0.72rem; line-height: 1.45; text-align: center; text-shadow: 0 0 18px var(--ground), 0 0 6px var(--ground); animation: rise 700ms ease 600ms both; }
 
 /* Only the line you are on is on screen; the rest - and the place marks that divide
    them - are behind the readback. */
@@ -740,7 +737,7 @@ main { transition: opacity 500ms ease; }
     if (!el || !state.media) return;
     try { if (localStorage.getItem(ZOOM_KEY) === '1') return; } catch (e) { return; }
     try { localStorage.setItem(ZOOM_KEY, '1'); } catch (e) { return; }
-    el.after($('p', { class: 'hint', text: 'Drag the drawing to move it, scroll or pinch to look closer.' }));
+    el.append($('span', { class: 'hint', text: 'Drag the drawing to move it, scroll or pinch to look closer.' }));
   }
   const forgetZoomLesson = () => { try { localStorage.removeItem(ZOOM_KEY); } catch (e) {} };
 
