@@ -116,7 +116,8 @@ body:not([data-view="scene"]) .scrim, body:not([data-view="scene"]) .canvas, bod
 .trace-scroll > *:first-child { margin-top: auto; }
 /* Look mode: the story drops out of the way and the drawing has the screen. */
 body.look .trace { transform: translateY(100%); }
-.story-tab { position: fixed; z-index: 11; right: 0; top: 50%; transform: translateY(-50%); writing-mode: vertical-rl; border: 0; border-radius: 10px 0 0 10px; padding: 16px 9px; background: color-mix(in srgb, var(--ground) 88%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); font-size: 0.82rem; letter-spacing: 0.04em; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 400ms ease; }
+.story-tab { position: fixed; z-index: 11; left: 50%; bottom: calc(var(--L) * 0.42); transform: translateX(-50%); border: 1px solid var(--line); border-radius: 999px; padding: 7px 17px; background: color-mix(in srgb, var(--ground) 62%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); font-size: 0.8rem; letter-spacing: 0.04em; white-space: nowrap; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 400ms ease, border-color 180ms ease; }
+.story-tab:hover { border-color: var(--ink); }
 body.look .story-tab { opacity: 1; pointer-events: auto; }
 
 /* Looking: the drawing's own name and description, which appear only once you
@@ -126,7 +127,7 @@ body.look .story-tab { opacity: 1; pointer-events: auto; }
    bright one muted type with a glow behind it simply disappears - which is the same
    lesson the caption learned: "no box" means no edge, not no ground. The caption is
    away while this is up, so the two never stack. */
-.looking { position: fixed; z-index: 9; inset: auto 0 0 0; padding: calc(var(--L) * 0.9) var(--L) calc(var(--L) * 0.42); opacity: 0; pointer-events: none; transition: opacity 500ms ease; background: linear-gradient(to top, color-mix(in srgb, var(--ground) 96%, transparent), color-mix(in srgb, var(--ground) 86%, transparent) 62%, transparent); }
+.looking { position: fixed; z-index: 9; inset: auto 0 0 0; padding: calc(var(--L) * 0.9) var(--L) calc(var(--L) * 0.42 + 44px); opacity: 0; pointer-events: none; transition: opacity 500ms ease; background: linear-gradient(to top, color-mix(in srgb, var(--ground) 96%, transparent), color-mix(in srgb, var(--ground) 86%, transparent) 62%, transparent); }
 body.look .looking { opacity: 1; }
 .looking[hidden] { display: none !important; }
 .looking-name { margin: 0 0 6px; max-width: 62ch; font-size: 0.86rem; line-height: 1.35; text-shadow: 0 0 18px var(--ground), 0 0 6px var(--ground); }
