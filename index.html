@@ -71,11 +71,6 @@ main { padding-block: calc(var(--L) * 0.6) var(--L); }
 
 /* ---------- cover ---------- */
 .center { min-height: calc(100vh - var(--nav-h) - 2 * var(--L)); display: flex; flex-direction: column; justify-content: center; max-width: 900px; margin: 0 auto; }
-.cover h1 { margin: 14px 0 26px; font-size: clamp(3rem, 10vw, 6.2rem); line-height: 0.92; letter-spacing: -0.035em; }
-.cover .lines { display: grid; gap: 12px; max-width: 36ch; margin-bottom: 34px; }
-.cover .lines p { margin: 0; font-size: clamp(1.1rem, 2.3vw, 1.4rem); line-height: 1.4; }
-.cover .aside { margin: 22px 0 0; color: var(--muted); font-size: 0.9rem; max-width: 52ch; }
-.cover .lines .record-demo { color: var(--record); position: relative; }
 .primary { display: inline-flex; align-self: flex-start; align-items: baseline; gap: 14px; min-height: 52px; padding: 14px 22px; border: 1px solid var(--ink); border-radius: 999px; background: var(--ink); color: var(--ground); font-size: 1.05rem; cursor: pointer; transition: background 160ms ease, color 160ms ease; }
 .primary:hover { background: transparent; color: var(--ink); }
 
@@ -122,8 +117,10 @@ body.look .trace { transform: translateX(calc(100% + var(--L) + 8px)); }
 .lift { flex: none; border: 1px solid var(--line); border-radius: 999px; background: transparent; padding: 4px 11px; font-size: 0.76rem; cursor: pointer; }
 .lift:hover { border-color: var(--ink); }
 .legend { display: flex; align-items: baseline; gap: 8px; margin: 0 0 20px; color: var(--muted); font-size: 0.76rem; line-height: 1.4; }
-.legend i, .cover .record-demo i { flex: none; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--record); transform: translateY(-1px); }
-.cover .record-demo i { position: absolute; left: -18px; top: 0.62em; }
+.mark-lesson { display: flex; align-items: baseline; gap: 8px; margin: 10px 0 0; color: var(--muted); font-size: 0.74rem; line-height: 1.45; text-align: left; animation: rise 700ms ease 400ms both; }
+.mark-lesson i { flex: none; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--record); transform: translateY(-1px); }
+html[data-narration="c"] .mark-lesson { max-width: 44ch; margin-inline: auto; }
+.legend i { flex: none; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--record); transform: translateY(-1px); }
 .story-tab { position: fixed; z-index: 11; right: 0; top: 50%; transform: translateY(-50%); writing-mode: vertical-rl; border: 0; border-radius: 10px 0 0 10px; padding: 16px 9px; background: color-mix(in srgb, var(--ground) 88%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); font-size: 0.82rem; letter-spacing: 0.04em; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 400ms ease; }
 body.look .story-tab { opacity: 1; pointer-events: auto; }
 
@@ -318,12 +315,17 @@ html[data-narration="c"] .trace {
 }
 html[data-narration="c"] .trace::before,
 html[data-narration="c"] .trace .outline { display: none; }
+/* The caption sits at the foot by pushing itself down with an auto margin, NOT with
+   justify-content: flex-end - a flex container aligned to the end hides overflow past
+   its start edge, and the browser reports no scrollHeight at all, so the readback
+   could never be scrolled back through. */
 html[data-narration="c"] .trace-scroll {
   position: static; overflow: hidden;
   max-height: none; padding: calc(var(--L) * 0.5) var(--L) calc(var(--L) * 0.42);
-  display: flex; flex-direction: column; justify-content: flex-end;
+  display: flex; flex-direction: column;
   transition: max-height 400ms cubic-bezier(.3,.7,.2,1);
 }
+html[data-narration="c"] .trace-scroll > *:first-child { margin-top: auto; }
 html[data-narration="c"] .trace-head, html[data-narration="c"] .legend,
 html[data-narration="c"] .trail { display: none; }
 html[data-narration="c"] .page { gap: 8px; display: block; }
@@ -364,7 +366,15 @@ html[data-narration="c"] .lift, html[data-narration="c"] .keepsake {
 html[data-narration="c"] .lift:hover, html[data-narration="c"] .keepsake:hover { opacity: 1; border-color: transparent; }
 
 /* Read back: the lines behind, returned only when asked for. */
-body.unfurl[data-view="scene"] .trace-scroll { overflow-y: auto; max-height: 62vh; }
+body.unfurl[data-view="scene"] .trace-scroll {
+  overflow-y: auto; max-height: 62vh;
+  overscroll-behavior: contain; scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--ink) 28%, transparent) transparent;
+}
+body.unfurl[data-view="scene"] .trace-scroll::-webkit-scrollbar { width: 6px; }
+body.unfurl[data-view="scene"] .trace-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--ink) 26%, transparent); border-radius: 3px;
+}
 body.unfurl[data-view="scene"] .page { display: flex; flex-direction: column; gap: 13px; }
 body.unfurl[data-view="scene"] .page .line {
   display: block; opacity: 0.3; max-width: 56ch; margin-inline: auto;
@@ -2170,23 +2180,9 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
   // =================================================================
   // Cover and places
   // =================================================================
-  function renderCover() {
-    state.view = 'cover'; setView('cover'); setTheme(null); document.getElementById('restart').hidden = true;
-    const lines = ['You decide what happens on this tour.', 'The places are real. The work you find in them is real.', 'You do not pick where you land. The story starts where it starts, and everything after that is yours.', 'Anywhere along the way, ask a question in your own words, and the story will follow you.'];
-    const demo = $('p', { class: 'record-demo', style: reduced ? '' : `animation: rise 600ms ease ${250 + lines.length * 220}ms both` }, [$('i', { 'aria-hidden': 'true' }), 'A line with this mark comes from Ethan’s own records.']);
-    main.replaceChildren($('section', { class: 'center cover' }, [
-      $('p', { class: 'eyebrow', text: 'Read this first' }), $('h1', { text: 'Warning!' }),
-      $('div', { class: 'lines' }, [...lines.map((t, i) => $('p', { text: t, style: reduced ? '' : `animation: rise 600ms ease ${250 + i * 220}ms both` })), demo]),
-      $('button', { class: 'primary', type: 'button', onclick: () => { log('start'); openStory(); } }, ['Turn to the first page', $('span', { text: '→', 'aria-hidden': 'true' })]),
-      $('p', { class: 'aside', text: 'In a hurry? The plain project list, résumé and contact page are one click away in the menu.' })
-    ]));
-  }
-  const GLYPHS = {
-    pilar: ['M44 62 C 62 74 78 92 92 118', 'M58 58 C 74 72 88 90 100 114', 'M22 128 C 64 112 118 142 178 120', 'M22 146 C 64 130 118 160 178 138'],
-    kankakee: ['M30 138 H 170', 'M66 138 C 66 112 69 94 62 70', 'M84 138 C 85 114 87 96 94 76', 'M104 138 C 103 118 100 102 106 84', 'M126 138 C 126 116 129 100 124 80', 'M62 70 L 60 58', 'M94 76 L 96 62', 'M124 80 L 125 67', 'M42 154 L 158 154'],
-    'east-chicago': ['M22 150 H 178', 'M58 150 V 88 H 74 V 150', 'M90 150 V 66 H 106 V 150', 'M122 150 V 98 H 138 V 150', 'M62 80 C 78 68 94 78 110 58', 'M22 168 C 56 152 90 174 124 160', 'M124 160 C 148 150 166 158 178 152', 'M40 136 C 52 128 64 132 74 126'],
-    champaign: ['M26 124 H 174', 'M118 124 V 80 H 136 V 124', 'M116 80 L 127 70 L 138 80', 'M56 124 V 108 L 68 98 L 80 108 V 124', 'M100 124 L 30 164', 'M100 124 L 70 170', 'M100 124 L 130 170', 'M100 124 L 170 164']
-  };
+  // There is no cover any more. A reader who arrives is already somewhere - the tour
+  // picks the place and the opening, and the first line is the first thing they see.
+
   function portalSvg(id) {
     const svg = svgEl('svg', { viewBox: '0 0 200 200', 'aria-hidden': 'true' });
     svg.append(svgEl('circle', { class: 'ring draw', cx: 100, cy: 100, r: 98.5, pathLength: 1 }));
@@ -2197,6 +2193,11 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
   // The tour used to hand the visitor a chooser first. Now the story starts on its own:
   // a place is picked for them, with one of that setting's openings in front of the
   // arrival. Two remembered picks keep a reload from landing the same way twice.
+  // Taught once, and only once - but "Start over" clears it so the lesson can be seen again.
+  const MARK_KEY = 'esa-mark-taught';
+  const markTaught = () => { try { return localStorage.getItem(MARK_KEY) === '1'; } catch (e) { return false; } };
+  const teachMark = () => { try { localStorage.setItem(MARK_KEY, '1'); } catch (e) {} };
+  const forgetMarkLesson = () => { try { localStorage.removeItem(MARK_KEY); } catch (e) {} };
   const recall = (key) => { try { return localStorage.getItem(key); } catch (e) { return null; } };
   const remember = (key, value) => { try { localStorage.setItem(key, value); } catch (e) { /* private window */ } };
   function pickAway(list, last) {
@@ -2253,7 +2254,6 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
     const handle = $('button', { class: 'handle', type: 'button', 'aria-label': 'Raise or lower the story' });
     scrollEl = $('div', { class: 'trace-scroll' }, [
       $('div', { class: 'trace-head' }, [headEl, $('button', { class: 'lift', type: 'button', text: 'Just the drawing', onclick: () => setLook(true) })]),
-      $('p', { class: 'legend' }, [$('i', { 'aria-hidden': 'true' }), $('span', { text: 'Marked lines come from Ethan’s records. Tap one to read the note. The rest is the story.' })]),
       pageEl, controlsEl, trailEl
     ]);
     traceEl = $('section', { class: 'trace', 'aria-label': 'Story' }, [outline, handle, scrollEl]);
@@ -2497,6 +2497,15 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
     el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); openLine(el); } });
     if (meta.intro && state.media === meta.intro) { pageEl.querySelectorAll('.line.showing').forEach((l) => l.classList.remove('showing')); el.classList.add('showing'); }
     pageEl.append(el);
+    // A reader meets the mark for the first time here, on a real line, rather than
+    // being warned about it on a page they had to get past first.
+    if (record && !markTaught()) {
+      teachMark();
+      el.append($('span', { class: 'mark-lesson' }, [
+        $('i', { 'aria-hidden': 'true' }),
+        $('span', { text: 'This mark means the line comes from Ethan\u2019s own records. Tap it to read the note it came from.' })
+      ]));
+    }
     state.story.push(text); if (state.story.length > 60) state.story.shift();
     Persist.recordLine(text, cls, meta);
     requestAnimationFrame(() => {
@@ -2868,8 +2877,8 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
     return { reach: true, items: [{ text: 'Ethan pulls out a notebook and finds the page.', claim: false, kind: 'scene', facts: [], words: [] }, { text: FACTS[best], claim: true, kind: 'claim', facts: [best], words: [] }], factIds: [best], projects: [], show: null, suggest: [], interests: [] };
   }
 
-  document.getElementById('restart').addEventListener('click', () => { stopAsk(); Persist.clearSession(); Object.assign(state, { view: 'cover', setting: null, scene: null, metEthan: false, visited: new Set(), seenProjects: new Set(), cardsShown: new Set(), interests: {}, story: [], queue: [], media: null, liveMedia: null }); trailEl = null; view.node = null; canvasEl.replaceChildren(); plateEl.hidden = true; renderCover(); });
-  if (!Persist.restore()) renderCover();
+  document.getElementById('restart').addEventListener('click', () => { stopAsk(); Persist.clearSession(); Object.assign(state, { view: 'scene', setting: null, scene: null, metEthan: false, visited: new Set(), seenProjects: new Set(), cardsShown: new Set(), interests: {}, story: [], queue: [], media: null, liveMedia: null }); trailEl = null; view.node = null; canvasEl.replaceChildren(); plateEl.hidden = true; forgetMarkLesson(); openStory(); });
+  if (!Persist.restore()) openStory();
 })();
 </script>
 

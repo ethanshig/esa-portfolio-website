@@ -21,14 +21,17 @@
   }
 
   function isRecord(line) {
+    if (!line) return false;
     return !!((line.facts && line.facts.length) || (line.words && line.words.length));
   }
   function isQuestion(line) {
+    if (!line) return false;
     return /\byou\b/.test(line.cls || '');
   }
 
   function stats(s) {
     var t = (s && s.transcript) || [];
+    if (!Array.isArray(t)) t = [];
     return {
       lines: t.length,
       records: t.filter(isRecord).length,
@@ -38,13 +41,21 @@
     };
   }
 
+  // startedAt, then savedAt, then now - and each candidate has to actually be a date
+  // before it wins, or a corrupt startedAt silently swallows a good savedAt.
   function when(s) {
-    var iso = (s && (s.startedAt || s.savedAt)) || null;
-    var d = iso ? new Date(iso) : new Date();
-    if (isNaN(d.getTime())) d = new Date();
-    return d;
+    var tries = [s && s.startedAt, s && s.savedAt];
+    for (var i = 0; i < tries.length; i++) {
+      if (!tries[i]) continue;
+      var d = new Date(tries[i]);
+      if (!isNaN(d.getTime())) return d;
+    }
+    return new Date();
   }
-  function longDate(d) { return d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear(); }
+  function longDate(d) {
+    if (!d || isNaN(d.getTime())) d = new Date();
+    return d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+  }
   function isoDate(d) {
     var m = String(d.getMonth() + 1), day = String(d.getDate());
     return d.getFullYear() + '-' + (m.length < 2 ? '0' + m : m) + '-' + (day.length < 2 ? '0' + day : day);
@@ -54,7 +65,7 @@
   // continuation lines so a marked line stays visibly marked all the way down.
   function wrap(text, width, prefix) {
     var pad = prefix.replace(/[^\s]/g, ' ');
-    var words = String(text).split(/\s+/).filter(Boolean);
+    var words = String(text == null ? '' : text).split(/\s+/).filter(Boolean);
     var out = [], line = '';
     for (var i = 0; i < words.length; i++) {
       var next = line ? line + ' ' + words[i] : words[i];
@@ -74,9 +85,10 @@
   }
 
   function toText(s) {
-    if (!s) return '';
+    var t = (s && s.transcript) || [];
+    if (!t.length) return '';
     var st = stats(s);
-    var body = s.transcript.map(function (l) {
+    var body = t.map(function (l) {
       var prefix = isRecord(l) ? '• ' : (isQuestion(l) ? '> ' : '');
       return wrap(l.text, 78, prefix);
     });
@@ -86,13 +98,14 @@
   }
 
   function toMarkdown(s) {
-    if (!s) return '';
+    var t = (s && s.transcript) || [];
+    if (!t.length) return '';
     var st = stats(s);
     var where = [s.place, s.region].filter(Boolean).join(' · ');
     var out = ['# Where You Arrive'];
     out.push('*' + [where, longDate(when(s))].filter(Boolean).join(' · ') + '*');
     out.push('');
-    s.transcript.forEach(function (l) {
+    t.forEach(function (l) {
       if (isRecord(l)) out.push('- ' + l.text + '  _(from Ethan’s records)_');
       else if (isQuestion(l)) out.push('> ' + l.text);
       else out.push(l.text);
