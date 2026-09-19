@@ -306,58 +306,72 @@ html[data-narration="b"] body[data-view="scene"]::after {
 }
 html[data-narration="b"] .trace { z-index: 10; }
 
-/* C - the subtitle. One line, held still at the foot of the drawing, crossed
-   over to the next when the reader asks for it. The line before it stays at a
-   whisper for continuity; hovering brings the rest of the page back. */
+/* C - the caption. One line at the foot of the drawing, set at reading size rather
+   than display size, with nothing standing beside it that the reader has not asked
+   for. The ask field, the note and the lines behind are all one tap away and none
+   of them are on screen until then. */
 html[data-narration="c"] .trace {
   top: auto; right: 0; bottom: 0; left: 0; width: auto;
   border-radius: 0; isolation: auto;
-  background: linear-gradient(to top, color-mix(in srgb, var(--ground) 97%, transparent), color-mix(in srgb, var(--ground) 90%, transparent) 38%, color-mix(in srgb, var(--ground) 48%, transparent) 68%, transparent);
+  background: linear-gradient(to top, color-mix(in srgb, var(--ground) 94%, transparent), color-mix(in srgb, var(--ground) 72%, transparent) 54%, transparent);
   -webkit-backdrop-filter: none; backdrop-filter: none;
 }
 html[data-narration="c"] .trace::before,
 html[data-narration="c"] .trace .outline { display: none; }
 html[data-narration="c"] .trace-scroll {
   position: static; overflow: hidden;
-  max-height: 46vh; padding: 16vh var(--L) calc(var(--L) * 0.8);
+  max-height: none; padding: calc(var(--L) * 0.5) var(--L) calc(var(--L) * 0.42);
   display: flex; flex-direction: column; justify-content: flex-end;
+  transition: max-height 400ms cubic-bezier(.3,.7,.2,1);
 }
 html[data-narration="c"] .trace-head, html[data-narration="c"] .legend,
 html[data-narration="c"] .trail { display: none; }
-html[data-narration="c"] .page { gap: 14px; }
-html[data-narration="c"] .line { display: none; }
-html[data-narration="c"] .line:has(+ .line.current) {
-  display: block; opacity: 0.34; max-width: 40ch; margin: 0 auto;
-  text-align: center; font-size: 1rem; line-height: 1.5;
-  text-shadow: 0 0 18px var(--ground);
-}
+html[data-narration="c"] .page { gap: 8px; display: block; }
+html[data-narration="c"] .line, html[data-narration="c"] .page .eyebrow { display: none; }
+body.unfurl[data-view="scene"] .page .eyebrow { display: block; text-align: center; margin: 20px 0 6px; }
 html[data-narration="c"] .line.current {
-  display: block; opacity: 1; max-width: 36ch; margin: 0 auto;
-  text-align: center; font-size: clamp(1.3rem, 2.05vw, 1.8rem); line-height: 1.45;
-  text-shadow: 0 0 22px var(--ground), 0 0 7px var(--ground);
+  display: block; opacity: 1; max-width: 56ch; margin: 0 auto;
+  text-align: center; font-size: clamp(1.04rem, 1.32vw, 1.22rem); line-height: 1.5;
+  letter-spacing: 0; text-shadow: 0 0 20px var(--ground), 0 0 7px var(--ground);
 }
-html[data-narration="c"] .line .thumb { float: none; display: inline-block; vertical-align: -8px; margin: 0 0 0 10px; }
-html[data-narration="c"] .controls { margin-top: 22px; justify-items: center; }
+html[data-narration="c"] .line .thumb { float: none; display: inline-block; width: 22px; height: 22px; vertical-align: -5px; margin: 0 0 0 9px; }
+html[data-narration="c"] .source { max-width: 60ch; margin: 8px auto 0; text-align: left; font-size: 0.76rem; }
+
+/* The card shrinks to what a caption can carry: the name, and that there is more. */
+html[data-narration="c"] .controls { margin-top: 10px; justify-items: center; gap: 9px; }
+html[data-narration="c"] .card { padding: 0; text-align: center; }
+html[data-narration="c"] .card .kind, html[data-narration="c"] .card .ctx, html[data-narration="c"] .card p { display: none; }
+html[data-narration="c"] .card strong { font-size: 0.82rem; font-weight: 500; opacity: 0.72; }
 html[data-narration="c"] .continue, html[data-narration="c"] .stop { justify-self: center; }
-html[data-narration="c"] .choices { justify-content: center; }
-html[data-narration="c"] .source { max-width: 52ch; margin-inline: auto; text-align: left; }
-/* Look back without leaving: the stack returns when it is asked for, not when the
-   pointer happens to be over the controls. */
-html[data-narration="c"] .lift { display: block; justify-self: center; opacity: 0.5; }
-html[data-narration="c"] .lift:hover { opacity: 1; }
-html[data-narration="c"] .trace-head { display: flex; justify-content: center; order: 2; margin: 18px 0 0; }
-html[data-narration="c"] .trace-head .eyebrow { display: none; }
-html[data-narration="c"] body.unfurl .trace-scroll,
-body.unfurl html[data-narration="c"] .trace-scroll { overflow-y: auto; max-height: 64vh; }
-html[data-narration="c"] .trace-scroll { transition: max-height 400ms cubic-bezier(.3,.7,.2,1); }
-body.unfurl[data-view="scene"] .trace-scroll { overflow-y: auto; max-height: 64vh; }
+html[data-narration="c"] .continue { min-height: 0; padding: 6px 14px; font-size: 0.84rem; }
+html[data-narration="c"] .choices { justify-content: center; gap: 7px; }
+html[data-narration="c"] .choice { min-height: 0; padding: 6px 13px; font-size: 0.83rem; }
+html[data-narration="c"] .choice .mark { font-size: 0.6rem; }
+
+/* Nothing on screen the reader has not asked for. */
+html[data-narration="c"] .ask-form, html[data-narration="c"] .ask-note { display: none; }
+html[data-narration="c"] body.asking .ask-form,
+body.asking[data-view="scene"] .ask-form { display: flex; max-width: 44ch; margin: 2px auto 0; width: 100%; }
+body.asking[data-view="scene"] .ask-note { display: block; max-width: 52ch; margin: 4px auto 0; text-align: center; font-size: 0.68rem; opacity: 0.8; }
+
+/* The two quiet ways out of the caption: back through what you read, or off to keep it. */
+html[data-narration="c"] .aside-row { display: flex; justify-content: center; gap: 18px; margin-top: 9px; }
+html[data-narration="c"] .lift, html[data-narration="c"] .keepsake {
+  display: inline-block; border: 0; border-radius: 0; background: none; padding: 0;
+  color: inherit; opacity: 0.42; font-size: 0.72rem; letter-spacing: 0.04em;
+  text-decoration: none; cursor: pointer; transition: opacity 180ms ease;
+}
+html[data-narration="c"] .lift:hover, html[data-narration="c"] .keepsake:hover { opacity: 1; border-color: transparent; }
+
+/* Read back: the lines behind, returned only when asked for. */
+body.unfurl[data-view="scene"] .trace-scroll { overflow-y: auto; max-height: 62vh; }
+body.unfurl[data-view="scene"] .page { display: flex; flex-direction: column; gap: 13px; }
 body.unfurl[data-view="scene"] .page .line {
-  display: block; opacity: 0.3; max-width: 48ch; margin-inline: auto;
-  font-size: 0.97rem; line-height: 1.6; text-shadow: 0 0 18px var(--ground);
+  display: block; opacity: 0.3; max-width: 56ch; margin-inline: auto;
+  font-size: 0.93rem; line-height: 1.6; text-shadow: 0 0 18px var(--ground);
 }
 body.unfurl[data-view="scene"] .page .line.current { opacity: 1; }
-html[data-narration="c"] .ask-form { max-width: 46ch; margin-inline: auto; width: 100%; }
-html[data-narration="c"] .ask-note { text-align: center; }
+html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom: auto; top: calc(var(--nav-h) + var(--L4)); }
 html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom: auto; top: calc(var(--nav-h) + var(--L4)); }
 </style>
 
@@ -2032,6 +2046,7 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
     const KEY = 'esa-tour-session';
     const SCHEMA_VERSION = 1;
     const transcript = [];
+    let began = new Date().toISOString();
     let replaying = false;
     let saveTimer = 0;
 
@@ -2039,6 +2054,9 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
       try {
         sessionStorage.setItem(KEY, JSON.stringify({
           v: SCHEMA_VERSION, setting: state.setting, scene: state.scene, metEthan: state.metEthan,
+          place: (WORLD.settings[state.setting] || {}).place || null,
+          region: (WORLD.settings[state.setting] || {}).region || null,
+          startedAt: began, savedAt: new Date().toISOString(),
           visited: [...state.visited], seenProjects: [...state.seenProjects], cardsShown: [...state.cardsShown],
           interests: state.interests, transcript
         }));
@@ -2069,6 +2087,7 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
         const setting = WORLD.settings[saved.setting];
         if (!scene || !setting) return false;
         replaying = true;
+        if (saved.startedAt) began = saved.startedAt;
         state.view = 'scene'; storyShell();
         saved.transcript.forEach((e) => {
           transcript.push(e);
@@ -2233,7 +2252,7 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
     trailEl = $('footer', { class: 'trail' });
     const handle = $('button', { class: 'handle', type: 'button', 'aria-label': 'Raise or lower the story' });
     scrollEl = $('div', { class: 'trace-scroll' }, [
-      $('div', { class: 'trace-head' }, [headEl, $('button', { class: 'lift', type: 'button', text: narration === 'c' ? 'Read back' : 'Just the drawing', onclick: () => { if (narration === 'c') document.body.classList.toggle('unfurl'); else setLook(true); } })]),
+      $('div', { class: 'trace-head' }, [headEl, $('button', { class: 'lift', type: 'button', text: 'Just the drawing', onclick: () => setLook(true) })]),
       $('p', { class: 'legend' }, [$('i', { 'aria-hidden': 'true' }), $('span', { text: 'Marked lines come from Ethan’s records. Tap one to read the note. The rest is the story.' })]),
       pageEl, controlsEl, trailEl
     ]);
@@ -2531,8 +2550,19 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
     const elsewhere = Object.keys(WORLD.settings).length > 1
       ? $('button', { class: 'choice', type: 'button', onclick: () => { log('map'); renderPlaces(); } }, ['Leave for somewhere else entirely', $('span', { class: 'mark', text: '→', 'aria-hidden': 'true' })])
       : null;
-    controlsEl.append($('div', { class: 'choices' }, [...(choices || []).map(choiceButton), elsewhere]));
+    const askPill = narration === 'c'
+      ? $('button', { class: 'choice ask', type: 'button', onclick: (e) => { e.stopPropagation(); document.body.classList.add('asking'); const f = controlsEl.querySelector('.ask-form input'); if (f) f.focus(); } }, [$('span', { class: 'mark', text: 'Ask' }), 'Say something'])
+      : null;
+    controlsEl.append($('div', { class: 'choices' }, [...(choices || []).map(choiceButton), askPill, elsewhere]));
     controlsEl.append(askForm(state.metEthan ? 'Ask Ethan something, or say where you want to go next' : 'Tell the guide what you came to find'), $('p', { class: 'ask-note', text: noteText() }));
+    // At caption size there is no room for a header, so the two quiet exits live here:
+    // back through the lines already read, or out to the page that hands them over.
+    if (narration === 'c') {
+      controlsEl.append($('div', { class: 'aside-row' }, [
+        $('button', { class: 'lift', type: 'button', text: 'Read back', onclick: (e) => { e.stopPropagation(); document.body.classList.toggle('unfurl'); } }),
+        $('a', { class: 'keepsake', href: 'transcript.html', text: 'Keep this →' })
+      ]));
+    }
   }
   function labelFor(go) {
     const scene = WORLD.scenes[go]; if (!scene) return 'Keep going';

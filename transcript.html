@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The story you walked through, yours to keep">
+    <title>Your transcript | esa</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/grid-system.css">
+    <link rel="stylesheet" href="css/line-system.css">
+    <link rel="icon" href="images/favicon.svg">
+    <style>
+        /* The transcript is a document, not an interface. One column, wide leading,
+           nothing beside it but the marks that say where a line came from. */
+        .keep-wrap { max-width: 68ch; margin: 0 auto; padding: 0 clamp(20px, 5vw, 48px) 140px; }
+        .keep-head { margin: clamp(40px, 8vh, 96px) 0 0; }
+        .keep-eyebrow { margin: 0 0 14px; color: var(--color-text-light); font-size: 0.72rem;
+                        letter-spacing: 0.14em; text-transform: uppercase; }
+        .keep-head h1 { margin: 0 0 10px; font-size: clamp(2.2rem, 6vw, 3.6rem);
+                        line-height: 0.98; letter-spacing: -0.03em; }
+        .keep-where { margin: 0; color: var(--color-text-light); font-size: 1rem; }
+        .keep-count { margin: 18px 0 0; color: var(--color-text-light); font-size: 0.88rem; }
+        .keep-count b { color: var(--color-text); font-weight: 500; }
+
+        .keep-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+                      margin: 30px 0 0; padding: 0 0 30px;
+                      border-bottom: 1px solid var(--color-border); }
+        .keep-btn { display: inline-flex; align-items: baseline; gap: 9px; min-height: 40px;
+                    padding: 9px 17px; border: 1px solid var(--color-border); border-radius: 999px;
+                    background: transparent; color: inherit; font: inherit; font-size: 0.9rem;
+                    text-decoration: none; cursor: pointer;
+                    transition: border-color 160ms ease, background 160ms ease, color 160ms ease; }
+        .keep-btn:hover { border-color: var(--color-text); }
+        .keep-btn.is-primary { border-color: var(--color-text); background: var(--color-text);
+                               color: var(--color-bg); }
+        .keep-btn.is-primary:hover { background: transparent; color: var(--color-text); }
+        .keep-btn small { color: var(--color-text-light); font-size: 0.68rem;
+                          letter-spacing: 0.1em; text-transform: uppercase; }
+        .keep-btn.is-primary small { color: var(--color-bg); }
+        .keep-btn.is-primary:hover small { color: var(--color-text-light); }
+        .keep-said { margin-left: 4px; color: var(--color-accent); font-size: 0.82rem;
+                     opacity: 0; transition: opacity 200ms ease; }
+        .keep-said.on { opacity: 1; }
+
+        .keep-lines { margin: 40px 0 0; }
+        .keep-line { position: relative; margin: 0 0 24px; font-size: 1.04rem; line-height: 1.75; }
+        .keep-line.is-record { color: var(--color-accent); }
+        .keep-line.is-record::before { content: ""; position: absolute; left: -20px;
+                                       top: calc(0.86em - 4px); width: 8px; height: 8px;
+                                       border-radius: 50%; background: var(--color-accent); }
+        .keep-line.is-question { color: var(--color-text-light); padding-left: 18px;
+                                 border-left: 1px solid var(--color-border); }
+        .keep-legend { display: flex; align-items: baseline; gap: 9px; margin: 0 0 34px;
+                       color: var(--color-text-light); font-size: 0.78rem; line-height: 1.5; }
+        .keep-legend i { flex: none; display: inline-block; width: 8px; height: 8px;
+                         border-radius: 50%; background: var(--color-accent);
+                         transform: translateY(-1px); }
+
+        .keep-foot { margin: 54px 0 0; padding-top: 26px;
+                     border-top: 1px solid var(--color-border);
+                     color: var(--color-text-light); font-size: 0.85rem; line-height: 1.6; }
+        .keep-foot a { color: var(--color-text); }
+
+        .keep-empty { margin: clamp(40px, 10vh, 120px) 0 0; }
+        .keep-empty h1 { margin: 0 0 16px; font-size: clamp(1.9rem, 5vw, 3rem);
+                         line-height: 1; letter-spacing: -0.03em; }
+        .keep-empty p { margin: 0 0 26px; color: var(--color-text-light); max-width: 46ch;
+                        font-size: 1.02rem; line-height: 1.6; }
+
+        @media print {
+            .navbar, .keep-tools, .keep-legend, .ls-nav-svg { display: none !important; }
+            .keep-wrap { max-width: none; padding: 0; }
+            .keep-line.is-record { color: inherit; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation. No theme switch here: it is dead UI sitewide and awaiting a decision. -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">esa</a>
+            <ul class="nav-menu">
+                <li><a href="projects.html" class="nav-link">Projects</a></li>
+                <li><a href="about.html" class="nav-link">About</a></li>
+                <li><a href="resume.html" class="nav-link">Resume</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="keep-wrap" id="keep"></main>
+
+    <script src="js/transcript.js"></script>
+    <script>
+    (function () {
+        var root = document.getElementById('keep');
+        var s = Transcript.read();
+
+        function el(tag, attrs, kids) {
+            var n = document.createElement(tag);
+            Object.keys(attrs || {}).forEach(function (k) {
+                if (k === 'text') n.textContent = attrs[k];
+                else if (k === 'html') n.innerHTML = attrs[k];
+                else if (k.slice(0, 2) === 'on') n.addEventListener(k.slice(2), attrs[k]);
+                else n.setAttribute(k, attrs[k]);
+            });
+            (kids || []).forEach(function (c) { if (c) n.append(c); });
+            return n;
+        }
+
+        if (!s) {
+            root.append(el('div', { class: 'keep-empty' }, [
+                el('h1', { text: 'Nothing to keep yet' }),
+                el('p', { text: 'This page shows the story you walked through on this visit. ' +
+                    'Nothing is saved anywhere but this tab, so if you closed it, or you have not ' +
+                    'started yet, there is nothing here to hand you.' }),
+                el('a', { class: 'keep-btn is-primary', href: 'index.html' },
+                    [document.createTextNode('Start the tour'), el('small', { text: '→' })])
+            ]));
+            return;
+        }
+
+        var st = Transcript.stats(s);
+        var where = [s.place, s.region].filter(Boolean).join(' · ');
+        var said = el('span', { class: 'keep-said', text: '' });
+
+        function flash(msg) {
+            said.textContent = msg; said.classList.add('on');
+            setTimeout(function () { said.classList.remove('on'); }, 2200);
+        }
+
+        root.append(
+            el('header', { class: 'keep-head' }, [
+                el('p', { class: 'keep-eyebrow', text: 'Your transcript' }),
+                el('h1', { text: 'Where You Arrive' }),
+                el('p', { class: 'keep-where',
+                    text: [where, Transcript.longDate(Transcript.when(s))].filter(Boolean).join(' · ') }),
+                el('p', { class: 'keep-count' }, [
+                    document.createTextNode('You read '),
+                    el('b', { text: String(st.lines) + (st.lines === 1 ? ' line' : ' lines') }),
+                    document.createTextNode(', '),
+                    el('b', { text: String(st.records) }),
+                    document.createTextNode(' of them from Ethan’s records'),
+                    document.createTextNode(st.projects
+                        ? ', and turned up ' + st.projects + (st.projects === 1 ? ' project' : ' projects') + '.'
+                        : '.')
+                ])
+            ]),
+            el('div', { class: 'keep-tools' }, [
+                el('button', { class: 'keep-btn is-primary', type: 'button',
+                    onclick: function () { flash(Transcript.download(s, 'txt') ? 'Saved.' : 'Could not save.'); } },
+                    [document.createTextNode('Download'), el('small', { text: 'txt' })]),
+                el('button', { class: 'keep-btn', type: 'button',
+                    onclick: function () { flash(Transcript.download(s, 'md') ? 'Saved.' : 'Could not save.'); } },
+                    [document.createTextNode('Download'), el('small', { text: 'md' })]),
+                el('button', { class: 'keep-btn', type: 'button',
+                    onclick: function () { Transcript.copy(s, 'txt').then(function (ok) {
+                        flash(ok ? 'Copied.' : 'Could not copy.'); }); } },
+                    [document.createTextNode('Copy')]),
+                el('button', { class: 'keep-btn', type: 'button',
+                    onclick: function () { window.print(); } },
+                    [document.createTextNode('Print')]),
+                el('a', { class: 'keep-btn', href: 'index.html' },
+                    [document.createTextNode('Back to the story'), el('small', { text: '←' })]),
+                said
+            ]),
+            el('p', { class: 'keep-legend' }, [
+                el('i', { 'aria-hidden': 'true' }),
+                el('span', { text: 'Marked lines come from Ethan’s records. Indented lines are what you asked.' })
+            ]),
+            el('div', { class: 'keep-lines' }, s.transcript.map(function (l) {
+                var cls = 'keep-line' + (Transcript.isRecord(l) ? ' is-record'
+                    : (Transcript.isQuestion(l) ? ' is-question' : ''));
+                return el('p', { class: cls, text: l.text });
+            })),
+            el('footer', { class: 'keep-foot' }, [
+                el('p', { text: 'This transcript lives in this browser tab and nowhere else. ' +
+                    'Nothing was uploaded. Download it if you want to keep it.' }),
+                el('p', {}, [
+                    document.createTextNode('www.ethanshig.design · '),
+                    el('a', { href: 'contact.html', text: 'get in touch' })
+                ])
+            ])
+        );
+    })();
+    </script>
+    <script src="js/line-system.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', function () { LineSystem.init(); });</script>
+</body>
+</html>
