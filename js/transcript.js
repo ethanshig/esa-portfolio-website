@@ -76,6 +76,107 @@
     return out.length ? out.join('\n') : prefix;
   }
 
+  // Every drawing the visitor was shown, kept as its own section: the caption
+  // told them what they were looking at, and the description is the drawing for
+  // anyone who could not see it. Both travel out with the transcript.
+  // Sessions saved before drawings were recorded carry no `drawings` key at all,
+  // so absent has to read as none rather than as an error.
+  var DRAWINGS_TITLE = 'Drawings you were shown';
+  var NO_ALT = 'No description recorded.';
+
+  // Strings and finite numbers are text. Anything else - object, array, boolean -
+  // would stringify into noise like "[object Object]", so it becomes nothing.
+  function asText(v) {
+    if (typeof v === 'string') return v;
+    if (typeof v === 'number' && isFinite(v)) return String(v);
+    return '';
+  }
+  function repeat(ch, n) {
+    var out = '';
+    for (var i = 0; i < n; i++) out += ch;
+    return out;
+  }
+
+  // `when` is an ISO-ish date whose first four characters are the year - but only
+  // when it is really shaped like one, or a stray value prints as a fake year.
+  function drawingYear(d) {
+    var at = asText(d && d.when);
+    return /^\d{4}/.test(at) ? at.slice(0, 4) : '';
+  }
+  function drawingMeta(d) {
+    return [d.project, d.year].filter(Boolean).join(' · ');
+  }
+
+  // One entry, normalised to strings so no caller has to re-check it. Returns
+  // null for anything that is not an entry at all.
+  function drawing(d) {
+    if (!d || typeof d !== 'object' || Array.isArray(d)) return null;
+    var id = asText(d.id).trim();
+    var label = asText(d.label).trim();
+    return {
+      id: id,
+      label: label || id || 'Untitled drawing',
+      // Printed exactly as the tour recorded it. If that is an id slug it stays
+      // an id slug: inventing a title would put a name in the visitor's keepsake
+      // that they never saw on screen.
+      project: (asText(d.projectTitle) || asText(d.project)).trim(),
+      year: drawingYear(d),
+      // Trimmed at the ends only. The description is the whole point of the
+      // section, so it is never shortened here or in any export.
+      alt: asText(d.alt).trim()
+    };
+  }
+
+  function drawings(s) {
+    var list = s && s.drawings;
+    if (!Array.isArray(list)) return [];
+    var out = [], seen = {};
+    for (var i = 0; i < list.length; i++) {
+      var d = drawing(list[i]);
+      if (!d) continue;
+      // The tour dedupes by id before saving; the guard is repeated here so a
+      // double-recorded drawing cannot appear twice in someone's transcript. The
+      // 'id:' prefix keeps inherited names like "constructor" out of the way.
+      if (d.id) {
+        if (seen['id:' + d.id]) continue;
+        seen['id:' + d.id] = true;
+      }
+      out.push(d);
+    }
+    return out;
+  }
+
+  // Plain text: an underlined heading, then one numbered entry per drawing, its
+  // description wrapped to the width of the story and indented under its label.
+  function drawingsText(s) {
+    var list = drawings(s);
+    if (!list.length) return '';
+    var blocks = list.map(function (d, i) {
+      var num = (i + 1) + '. ';
+      var meta = drawingMeta(d);
+      return wrap(d.label + (meta ? ' · ' + meta : ''), 78, num) + '\n' +
+        wrap(d.alt || NO_ALT, 78, repeat(' ', num.length));
+    });
+    return DRAWINGS_TITLE + '\n' + repeat('-', DRAWINGS_TITLE.length) + '\n\n' +
+      blocks.join('\n\n');
+  }
+
+  // Markdown, as lines ready to splice in. Descriptions are left unwrapped and
+  // unedited, exactly like the story lines above them.
+  function drawingsMarkdown(s) {
+    var list = drawings(s);
+    if (!list.length) return [];
+    var out = ['## ' + DRAWINGS_TITLE, ''];
+    list.forEach(function (d, i) {
+      var meta = drawingMeta(d);
+      out.push('**' + (i + 1) + '. ' + d.label + '**' + (meta ? ' — ' + meta : ''));
+      out.push('');
+      out.push(d.alt || '_' + NO_ALT + '_');
+      out.push('');
+    });
+    return out;
+  }
+
   function header(s) {
     var head = ['Where You Arrive — a tour of Ethan Shig Anderson’s work'];
     var where = [s && s.place, s && s.region].filter(Boolean).join(' · ');
@@ -94,7 +195,9 @@
     });
     var foot = ['— ' + st.lines + ' line' + (st.lines === 1 ? '' : 's') + ', ' +
       st.records + ' from Ethan’s records.', 'www.ethanshig.design'];
-    return header(s).join('\n') + '\n\n' + body.join('\n\n') + '\n\n' + foot.join('\n') + '\n';
+    var draw = drawingsText(s);
+    return header(s).join('\n') + '\n\n' + body.join('\n\n') + '\n\n' +
+      (draw ? draw + '\n\n' : '') + foot.join('\n') + '\n';
   }
 
   function toMarkdown(s) {
@@ -111,6 +214,7 @@
       else out.push(l.text);
       out.push('');
     });
+    drawingsMarkdown(s).forEach(function (line) { out.push(line); });
     out.push('---');
     out.push('*' + st.lines + ' lines, ' + st.records + ' from Ethan’s records. ' +
       '[www.ethanshig.design](https://www.ethanshig.design)*');
@@ -170,6 +274,7 @@
   window.Transcript = {
     read: read, stats: stats, toText: toText, toMarkdown: toMarkdown,
     filename: filename, download: download, copy: copy,
-    isRecord: isRecord, isQuestion: isQuestion, longDate: longDate, when: when
+    isRecord: isRecord, isQuestion: isQuestion, drawings: drawings,
+    longDate: longDate, when: when
   };
 })();

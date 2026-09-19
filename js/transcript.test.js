@@ -629,6 +629,365 @@ test('read returns null for a JSON null payload', function () {
   assert.strictEqual(T.read(), null);
 });
 
+// -------------------------------------------------------------- drawings ----
+// The tour records every drawing it put on screen. The descriptions are the
+// reason the section exists, so most of what follows is about them arriving
+// whole - in the API, in the text export and in the markdown export.
+
+var DRAWINGS_TITLE = 'Drawings you were shown';
+var NO_ALT = 'No description recorded.';
+
+// Long enough that any truncation would be obvious, and built from known words
+// so the wrapped text export can be checked back word for word.
+var LONG_ALT = 'An axonometric drawing of a straw bale wall assembly, labelled: ' +
+  WORD_RUN + ', then again ' + WORD_RUN + ', ending in a scale bar.';
+
+function drawingSession(list) {
+  var s = oneLineSession({ text: 'A plain line of narration.' });
+  s.drawings = list;
+  return s;
+}
+
+/* The drawings section of a text export: its heading through to the blank line
+ * that precedes the footer. */
+function drawingLines(out) {
+  var all = lines(out);
+  var start = all.indexOf(DRAWINGS_TITLE);
+  assert.notStrictEqual(start, -1, 'no drawings section in:\n' + out);
+  return all.slice(start, all.length - 4);
+}
+
+/* The drawings section of a markdown export: its heading up to the closing rule. */
+function mdDrawingLines(out) {
+  var all = lines(out);
+  var start = all.indexOf('## ' + DRAWINGS_TITLE);
+  assert.notStrictEqual(start, -1, 'no drawings section in:\n' + out);
+  return all.slice(start, all.indexOf('---'));
+}
+
+var POSTER = {
+  id: 'plt-poster',
+  label: 'Research poster',
+  project: 'para-la-tierra',
+  when: '2024-05-01',
+  alt: 'Research poster with two stacked bar charts of fish caught at each site.'
+};
+
+test('drawings is exported as a function', function () {
+  assert.strictEqual(typeof T.drawings, 'function');
+});
+
+test('drawings returns an empty array when the session predates drawings', function () {
+  assert.deepStrictEqual(T.drawings(fullSession()), []);
+  assert.deepStrictEqual(T.drawings({ transcript: [] }), []);
+  assert.deepStrictEqual(T.drawings({}), []);
+  assert.deepStrictEqual(T.drawings(null), []);
+  assert.deepStrictEqual(T.drawings(undefined), []);
+});
+
+test('drawings returns an empty array when drawings is not an array', function () {
+  ['nope', 42, true, {}, { 0: POSTER, length: 1 }, null].forEach(function (bad) {
+    assert.deepStrictEqual(T.drawings({ drawings: bad }), [],
+      'expected [] for drawings=' + util.inspect(bad));
+  });
+});
+
+test('drawings returns an empty array for an empty drawings array', function () {
+  assert.deepStrictEqual(T.drawings({ drawings: [] }), []);
+});
+
+test('drawings normalises an entry to label, project, year and alt', function () {
+  assert.deepStrictEqual(T.drawings({ drawings: [POSTER] }), [{
+    id: 'plt-poster',
+    label: 'Research poster',
+    project: 'para-la-tierra',
+    year: '2024',
+    alt: 'Research poster with two stacked bar charts of fish caught at each site.'
+  }]);
+});
+
+test('drawings keeps the order it was given', function () {
+  var got = T.drawings({ drawings: [{ id: 'a' }, { id: 'b' }, { id: 'c' }] });
+  assert.deepStrictEqual(got.map(function (d) { return d.id; }), ['a', 'b', 'c']);
+});
+
+test('drawings drops entries that are not objects', function () {
+  var got = T.drawings({ drawings: [null, undefined, 'plt-poster', 7, true, ['x'], POSTER] });
+  assert.strictEqual(got.length, 1);
+  assert.strictEqual(got[0].id, 'plt-poster');
+});
+
+test('drawings falls back from label to id to a stand-in name', function () {
+  var got = T.drawings({ drawings: [
+    { id: 'a', label: 'Named' },
+    { id: 'b', label: '   ' },
+    { id: 'c' },
+    {}
+  ] });
+  assert.deepStrictEqual(got.map(function (d) { return d.label; }),
+    ['Named', 'b', 'c', 'Untitled drawing']);
+});
+
+test('drawings leaves alt empty rather than inventing one', function () {
+  var got = T.drawings({ drawings: [{ id: 'a' }, { id: 'b', alt: null },
+    { id: 'c', alt: {} }, { id: 'd', alt: ['x'] }, { id: 'e', alt: '   ' }] });
+  got.forEach(function (d) {
+    assert.strictEqual(d.alt, '', 'expected empty alt for ' + d.id + ', got ' + d.alt);
+  });
+});
+
+test('drawings never lets a non-string field stringify into noise', function () {
+  var got = T.drawings({ drawings: [{ id: {}, label: ['a'], project: {}, when: {}, alt: {} }] });
+  assert.deepStrictEqual(got, [{ id: '', label: 'Untitled drawing', project: '', year: '', alt: '' }]);
+  assert.strictEqual(JSON.stringify(got).indexOf('[object Object]'), -1,
+    'an object leaked into the rendered text');
+});
+
+test('drawings keeps a long description whole, trimming only its ends', function () {
+  var got = T.drawings({ drawings: [{ id: 'a', alt: '  ' + LONG_ALT + '  ' }] });
+  assert.ok(LONG_ALT.length > 250, 'fixture should be long, is ' + LONG_ALT.length);
+  assert.strictEqual(got[0].alt, LONG_ALT);
+});
+
+test('drawings takes the year from the first four characters of when', function () {
+  assert.strictEqual(T.drawings({ drawings: [{ when: '2024-05-01' }] })[0].year, '2024');
+  assert.strictEqual(T.drawings({ drawings: [{ when: '2024-02' }] })[0].year, '2024');
+  assert.strictEqual(T.drawings({ drawings: [{ when: '1998' }] })[0].year, '1998');
+});
+
+test('drawings ignores a when that is not shaped like a year', function () {
+  ['', 'soon', 'May 2024', '24-05-01', null, undefined, {}].forEach(function (bad) {
+    assert.strictEqual(T.drawings({ drawings: [{ when: bad }] })[0].year, '',
+      'expected no year for when=' + util.inspect(bad));
+  });
+});
+
+test('drawings prints project verbatim and never invents a title from an id', function () {
+  assert.strictEqual(T.drawings({ drawings: [{ project: 'three-little-pigs' }] })[0].project,
+    'three-little-pigs');
+  assert.strictEqual(T.drawings({ drawings: [{ project: '' }] })[0].project, '');
+  assert.strictEqual(T.drawings({ drawings: [{}] })[0].project, '');
+});
+
+test('drawings prefers projectTitle when the tour supplies one', function () {
+  assert.strictEqual(T.drawings({ drawings: [
+    { project: 'three-little-pigs', projectTitle: '3 Little Pigs Wall Assembly' }
+  ] })[0].project, '3 Little Pigs Wall Assembly');
+});
+
+test('drawings dedupes repeated ids and keeps the first', function () {
+  var got = T.drawings({ drawings: [
+    { id: 'a', label: 'First' }, { id: 'b', label: 'Second' }, { id: 'a', label: 'Again' }
+  ] });
+  assert.deepStrictEqual(got.map(function (d) { return d.label; }), ['First', 'Second']);
+});
+
+test('drawings dedupes ids that collide with Object.prototype names', function () {
+  var got = T.drawings({ drawings: [
+    { id: 'constructor', label: 'One' }, { id: 'constructor', label: 'Two' },
+    { id: '__proto__', label: 'Three' }, { id: '__proto__', label: 'Four' },
+    { id: 'toString', label: 'Five' }, { id: 'toString', label: 'Six' }
+  ] });
+  assert.deepStrictEqual(got.map(function (d) { return d.label; }), ['One', 'Three', 'Five']);
+});
+
+test('drawings does not dedupe entries that carry no id', function () {
+  var got = T.drawings({ drawings: [{ label: 'Sketch' }, { label: 'Sketch' }] });
+  assert.strictEqual(got.length, 2);
+});
+
+test('drawings does not change what stats counts', function () {
+  var s = drawingSession([POSTER, { id: 'b' }]);
+  assert.deepStrictEqual(T.stats(s),
+    { lines: 1, records: 0, questions: 0, projects: 0, visited: 0 });
+});
+
+test('read passes a drawings array through untouched', function () {
+  var s = { v: 1, transcript: [{ text: 'x' }], drawings: [POSTER] };
+  storage.data = JSON.stringify(s);
+  assert.deepStrictEqual(T.read(), s);
+});
+
+// ---------------------------------------------------- toText with drawings ----
+
+test('toText adds no drawings section when there are none to show', function () {
+  [undefined, [], 'nope', null].forEach(function (d) {
+    var s = oneLineSession({ text: 'only one' });
+    if (d !== undefined) s.drawings = d;
+    assert.strictEqual(T.toText(s).indexOf(DRAWINGS_TITLE), -1,
+      'unexpected section for drawings=' + util.inspect(d));
+  });
+  // and the output is exactly what it was before drawings existed
+  assert.strictEqual(T.toText(drawingSession([])),
+    T.toText(oneLineSession({ text: 'A plain line of narration.' })));
+});
+
+test('toText renders an underlined heading and one numbered entry per drawing', function () {
+  var out = T.toText(drawingSession([POSTER, { id: 'gif', label: 'Mechanism GIF', when: '2022-09' }]));
+  assert.deepStrictEqual(drawingLines(out), [
+    DRAWINGS_TITLE,
+    '-----------------------',
+    '',
+    '1. Research poster ' + MIDDOT + ' para-la-tierra ' + MIDDOT + ' 2024',
+    '   Research poster with two stacked bar charts of fish caught at each site.',
+    '',
+    '2. Mechanism GIF ' + MIDDOT + ' 2022',
+    '   ' + NO_ALT
+  ]);
+});
+
+test('toText puts the drawings section after the story and before the footer', function () {
+  var out = T.toText(drawingSession([POSTER]));
+  var all = lines(out);
+  var story = all.indexOf('A plain line of narration.');
+  var heading = all.indexOf(DRAWINGS_TITLE);
+  var foot = all.indexOf(SITE);
+  assert.ok(story !== -1 && heading !== -1 && foot !== -1, 'missing a landmark in:\n' + out);
+  assert.ok(story < heading, 'drawings should follow the story');
+  assert.ok(heading < foot, 'drawings should precede the footer');
+  assert.strictEqual(all[heading - 1], '', 'a blank line should separate story and section');
+});
+
+test('toText leaves the footer counts untouched by drawings', function () {
+  var out = T.toText(drawingSession([POSTER, { id: 'b' }, { id: 'c' }]));
+  var all = lines(out);
+  assert.strictEqual(all[all.length - 3],
+    EM_DASH + ' 1 line, 0 from Ethan' + APOS + 's records.');
+});
+
+test('toText wraps a long description without losing a single word', function () {
+  var out = T.toText(drawingSession([{ id: 'a', label: 'Wall assembly', alt: LONG_ALT }]));
+  var block = drawingLines(out).slice(4);   // heading, rule, blank, label line
+  assert.ok(block.length >= 3, 'expected the description to wrap, got ' + block.length + ' lines');
+  assert.deepStrictEqual(wrappedWords(block), LONG_ALT.split(/\s+/));
+});
+
+test('toText keeps every drawings line within 78 columns', function () {
+  var out = T.toText(drawingSession([
+    { id: 'a', label: 'Wall assembly', project: 'three-little-pigs', when: '2023-01', alt: LONG_ALT },
+    { id: 'b', label: WORD_RUN, alt: LONG_ALT }
+  ]));
+  drawingLines(out).forEach(function (l, i) {
+    assert.ok(l.length <= WIDTH,
+      'drawings line ' + i + ' is ' + l.length + ' chars: ' + JSON.stringify(l));
+  });
+});
+
+test('toText indents a wrapped description under its own number', function () {
+  var many = [];
+  for (var i = 0; i < 10; i++) many.push({ id: 'd' + i, label: 'Drawing ' + i, alt: LONG_ALT });
+  var block = drawingLines(T.toText(drawingSession(many)));
+  var tenth = block.indexOf('10. Drawing 9');
+  assert.notStrictEqual(tenth, -1, 'expected a tenth entry:\n' + block.join('\n'));
+  // block is [heading, rule, '', '1. Drawing 0', description..., '', '2. ...']
+  assert.strictEqual(block[4].slice(0, 3), '   ', 'entry 1 description should sit at 3 columns');
+  assert.notStrictEqual(block[4].charAt(3), ' ', 'entry 1 should not be indented further');
+  assert.strictEqual(block[tenth + 1].slice(0, 4), '    ',
+    'entry 10 description should sit at 4 columns');
+  assert.notStrictEqual(block[tenth + 1].charAt(4), ' ',
+    'entry 10 should not be indented further');
+});
+
+test('toText says so when a drawing has no description', function () {
+  var out = T.toText(drawingSession([{ id: 'a', label: 'Sketch' }]));
+  assert.deepStrictEqual(drawingLines(out).slice(3), ['1. Sketch', '   ' + NO_ALT]);
+});
+
+test('toText renders a drawing with no label, project, when or alt', function () {
+  var out = T.toText(drawingSession([{}]));
+  assert.deepStrictEqual(drawingLines(out).slice(3), ['1. Untitled drawing', '   ' + NO_ALT]);
+});
+
+// ------------------------------------------------ toMarkdown with drawings ----
+
+test('toMarkdown adds no drawings section when there are none to show', function () {
+  [undefined, [], 'nope', null].forEach(function (d) {
+    var s = oneLineSession({ text: 'only one' });
+    if (d !== undefined) s.drawings = d;
+    assert.strictEqual(T.toMarkdown(s).indexOf(DRAWINGS_TITLE), -1,
+      'unexpected section for drawings=' + util.inspect(d));
+  });
+  assert.strictEqual(T.toMarkdown(drawingSession([])),
+    T.toMarkdown(oneLineSession({ text: 'A plain line of narration.' })));
+});
+
+test('toMarkdown renders the drawings between the story and the closing rule', function () {
+  var out = T.toMarkdown(drawingSession([POSTER, { id: 'gif', label: 'Mechanism GIF' }]));
+  assert.deepStrictEqual(mdDrawingLines(out), [
+    '## ' + DRAWINGS_TITLE,
+    '',
+    '**1. Research poster** ' + EM_DASH + ' para-la-tierra ' + MIDDOT + ' 2024',
+    '',
+    'Research poster with two stacked bar charts of fish caught at each site.',
+    '',
+    '**2. Mechanism GIF**',
+    '',
+    '_' + NO_ALT + '_',
+    ''
+  ]);
+  assert.ok(lines(out).indexOf('A plain line of narration.') <
+    lines(out).indexOf('## ' + DRAWINGS_TITLE), 'drawings should follow the story');
+});
+
+test('toMarkdown emits a long description in full on one unwrapped line', function () {
+  var out = T.toMarkdown(drawingSession([{ id: 'a', label: 'Wall assembly', alt: LONG_ALT }]));
+  assert.notStrictEqual(lines(out).indexOf(LONG_ALT), -1,
+    'expected the description on one unwrapped line, got:\n' + out);
+});
+
+test('toMarkdown keeps the meta outside the bold label', function () {
+  var out = T.toMarkdown(drawingSession([POSTER]));
+  assert.notStrictEqual(out.indexOf('**1. Research poster** ' + EM_DASH + ' para-la-tierra'), -1,
+    'expected meta after the bold label, got:\n' + out);
+});
+
+// --------------------------------------- degenerate drawings, end to end ----
+
+var JUNK_DRAWINGS = [
+  null, undefined, 'plt-poster', 42, true, ['nested'], NaN,
+  {}, { id: 'a' }, { id: 'b', label: null, project: null, when: null, alt: null },
+  { id: 'c', label: 0, project: 0, when: 0, alt: 0 },
+  { label: 'No id at all', alt: LONG_ALT },
+  { id: 'a', label: 'Duplicate id' }
+];
+
+test('every export survives a drawings array full of junk', function () {
+  var s = drawingSession(JUNK_DRAWINGS);
+  assert.doesNotThrow(function () { T.drawings(s); });
+  assert.doesNotThrow(function () { T.toText(s); });
+  assert.doesNotThrow(function () { T.toMarkdown(s); });
+  assert.doesNotThrow(function () { T.stats(s); });
+  assert.doesNotThrow(function () { T.filename(s, 'txt'); });
+  assert.strictEqual(T.drawings(s).length, 5, 'expected the five renderable entries');
+  var out = T.toText(s);
+  assert.notStrictEqual(out.indexOf('5. No id at all'), -1, 'expected five numbered entries');
+  assert.strictEqual(out.indexOf('undefined'), -1, 'an undefined leaked into the text export');
+  assert.strictEqual(out.indexOf('NaN'), -1, 'a NaN leaked into the text export');
+  assert.strictEqual(T.toMarkdown(s).indexOf('[object Object]'), -1,
+    'an object leaked into the markdown export');
+});
+
+test('a long description survives junk siblings intact in both exports', function () {
+  var s = drawingSession(JUNK_DRAWINGS);
+  assert.notStrictEqual(T.toMarkdown(s).indexOf(LONG_ALT), -1,
+    'markdown truncated or reflowed the description');
+  var block = drawingLines(T.toText(s));
+  var head = block.indexOf('5. No id at all');
+  assert.notStrictEqual(head, -1, 'no entry for the long description');
+  // The last entry has no trailing blank line, so run to the end of the block.
+  var end = block.indexOf('', head);
+  var wrapped = block.slice(head + 1, end === -1 ? block.length : end);
+  assert.deepStrictEqual(wrappedWords(wrapped), LONG_ALT.split(/\s+/),
+    'the text export lost or reordered words');
+});
+
+test('an empty transcript still exports nothing, drawings or not (characterization)', function () {
+  // read() refuses a session with no transcript lines, so this shape cannot
+  // reach the page; the exports keep their existing empty-string contract.
+  assert.strictEqual(T.toText({ transcript: [], drawings: [POSTER] }), '');
+  assert.strictEqual(T.toMarkdown({ transcript: [], drawings: [POSTER] }), '');
+});
+
 // ----------------------------------------------------- non-failing probes ----
 // Robustness limits worth knowing about but outside the stated contract.
 

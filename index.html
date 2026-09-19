@@ -36,9 +36,6 @@
   --accent: #c47a5c;
   --record: #c47a5c;
   --card: rgba(255, 255, 255, 0.06);
-  --trace-w: clamp(340px, 33vw, 520px);
-  --sheet-h: 52vh;
-  --peek: 118px;
 }
 
 * { box-sizing: border-box; }
@@ -98,7 +95,7 @@ body[data-view="scene"] .nav { position: fixed; inset: 0 0 auto 0; margin: 0; po
 body[data-view="scene"] .nav button, body[data-view="scene"] .nav a { pointer-events: auto; }
 body[data-view="scene"] main { padding: 0; }
 .scrim { position: fixed; inset: 0 0 auto 0; z-index: 2; height: calc(var(--nav-h) * 1.7); pointer-events: none; background: linear-gradient(to bottom, color-mix(in srgb, var(--ground) 14%, transparent), color-mix(in srgb, var(--ground) 0%, transparent)); }
-body:not([data-view="scene"]) .scrim, body:not([data-view="scene"]) .canvas, body:not([data-view="scene"]) .plate, body:not([data-view="scene"]) .story-tab { display: none; }
+body:not([data-view="scene"]) .scrim, body:not([data-view="scene"]) .canvas, body:not([data-view="scene"]) .looking, body:not([data-view="scene"]) .story-tab { display: none; }
 
 .canvas { position: fixed; inset: 0; z-index: 1; overflow: hidden; touch-action: none; cursor: grab; outline: none; }
 .canvas:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
@@ -107,87 +104,114 @@ body:not([data-view="scene"]) .scrim, body:not([data-view="scene"]) .canvas, bod
 .canvas .media.on { opacity: 1; }
 .canvas.easing .media { transition: opacity 700ms ease, transform 650ms cubic-bezier(.3,.7,.2,1); }
 
-.trace { position: fixed; z-index: 10; top: calc(var(--nav-h) + var(--L4)); right: var(--L); bottom: var(--L4); width: var(--trace-w); border-radius: calc(var(--L4) * 1.2); isolation: isolate; background: color-mix(in srgb, var(--ground) 84%, transparent); -webkit-backdrop-filter: blur(16px) saturate(0.8); backdrop-filter: blur(16px) saturate(0.8); transition: transform 600ms cubic-bezier(.3,.7,.2,1), background-color 1.2s ease; }
-.trace::before { position: absolute; z-index: 0; border-radius: inherit; background-attachment: fixed; opacity: 0.4; }
-.trace .outline { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; color: #fff; mix-blend-mode: difference; z-index: 3; }
-.trace-scroll { position: absolute; inset: 0; z-index: 1; overflow-y: auto; overscroll-behavior: contain; padding: 22px 26px 34vh 38px; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
-body.look .trace { transform: translateX(calc(100% + var(--L) + 8px)); }
-.handle { display: none; }
-.trace-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
-.lift { flex: none; border: 1px solid var(--line); border-radius: 999px; background: transparent; padding: 4px 11px; font-size: 0.76rem; cursor: pointer; }
-.lift:hover { border-color: var(--ink); }
-.legend { display: flex; align-items: baseline; gap: 8px; margin: 0 0 20px; color: var(--muted); font-size: 0.76rem; line-height: 1.4; }
-.mark-lesson { display: flex; align-items: baseline; gap: 8px; margin: 10px 0 0; color: var(--muted); font-size: 0.74rem; line-height: 1.45; text-align: left; animation: rise 700ms ease 400ms both; }
-.mark-lesson i { flex: none; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--record); transform: translateY(-1px); }
-html[data-narration="c"] .mark-lesson { max-width: 44ch; margin-inline: auto; }
-.legend i { flex: none; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--record); transform: translateY(-1px); }
+/* ---------------------------------------------------------------------------
+   The caption. The story sits at the foot of the drawing, one line at a time,
+   set at reading size rather than display size. Everything else it can do -
+   the ask field, the lines behind it, the drawing's own name - is one gesture
+   away, and none of it is on screen until then.
+   --------------------------------------------------------------------------- */
+.trace { position: fixed; z-index: 10; inset: auto 0 0 0; background: linear-gradient(to top, color-mix(in srgb, var(--ground) 94%, transparent), color-mix(in srgb, var(--ground) 72%, transparent) 54%, transparent); transition: transform 600ms cubic-bezier(.3,.7,.2,1); }
+/* The caption sits at the foot by pushing itself down with an auto margin, NOT with
+   justify-content: flex-end - a flex container aligned to the end hides overflow past
+   its start edge, and the browser reports no scrollHeight at all, so the readback
+   could never be scrolled back through. */
+.trace-scroll { position: static; overflow: hidden; max-height: none; padding: calc(var(--L) * 0.5) var(--L) calc(var(--L) * 0.42); display: flex; flex-direction: column; transition: max-height 400ms cubic-bezier(.3,.7,.2,1); }
+.trace-scroll > *:first-child { margin-top: auto; }
+/* Look mode: the story drops out of the way and the drawing has the screen. */
+body.look .trace { transform: translateY(100%); }
 .story-tab { position: fixed; z-index: 11; right: 0; top: 50%; transform: translateY(-50%); writing-mode: vertical-rl; border: 0; border-radius: 10px 0 0 10px; padding: 16px 9px; background: color-mix(in srgb, var(--ground) 88%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); font-size: 0.82rem; letter-spacing: 0.04em; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 400ms ease; }
 body.look .story-tab { opacity: 1; pointer-events: auto; }
 
-.page { display: flex; flex-direction: column; gap: 11px; }
-.line { position: relative; margin: 0; font-size: 1rem; line-height: 1.5; opacity: 0.76; transition: opacity 300ms ease; }
+/* Looking: the drawing's own name and description, which appear only once you
+   have taken hold of the drawing - dragged it, or zoomed it. Asking to look
+   closer is the same gesture as asking what this is. */
+/* It needs a ground, not just a shadow. A drawing can be any brightness, and over a
+   bright one muted type with a glow behind it simply disappears - which is the same
+   lesson the caption learned: "no box" means no edge, not no ground. The caption is
+   away while this is up, so the two never stack. */
+.looking { position: fixed; z-index: 9; inset: auto 0 0 0; padding: calc(var(--L) * 0.9) var(--L) calc(var(--L) * 0.42); opacity: 0; pointer-events: none; transition: opacity 500ms ease; background: linear-gradient(to top, color-mix(in srgb, var(--ground) 96%, transparent), color-mix(in srgb, var(--ground) 86%, transparent) 62%, transparent); }
+body.look .looking { opacity: 1; }
+.looking[hidden] { display: none !important; }
+.looking-name { margin: 0 0 6px; max-width: 62ch; font-size: 0.86rem; line-height: 1.35; text-shadow: 0 0 18px var(--ground), 0 0 6px var(--ground); }
+.looking-name b { font-weight: 500; }
+.looking-name span { color: var(--muted); }
+.looking-alt { margin: 0; max-width: 62ch; color: var(--muted); font-size: 0.78rem; line-height: 1.55; text-shadow: 0 0 18px var(--ground), 0 0 6px var(--ground); }
+
+/* The one-time lessons: what the red mark means, and that the drawing moves. */
+.mark-lesson { display: flex; align-items: baseline; gap: 8px; margin: 10px auto 0; max-width: 44ch; color: var(--muted); font-size: 0.74rem; line-height: 1.45; text-align: left; animation: rise 700ms ease 400ms both; }
+.mark-lesson i { flex: none; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--record); transform: translateY(-1px); }
+.hint { margin: 9px auto 0; max-width: 44ch; color: var(--muted); font-size: 0.72rem; line-height: 1.45; text-align: center; animation: rise 700ms ease 600ms both; }
+
+/* Only the line you are on is on screen; the rest - and the place marks that divide
+   them - are behind the readback. */
+.page { display: block; }
+.page .eyebrow { display: none; }
+.line { display: none; position: relative; margin: 0; font-size: 1rem; line-height: 1.5; opacity: 0.76; transition: opacity 300ms ease; }
 .line[data-media] { cursor: pointer; }
 .line[data-media]:hover { opacity: 0.95; }
-.line.current { font-size: clamp(1.14rem, 1.55vw, 1.4rem); line-height: 1.32; letter-spacing: -0.01em; opacity: 1; }
+.line.current { display: block; opacity: 1; max-width: 56ch; margin: 0 auto; text-align: center; font-size: clamp(1.04rem, 1.32vw, 1.22rem); line-height: 1.5; text-shadow: 0 0 20px var(--ground), 0 0 7px var(--ground); }
 .line.record { color: var(--record); }
 .line.record::before { content: ""; position: absolute; left: -18px; top: calc(0.75em - 4px); width: 8px; height: 8px; border-radius: 50%; background: var(--record); }
 .line.you { color: var(--muted); }
 .line.enter { animation: rise 600ms ease both; }
 .line.thinking { color: var(--muted); opacity: 1; animation: breathe 1.1s ease-in-out infinite alternate; }
-.line .thumb { float: right; width: 30px; height: 30px; margin: 1px 0 4px 12px; border-radius: 6px; background: var(--line) center / cover no-repeat; box-shadow: 0 0 0 1px var(--line); transition: box-shadow 200ms ease; }
+.line .thumb { float: none; display: inline-block; width: 22px; height: 22px; vertical-align: -5px; margin: 0 0 0 9px; border-radius: 6px; background: var(--line) center / cover no-repeat; box-shadow: 0 0 0 1px var(--line); transition: box-shadow 200ms ease; }
 .line.showing .thumb { box-shadow: 0 0 0 2px var(--ground), 0 0 0 3.5px var(--ink); }
 .place-mark { margin: 26px 0 2px; }
 .place-mark:first-child { margin-top: 0; }
 .divider { width: 44px; height: 1px; background: var(--line); margin: 8px 0; }
 
-.controls { margin-top: 24px; display: grid; gap: 16px; }
-.continue { justify-self: start; display: inline-flex; gap: 10px; align-items: baseline; padding: 9px 16px; border: 1px solid var(--line); border-radius: 999px; background: transparent; cursor: pointer; font-size: 0.92rem; }
+/* At rest the foot of the screen is the line and one row of pills. Nothing else. */
+.controls { margin-top: 10px; display: grid; justify-items: center; gap: 9px; }
+.continue { justify-self: center; display: inline-flex; gap: 10px; align-items: baseline; min-height: 0; padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; background: transparent; cursor: pointer; font-size: 0.84rem; }
 .continue:hover { border-color: var(--ink); }
 .continue kbd { color: var(--muted); font-family: inherit; font-size: 0.72rem; }
-.card { padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
-.card .kind { display: block; color: var(--muted); font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
-.card strong { display: block; font-size: 0.98rem; }
-.card .ctx { color: var(--muted); font-size: 0.76rem; margin: 3px 0 6px; }
-.card p { margin: 0; opacity: 0.85; font-size: 0.88rem; line-height: 1.35; }
-.choices { display: flex; flex-wrap: wrap; gap: 8px; }
-.choice { display: inline-flex; align-items: baseline; gap: 10px; min-height: 42px; padding: 9px 14px; border: 1px solid var(--ink); border-radius: 999px; background: transparent; text-align: left; cursor: pointer; font-size: 0.92rem; animation: rise 450ms ease both; }
+.choices { display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; }
+.choice { display: inline-flex; align-items: baseline; gap: 10px; min-height: 0; padding: 6px 13px; border: 1px solid var(--ink); border-radius: 999px; background: transparent; text-align: left; cursor: pointer; font-size: 0.83rem; animation: rise 450ms ease both; }
 .choice:hover { background: var(--ink); color: var(--ground); }
-.choice .mark { color: var(--muted); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.choice .mark { color: var(--muted); font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; }
 .choice:hover .mark { color: var(--ground); }
 .choice.ask { border-style: dashed; }
 .choice.reach { border-color: var(--accent); }
+.stop { justify-self: center; border: 0; background: none; padding: 0; color: var(--muted); text-decoration: underline; cursor: pointer; font-size: 0.85rem; }
+
+/* In the story the ask field REPLACES the pills rather than stacking under them - the
+   foot of the screen is never two rows tall. On the map it is simply always there. */
 .ask-form { display: flex; border-bottom: 1px solid var(--ink); }
+.ask-note { margin: -6px 0 0; color: var(--muted); font-size: 0.75rem; line-height: 1.4; }
+body[data-view="scene"] .ask-form, body[data-view="scene"] .ask-note { display: none; }
+body.asking[data-view="scene"] .choices { display: none; }
+body.asking[data-view="scene"] .ask-form { display: flex; width: 100%; max-width: 44ch; margin: 2px auto 0; }
+body.asking[data-view="scene"] .ask-note { display: block; max-width: 52ch; margin: 4px auto 0; text-align: center; font-size: 0.68rem; line-height: 1.4; opacity: 0.8; }
 .ask-form input { flex: 1; min-width: 0; padding: 11px 2px; border: 0; background: transparent; font-size: 1.02rem; }
 .ask-form input::placeholder { color: var(--muted); }
 .ask-form input:focus { outline: none; }
 .ask-form:focus-within { border-bottom-color: var(--accent); box-shadow: 0 1px 0 var(--accent); }
 .ask-form button { border: 0; background: transparent; padding: 0 4px 0 14px; cursor: pointer; }
-.ask-note { margin: -6px 0 0; color: var(--muted); font-size: 0.75rem; line-height: 1.4; }
-.stop { justify-self: start; border: 0; background: none; padding: 0; color: var(--muted); text-decoration: underline; cursor: pointer; font-size: 0.85rem; }
 
-.trail { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 30px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.75rem; }
-.dots { display: flex; }
-.dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--muted); }
-.dot + .dot { margin-left: -1px; }
-.dot.on { background: var(--ink); border-color: var(--ink); }
-.noticed b { color: var(--ink); font-weight: 500; }
-
-/* The plate: what you are looking at, and the tools to look closer. */
-.plate { position: fixed; z-index: 9; left: var(--L); bottom: var(--L4); max-width: calc(100vw - var(--trace-w) - 3 * var(--L)); display: grid; gap: 8px; padding: 9px 10px 9px 14px; border-radius: 12px; background: color-mix(in srgb, var(--ground) 86%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); font-size: 0.8rem; transition: max-width 600ms ease, bottom 600ms cubic-bezier(.3,.7,.2,1); }
-body.look .plate { max-width: calc(100vw - 2 * var(--L)); }
-.plate[hidden] { display: none !important; }
-.plate .row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-.plate .cap { min-width: 0; line-height: 1.35; }
-.plate .cap b { font-weight: 500; }
-.plate .cap span { color: var(--muted); }
-.plate .tools { display: flex; align-items: center; gap: 4px; margin-left: auto; }
-.plate .tools button { min-width: 30px; height: 30px; padding: 0 8px; border: 1px solid transparent; border-radius: 999px; background: transparent; cursor: pointer; font-size: 0.8rem; }
-.plate .tools button:hover:not(:disabled) { border-color: var(--line); }
-.plate .tools button:disabled { opacity: 0.35; cursor: default; }
-.plate .tools .count { color: var(--muted); font-variant-numeric: tabular-nums; padding: 0 2px; }
-.plate .sep { width: 1px; height: 16px; background: var(--line); margin: 0 4px; }
-.plate .now { border-color: var(--ink) !important; }
-.plate .alt { margin: 0; max-width: 62ch; line-height: 1.45; }
+/* Read back: the lines behind, returned only when asked for. */
+/* A container-wide mask cannot do this job. It fades the top and bottom of the BOX,
+   so every line between them sits at whatever flat opacity it was given and the first
+   line can never be bright. What is wanted is a reading position: whichever line is
+   crossing the middle of the readback is the line you are on, at full strength, and
+   its neighbours fall away in both directions - so a line brightens as you scroll it
+   in and dims as you pass it, going back through the story the way you came. That is
+   per-line and depends on scroll offset, so focusLines() sets it. The block padding is
+   what lets the first and last lines reach the middle at all. */
+body.unfurl[data-view="scene"] .trace-scroll { overflow-y: auto; max-height: 62vh; overscroll-behavior: contain; scrollbar-width: none; }
+body.unfurl[data-view="scene"] .trace-scroll::-webkit-scrollbar { width: 0; height: 0; }
+body.unfurl[data-view="scene"] .page { display: flex; flex-direction: column; gap: 13px; }
+/* While reading back, the present is put away: the choices and the ask field both
+   belong to where the story currently is, not to where it has been. Only the way out
+   stays. This is also what lets the last line reach the middle of the box. */
+body.unfurl[data-view="scene"] .page .line { display: block; max-width: 56ch; margin-inline: auto; font-size: 0.93rem; line-height: 1.6; text-align: left; text-shadow: 0 0 18px var(--ground); transition: none; }
+body.unfurl[data-view="scene"] .page .eyebrow { display: block; text-align: center; margin: 20px 0 6px; transition: none; }
+/* The keepsake sits at the head of the readback, not in the standing furniture. */
+.aside-row { display: none; order: -1; justify-content: center; gap: 18px; margin: 0 0 14px; }
+body.unfurl[data-view="scene"] .aside-row { display: flex; }
+body.unfurl[data-view="scene"] .controls { display: none; }
+.keepsake { display: inline-block; border: 0; background: none; padding: 0; color: inherit; opacity: 0.42; font-size: 0.72rem; letter-spacing: 0.04em; text-decoration: none; cursor: pointer; transition: opacity 180ms ease; }
+.keepsake:hover { opacity: 1; }
 
 /* the landing word: the page waits behind it */
 .ls-word { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: var(--ground); color: var(--ink); cursor: pointer; transition: opacity 500ms ease; }
@@ -212,204 +236,26 @@ main { transition: opacity 500ms ease; }
   body[data-view="scene"] .nav { padding-inline: 16px; }
   .portals { grid-template-columns: 1fr; gap: 28px; }
   .portal svg { max-width: 190px; }
-  .trace { top: auto; left: 0; right: 0; bottom: 0; width: auto; height: var(--sheet-h); border-radius: 18px 18px 0 0; }
-  body.look .trace { transform: translateY(calc(var(--sheet-h) - var(--peek))); }
-  .trace-scroll { padding: 30px 18px 30vh 34px; }
-  .handle { display: block; position: absolute; z-index: 4; top: 0; left: 0; right: 0; height: 26px; border: 0; background: transparent; cursor: grab; touch-action: none; }
-  .handle::after { content: ""; position: absolute; left: 50%; top: 10px; width: 40px; height: 4px; margin-left: -20px; border-radius: 2px; background: var(--muted); opacity: 0.6; }
-  .lift, .story-tab { display: none; }
-  .plate { left: 16px; right: 16px; max-width: none; bottom: calc(var(--sheet-h) + 8px); padding: 7px 8px 7px 12px; font-size: 0.74rem; }
-  body.look .plate { bottom: calc(var(--peek) + 8px); max-width: none; }
-  .plate { gap: 2px; }
-  .plate .row { gap: 2px 10px; }
-  .plate .cap { flex: 1 1 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .plate .tools { margin-left: -8px; }
-  .plate .tools button { min-width: 34px; height: 34px; }
+  /* The phone gets the same caption, not a sheet: it is the same one surface, and a
+     52vh sheet was the single biggest thing eating the drawing. */
+  .trace-scroll { padding: 16px 16px 18px; }
+  .line.current { font-size: 1.02rem; }
+  .looking { left: 16px; right: 16px; bottom: 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
   .portal .draw { stroke-dashoffset: 0; }
 }
 
-/* ---------------------------------------------------------------------------
-   Narration surfaces. Three ways the story can sit in the room, switched with
-   ?n=a|b|c so they can be looked at side by side. Unset = the panel as built.
-   --------------------------------------------------------------------------- */
-
-/* A - the column. No panel: a veil that fades in from the right edge with no
-   edge of its own, text set wide and loose, the read lines dissolving off the
-   top of the screen instead of stopping at a border. */
-html[data-narration="a"] .trace {
-  top: 0; right: 0; bottom: 0; width: calc(clamp(360px, 34vw, 540px) + var(--L) * 2);
-  border-radius: 0; isolation: auto;
-  background: linear-gradient(to right, transparent, color-mix(in srgb, var(--ground) 46%, transparent) 18%, color-mix(in srgb, var(--ground) 88%, transparent) 46%, color-mix(in srgb, var(--ground) 97%, transparent) 72%);
-  -webkit-backdrop-filter: none; backdrop-filter: none;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 13%, #000 84%, transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 13%, #000 84%, transparent 100%);
-}
-html[data-narration="a"] .trace::before,
-html[data-narration="a"] .trace .outline { display: none; }
-html[data-narration="a"] .trace-scroll {
-  padding: 22vh var(--L) 44vh calc(var(--L) * 1.4);
-  scrollbar-width: none;
-}
-html[data-narration="a"] .trace-scroll::-webkit-scrollbar { width: 0; height: 0; }
-html[data-narration="a"] .trace-head { margin-bottom: 34px; }
-html[data-narration="a"] .legend, html[data-narration="a"] .lift { display: none; }
-html[data-narration="a"] .page { gap: 34px; }
-html[data-narration="a"] .line { font-size: 1.02rem; line-height: 1.85; opacity: 0.46; text-shadow: 0 0 16px var(--ground); }
-html[data-narration="a"] .line.current { font-size: clamp(1.2rem, 1.6vw, 1.46rem); line-height: 1.6; opacity: 1; text-shadow: 0 0 18px var(--ground); }
-html[data-narration="a"] .line[data-media]:hover { opacity: 0.7; }
-html[data-narration="a"] .controls { margin-top: 38px; gap: 20px; }
-html[data-narration="a"] .trail { border-top: 0; margin-top: 44px; opacity: 0.55; }
-html[data-narration="a"] .card, html[data-narration="b"] .card, html[data-narration="c"] .card {
-  border: 0; border-left: 1px solid var(--line); border-radius: 0; background: none;
-  padding: 2px 0 2px 16px; text-shadow: 0 0 16px var(--ground);
-}
-
-/* B - the page. The drawing stays nailed to the viewport and the story is the
-   document scrolling over it, so the browser's own bar on the right is the
-   progress indicator. */
-html[data-narration="b"] body[data-view="scene"] { overflow: visible; height: auto; }
-html[data-narration="b"] body[data-view="scene"] main { padding: 0; }
-html[data-narration="b"] .trace {
-  position: relative; top: auto; right: auto; bottom: auto;
-  width: min(48ch, 40vw); margin-left: auto;
-  border-radius: 0; isolation: auto;
-  background: none; -webkit-backdrop-filter: none; backdrop-filter: none;
-}
-html[data-narration="b"] .trace::before,
-html[data-narration="b"] .trace .outline { display: none; }
-html[data-narration="b"] .trace-scroll {
-  position: static; overflow: visible;
-  padding: 42vh 0 62vh 0;
-}
-html[data-narration="b"] .trace-head { margin-bottom: 30px; }
-html[data-narration="b"] .legend, html[data-narration="b"] .lift { display: none; }
-html[data-narration="b"] .page { gap: 32px; }
-html[data-narration="b"] .line { font-size: 1.02rem; line-height: 1.8; opacity: 0.46; text-shadow: 0 0 20px var(--ground), 0 0 7px var(--ground); }
-html[data-narration="b"] .line.current { font-size: clamp(1.18rem, 1.55vw, 1.42rem); line-height: 1.58; opacity: 1; text-shadow: 0 0 24px var(--ground), 0 0 8px var(--ground); }
-html[data-narration="b"] .controls, html[data-narration="b"] .trail { text-shadow: 0 1px 14px var(--ground); }
-html[data-narration="b"] .trail { border-top: 0; margin-top: 44px; }
-html[data-narration="b"] .scrim { height: calc(var(--nav-h) * 2.2); z-index: 6; }
-html[data-narration="b"] body[data-view="scene"]::after {
-  content: ""; position: fixed; z-index: 5; top: 0; right: 0; bottom: 0;
-  width: calc(min(48ch, 40vw) + var(--L) * 2.6); pointer-events: none;
-  background: linear-gradient(to right, transparent, color-mix(in srgb, var(--ground) 46%, transparent) 18%, color-mix(in srgb, var(--ground) 88%, transparent) 46%, color-mix(in srgb, var(--ground) 97%, transparent) 72%);
-}
-html[data-narration="b"] .trace { z-index: 10; }
-
-/* C - the caption. One line at the foot of the drawing, set at reading size rather
-   than display size, with nothing standing beside it that the reader has not asked
-   for. The ask field, the note and the lines behind are all one tap away and none
-   of them are on screen until then. */
-html[data-narration="c"] .trace {
-  top: auto; right: 0; bottom: 0; left: 0; width: auto;
-  border-radius: 0; isolation: auto;
-  background: linear-gradient(to top, color-mix(in srgb, var(--ground) 94%, transparent), color-mix(in srgb, var(--ground) 72%, transparent) 54%, transparent);
-  -webkit-backdrop-filter: none; backdrop-filter: none;
-}
-html[data-narration="c"] .trace::before,
-html[data-narration="c"] .trace .outline { display: none; }
-/* The caption sits at the foot by pushing itself down with an auto margin, NOT with
-   justify-content: flex-end - a flex container aligned to the end hides overflow past
-   its start edge, and the browser reports no scrollHeight at all, so the readback
-   could never be scrolled back through. */
-html[data-narration="c"] .trace-scroll {
-  position: static; overflow: hidden;
-  max-height: none; padding: calc(var(--L) * 0.5) var(--L) calc(var(--L) * 0.42);
-  display: flex; flex-direction: column;
-  transition: max-height 400ms cubic-bezier(.3,.7,.2,1);
-}
-html[data-narration="c"] .trace-scroll > *:first-child { margin-top: auto; }
-html[data-narration="c"] .trace-head, html[data-narration="c"] .legend,
-html[data-narration="c"] .trail { display: none; }
-html[data-narration="c"] .page { gap: 8px; display: block; }
-html[data-narration="c"] .line, html[data-narration="c"] .page .eyebrow { display: none; }
-body.unfurl[data-view="scene"] .page .eyebrow { display: block; text-align: center; margin: 20px 0 6px; }
-html[data-narration="c"] .line.current {
-  display: block; opacity: 1; max-width: 56ch; margin: 0 auto;
-  text-align: center; font-size: clamp(1.04rem, 1.32vw, 1.22rem); line-height: 1.5;
-  letter-spacing: 0; text-shadow: 0 0 20px var(--ground), 0 0 7px var(--ground);
-}
-html[data-narration="c"] .line .thumb { float: none; display: inline-block; width: 22px; height: 22px; vertical-align: -5px; margin: 0 0 0 9px; }
-
-/* The card shrinks to what a caption can carry: the name, and that there is more. */
-html[data-narration="c"] .controls { margin-top: 10px; justify-items: center; gap: 9px; }
-html[data-narration="c"] .card { padding: 0; text-align: center; }
-html[data-narration="c"] .card .kind, html[data-narration="c"] .card .ctx, html[data-narration="c"] .card p { display: none; }
-html[data-narration="c"] .card strong { font-size: 0.82rem; font-weight: 500; opacity: 0.72; }
-html[data-narration="c"] .continue, html[data-narration="c"] .stop { justify-self: center; }
-html[data-narration="c"] .continue { min-height: 0; padding: 6px 14px; font-size: 0.84rem; }
-html[data-narration="c"] .choices { justify-content: center; gap: 7px; }
-html[data-narration="c"] .choice { min-height: 0; padding: 6px 13px; font-size: 0.83rem; }
-html[data-narration="c"] .choice .mark { font-size: 0.6rem; }
-
-/* Nothing on screen the reader has not asked for. */
-html[data-narration="c"] .ask-form, html[data-narration="c"] .ask-note { display: none; }
-html[data-narration="c"] body.asking .ask-form,
-body.asking[data-view="scene"] .ask-form { display: flex; max-width: 44ch; margin: 2px auto 0; width: 100%; }
-body.asking[data-view="scene"] .ask-note { display: block; max-width: 52ch; margin: 4px auto 0; text-align: center; font-size: 0.68rem; opacity: 0.8; }
-
-/* The two quiet ways out of the caption: back through what you read, or off to keep it. */
-html[data-narration="c"] .aside-row { display: flex; justify-content: center; gap: 18px; margin-top: 9px; }
-html[data-narration="c"] .lift, html[data-narration="c"] .keepsake {
-  display: inline-block; border: 0; border-radius: 0; background: none; padding: 0;
-  color: inherit; opacity: 0.42; font-size: 0.72rem; letter-spacing: 0.04em;
-  text-decoration: none; cursor: pointer; transition: opacity 180ms ease;
-}
-html[data-narration="c"] .lift:hover, html[data-narration="c"] .keepsake:hover { opacity: 1; border-color: transparent; }
-
-/* Read back: the lines behind, returned only when asked for. */
-/* A container-wide mask cannot do this job. It fades the top and bottom of the BOX,
-   so every line between them sits at whatever flat opacity it was given and the first
-   line can never be bright. What is wanted is a reading position: whichever line is
-   crossing the middle of the readback is the line you are on, at full strength, and
-   its neighbours fall away in both directions - so a line brightens as you scroll it
-   in and dims as you pass it, going back through the story the way you came. That is
-   per-line and depends on scroll offset, so focusLines() sets it. The block padding is
-   what lets the first and last lines reach the middle at all. */
-body.unfurl[data-view="scene"] .trace-scroll {
-  overflow-y: auto; max-height: 62vh;
-  overscroll-behavior: contain;
-  scrollbar-width: none;
-}
-body.unfurl[data-view="scene"] .trace-scroll::-webkit-scrollbar { width: 0; height: 0; }
-body.unfurl[data-view="scene"] .page { display: flex; flex-direction: column; gap: 13px; }
-/* While reading back, the present is put away: the card, the choices and the ask field
-   all belong to where the story currently is, not to where it has been. Only the way
-   out stays. This is also what lets the last line reach the middle of the box. */
-body.unfurl[data-view="scene"] .controls > *:not(.aside-row) { display: none; }
-body.unfurl[data-view="scene"] .controls { margin-top: 0; }
-body.unfurl[data-view="scene"] .page .line {
-  display: block; max-width: 56ch; margin-inline: auto;
-  font-size: 0.93rem; line-height: 1.6; text-shadow: 0 0 18px var(--ground);
-  transition: none;
-}
-body.unfurl[data-view="scene"] .page .eyebrow { transition: none; }
-html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom: auto; top: calc(var(--nav-h) + var(--L4)); }
 </style>
 
-<script>
-  // Narration surface under test: ?n=a|b|c. Sticky for the tab so following a
-  // nav link and coming back does not silently drop you into another design.
-  (function () {
-    try {
-      var n = new URLSearchParams(location.search).get('n');
-      if (n === null) n = sessionStorage.getItem('esa-narration');
-      if (/^[abc]$/.test(n || '')) {
-        document.documentElement.dataset.narration = n;
-        sessionStorage.setItem('esa-narration', n);
-      }
-    } catch (e) { /* storage off */ }
-  })();
-</script>
 
 <header class="nav">
   <div class="nav-inner">
     <svg id="nav-svg" aria-hidden="true" preserveAspectRatio="xMinYMid meet"></svg>
     <span class="sr">esa</span>
     <div class="nav-right">
+      <button class="linkish" id="story-link" type="button" hidden>Your story</button>
       <button class="linkish" id="restart" type="button" hidden>Start over</button>
       <a class="linkish" href="projects.html">Projects</a>
       <a class="linkish" href="about.html">About</a>
@@ -419,10 +265,10 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
   </div>
 </header>
 <div class="canvas" id="canvas" tabindex="0" role="img" aria-label="Drawing"></div>
+<div class="looking" id="looking" hidden></div>
 <div class="scrim" aria-hidden="true"></div>
 <main id="main"></main>
 <button class="story-tab" id="story-tab" type="button">Back to the story</button>
-<div class="plate" id="plate" hidden></div>
 
 <script type="application/json" id="data">{
  "facts": {
@@ -1840,7 +1686,6 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
   const projectOfFact = {};
   PROJECTS.forEach((p) => p.factIds.forEach((id) => { projectOfFact[id] = p.id; }));
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const narration = document.documentElement.dataset.narration || '';
   const main = document.getElementById('main');
   const $ = (tag, props = {}, kids = []) => {
     const el = document.createElement(tag);
@@ -1941,35 +1786,13 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
     barR(ribbon([[X0, 0], [X1 + (barEnd - X1) * run, 0]], barIn, LOGO_W, null, 1e6));
   }
 
-  // Trace outline: a breathing ribbon drawn inside the fixed sheet of trace, so it travels with the words.
-  const stageOutline = { svg: null, draw: null, pts: null, len: 0, basePx: 2, start: null, w: 0, h: 0 };
+  // The caption has no edge of its own, so there is no outline to draw around it;
+  // measureL survives because the clear area is laid out in --L units.
   function measureL() { const p = $('div', { style: 'position:absolute;visibility:hidden;width:var(--L)' }); document.body.append(p); const w = p.getBoundingClientRect().width || 80; p.remove(); return w; }
-  function layoutOutline() {
-    const o = stageOutline; if (!o.svg) return;
-    const box = o.svg.getBoundingClientRect(); if (!box.width) return;
-    const Lpx = measureL();
-    o.basePx = Math.max(1.5, Math.min(4.5, OUTLINE_W * Lpx / R)); o.Lpx = Lpx;
-    const inset = o.basePx / 2, w = box.width - 2 * inset, h = box.height - 2 * inset;
-    const r = Math.max(0, Math.min(parseFloat(getComputedStyle(o.svg.parentElement).borderTopLeftRadius) || 0, w / 2, h / 2) - inset);
-    o.svg.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`);
-    const pts = []; const step = 6;
-    const seg = (x0, y0, x1, y1) => { const n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0) / step)); for (let i = 0; i < n; i++) pts.push([x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n]); };
-    const arc = (cx, cy, a0) => { const n = Math.max(2, Math.ceil(r * Math.PI / 2 / step)); for (let i = 0; i < n; i++) { const a = a0 + (Math.PI / 2) * i / n; pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); } };
-    const x = inset, y = inset;
-    seg(x + r, y, x + w - r, y); arc(x + w - r, y + r, -Math.PI / 2);
-    seg(x + w, y + r, x + w, y + h - r); arc(x + w - r, y + h - r, 0);
-    seg(x + w - r, y + h, x + r, y + h); arc(x + r, y + h - r, Math.PI / 2);
-    seg(x, y + h - r, x, y + r); arc(x + r, y + r, Math.PI);
-    pts.push(pts[0]);
-    o.pts = pts; o.len = 2 * (w + h);
-  }
-  function drawOutline(t) {
-    const o = stageOutline; if (!o.draw || !o.pts) return;
-    if (o.start === null) o.start = t;
-    const p = reduced ? 1 : ease((t - o.start) / 1.6);
-    const scale = R / (o.Lpx || 80);
-    o.draw(ribbon(o.pts, p, o.basePx, reduced ? null : (x, y) => breathAt(x * scale, y * scale, t), o.len));
-  }
+  let Lcache = 0;
+  const L_ = () => (Lcache = Lcache || measureL());
+  addEventListener('resize', () => { Lcache = 0; });
+
   // ---------- the word builds, a click unbuilds it, then the page draws in ----------
   const SEEN_KEY = 'esa-landing-seen';
   let landingFrame = null;
@@ -2047,7 +1870,7 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
   })();
 
   let lastFrame = 0;
-  (function tick() { const t = now(); if (!document.hidden && t - lastFrame > 1 / 45) { if (landingFrame) landingFrame(t); drawNav(t); drawOutline(t); lastFrame = t; } if (!reduced) requestAnimationFrame(tick); else setTimeout(() => { drawNav(now()); drawOutline(now()); }, 60); })();
+  (function tick() { const t = now(); if (!document.hidden && t - lastFrame > 1 / 45) { if (landingFrame) landingFrame(t); drawNav(t); lastFrame = t; } if (!reduced) requestAnimationFrame(tick); else setTimeout(() => { drawNav(now()); }, 60); })();
 
   // =================================================================
   // State, logging, AI availability
@@ -2061,6 +1884,7 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
     const KEY = 'esa-tour-session';
     const SCHEMA_VERSION = 1;
     const transcript = [];
+    const drawings = [];
     let began = new Date().toISOString();
     let replaying = false;
     let saveTimer = 0;
@@ -2073,7 +1897,7 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
           region: (WORLD.settings[state.setting] || {}).region || null,
           startedAt: began, savedAt: new Date().toISOString(),
           visited: [...state.visited], seenProjects: [...state.seenProjects], cardsShown: [...state.cardsShown],
-          interests: state.interests, transcript
+          interests: state.interests, transcript, drawings
         }));
       } catch (e) { /* private window or quota */ }
     };
@@ -2089,7 +1913,20 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
       } catch (e) {}
     };
 
-    const clearSession = () => { try { sessionStorage.removeItem(KEY); } catch (e) {} transcript.length = 0; };
+    // Every drawing the visitor was actually shown, in the order they first saw it.
+    // The description rides with it: it is the whole point of keeping the record.
+    const recordDrawing = (id) => {
+      if (replaying) return;
+      try {
+        const m = MEDIA[id]; if (!m) return;
+        if (drawings.some((d) => d.id === id)) return;
+        const pr = PROJECTS.find((x) => x.id === m.project);
+        drawings.push({ id, label: m.label || '', project: pr ? pr.title : '', when: pr ? pr.when : '', alt: m.alt || '' });
+        scheduleSave();
+      } catch (e) {}
+    };
+
+    const clearSession = () => { try { sessionStorage.removeItem(KEY); } catch (e) {} transcript.length = 0; drawings.length = 0; };
 
     const restore = () => {
       try {
@@ -2103,6 +1940,7 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
         if (!scene || !setting) return false;
         replaying = true;
         if (saved.startedAt) began = saved.startedAt;
+        if (Array.isArray(saved.drawings)) saved.drawings.forEach((d) => { if (d && d.id) drawings.push(d); });
         state.view = 'scene'; storyShell();
         saved.transcript.forEach((e) => {
           transcript.push(e);
@@ -2116,15 +1954,13 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
           cardsShown: new Set(saved.cardsShown || []), interests: saved.interests || {}
         });
         setTheme(state.setting);
-        headEl.textContent = setting.place + ' · ' + scene.title;
-        renderTrail();
-        renderEnd(scene.choices, scene.factIds);
+            renderEnd(scene.choices, scene.factIds);
         replaying = false;
         return true;
       } catch (e) { replaying = false; return false; }
     };
 
-    return { recordLine, scheduleSave, restore, clearSession };
+    return { recordLine, recordDrawing, scheduleSave, restore, clearSession };
   })();
 
   const dbPromise = (window.claude && typeof window.claude.use === 'function') ? window.claude.use('db').catch(() => null) : Promise.resolve(null);
@@ -2177,8 +2013,7 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
   function updateNote() { document.querySelectorAll('.ask-note').forEach((n) => { n.textContent = noteText(); }); }
 
   function noticeTags(tags, weight = 1) { (tags || []).forEach((t) => { if (WORLD.interests.includes(t)) state.interests[t] = (state.interests[t] || 0) + weight; }); }
-  const topInterests = (n = 3) => Object.entries(state.interests).sort((a, b) => b[1] - a[1]).slice(0, n).map(([t]) => t);
-  function seeProjects(factIds = [], projectIds = []) { factIds.forEach((id) => projectOfFact[id] && state.seenProjects.add(projectOfFact[id])); projectIds.forEach((id) => state.seenProjects.add(id)); renderTrail(); }
+  function seeProjects(factIds = [], projectIds = []) { factIds.forEach((id) => projectOfFact[id] && state.seenProjects.add(projectOfFact[id])); projectIds.forEach((id) => state.seenProjects.add(id)); }
   function setView(v) { document.body.dataset.view = v; if (v !== 'scene') document.body.classList.remove('look'); }
   function setTheme(setting) { [document.documentElement, document.body].forEach((n) => { if (setting) n.dataset.place = setting; else delete n.dataset.place; }); }
 
@@ -2188,11 +2023,16 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
   // There is no cover any more. A reader who arrives is already somewhere - the tour
   // picks the place and the opening, and the first line is the first thing they see.
 
+  // The per-place emblems have no definition anywhere in this build, so this used to
+  // throw and take the whole map down with it - every 'Leave for somewhere else
+  // entirely' was a dead end. Until there are real glyphs to draw, the ring stands on
+  // its own. TODO(ethan): a path set per place, keyed by setting id.
+  const GLYPHS = (typeof window !== 'undefined' && window.GLYPHS) || {};
   function portalSvg(id) {
     const svg = svgEl('svg', { viewBox: '0 0 200 200', 'aria-hidden': 'true' });
     svg.append(svgEl('circle', { class: 'ring draw', cx: 100, cy: 100, r: 98.5, pathLength: 1 }));
     const g = svg.appendChild(svgEl('g', { class: 'glyph' }));
-    GLYPHS[id].forEach((d, i) => { const p = svgEl('path', { d, pathLength: 1, class: 'draw' }); p.style.animationDelay = `${500 + i * 90}ms`; g.append(p); });
+    (GLYPHS[id] || []).forEach((d, i) => { const p = svgEl('path', { d, pathLength: 1, class: 'draw' }); p.style.animationDelay = `${500 + i * 90}ms`; g.append(p); });
     return svg;
   }
   // The tour used to hand the visitor a chooser first. Now the story starts on its own:
@@ -2241,68 +2081,93 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
   // =================================================================
   // The story: the drawing fills the page; the words sit on trace over it
   // =================================================================
-  let pageEl, controlsEl, headEl, trailEl, traceEl, scrollEl;
+  let pageEl, controlsEl, asideEl, traceEl, scrollEl;
   const canvasEl = document.getElementById('canvas');
-  const plateEl = document.getElementById('plate');
+  const lookEl = document.getElementById('looking');
   const phone = matchMedia('(max-width: 900px)');
   const view = { x: 0, y: 0, s: 1, w: 1, h: 1, node: null, moved: false };
   const seenMedia = [];
-  let describe = false;
 
   function storyShell() {
-    const outline = svgEl('svg', { class: 'outline', 'aria-hidden': 'true' });
-    const og = outline.appendChild(svgEl('g', { opacity: '0.62' }));
     pageEl = $('div', { class: 'page' });
     controlsEl = $('div', { class: 'controls' });
-    headEl = $('p', { class: 'eyebrow', text: '' });
-    trailEl = $('footer', { class: 'trail' });
-    const handle = $('button', { class: 'handle', type: 'button', 'aria-label': 'Raise or lower the story' });
-    scrollEl = $('div', { class: 'trace-scroll' }, [
-      $('div', { class: 'trace-head' }, [headEl, $('button', { class: 'lift', type: 'button', text: 'Just the drawing', onclick: () => setLook(true) })]),
-      pageEl, controlsEl, trailEl
+    // The way out of the readback, and the way to keep it. Ordered above the lines by
+    // CSS rather than by DOM position, so .page stays the scroll container's first
+    // child and keeps the auto margin that pins the caption to the foot.
+    asideEl = $('div', { class: 'aside-row' }, [
+      $('button', { class: 'keepsake', type: 'button', text: 'Close', onclick: (e) => { e.stopPropagation(); setUnfurl(false); } }),
+      $('a', { class: 'keepsake', href: 'transcript.html', text: 'Keep this \u2192' })
     ]);
+    scrollEl = $('div', { class: 'trace-scroll' }, [pageEl, controlsEl, asideEl]);
     scrollEl.addEventListener('scroll', queueFocus, { passive: true });
-    traceEl = $('section', { class: 'trace', 'aria-label': 'Story' }, [outline, handle, scrollEl]);
+    traceEl = $('section', { class: 'trace', 'aria-label': 'Story' }, [scrollEl]);
     main.replaceChildren(traceEl);
     document.body.dataset.view = 'scene';
-    state.media = null; state.liveMedia = null; seenMedia.length = 0; canvasEl.replaceChildren(); plateEl.hidden = true;
-    Object.assign(stageOutline, { svg: outline, draw: Ribbon(og), start: null });
-    new ResizeObserver(layoutOutline).observe(outline);
-    requestAnimationFrame(layoutOutline);
-    wireHandle(handle);
+    state.media = null; state.liveMedia = null; seenMedia.length = 0; canvasEl.replaceChildren();
+    renderLooking();
     document.getElementById('restart').hidden = false;
+    document.getElementById('story-link').hidden = false;
   }
 
-  // ---------- looking: lift the trace off the drawing ----------
+  // ---------- looking: the caption drops away and the drawing has the screen ----------
+  // Entered by taking hold of the drawing - dragging it, zooming it, or clicking it.
+  // Asking to look closer and asking what this is are the same gesture, so the
+  // drawing's name and description arrive with the room to read them.
+  // The view is deliberately NOT re-fitted on the way in or out: by then the drawing
+  // is under the reader's hand, and re-fitting would pull it out from under them.
   function setLook(on) {
     if (document.body.classList.contains('look') === on) return;
+    if (on) setUnfurl(false);
     document.body.classList.toggle('look', on);
     log('look', { on });
-    if (!view.moved) fit(true);
-    // On a phone only the top of the sheet shows while looking, so bring the current line up to meet it.
-    const cur = pageEl && pageEl.querySelector('.line.current');
-    if (cur && phone.matches) scrollEl.scrollTo({ top: on ? cur.offsetTop - 30 : Math.max(0, cur.offsetTop - scrollEl.clientHeight * 0.45), behavior: reduced ? 'auto' : 'smooth' });
   }
   document.getElementById('story-tab').addEventListener('click', () => setLook(false));
-  function wireHandle(handle) {
-    let startY = null, moved = false;
-    handle.addEventListener('pointerdown', (e) => { startY = e.clientY; moved = false; handle.setPointerCapture(e.pointerId); });
-    handle.addEventListener('pointermove', (e) => { if (startY !== null && Math.abs(e.clientY - startY) > 24) { moved = true; setLook(e.clientY > startY); startY = e.clientY; } });
-    handle.addEventListener('pointerup', () => { if (!moved) setLook(!document.body.classList.contains('look')); startY = null; });
+
+  // The readback. Opening it puts you where you are and you scroll up into what you
+  // have already read; closing it is returning to the present, so the drawing the
+  // story is currently on comes back with you.
+  function setUnfurl(on) {
+    if (!scrollEl || document.body.classList.contains('unfurl') === on) return;
+    document.body.classList.toggle('unfurl', on);
+    log('readback', { on });
+    if (on) {
+      stopAsking();
+      requestAnimationFrame(() => { padForFocus(); scrollEl.scrollTop = scrollEl.scrollHeight; focusLines(); });
+    } else {
+      clearFocus();
+      if (state.liveMedia && state.media !== state.liveMedia) showMedia(state.liveMedia, 'live');
+    }
   }
+  document.getElementById('story-link').addEventListener('click', (e) => { e.stopPropagation(); setLook(false); setUnfurl(!document.body.classList.contains('unfurl')); });
+
+  // The drawing moves, and that is not discoverable without saying so once.
+  const ZOOM_KEY = 'esa-zoom-taught';
+  function teachZoom(el) {
+    if (!el || !state.media) return;
+    try { if (localStorage.getItem(ZOOM_KEY) === '1') return; } catch (e) { return; }
+    try { localStorage.setItem(ZOOM_KEY, '1'); } catch (e) { return; }
+    el.after($('p', { class: 'hint', text: 'Drag the drawing to move it, scroll or pinch to look closer.' }));
+  }
+  const forgetZoomLesson = () => { try { localStorage.removeItem(ZOOM_KEY); } catch (e) {} };
 
   // ---------- the canvas: fit, drag, zoom ----------
+  // The space a drawing gets: the screen, less the nav and less the caption at the
+  // foot. The caption is measured only at rest - one line and one row of pills - and
+  // that reserved height is what drawings are fitted against, so opening the ask field
+  // or the readback never rescales the art under you.
+  let captionReserve = 0;
+  function noteCaptionHeight() {
+    if (!traceEl) return;
+    const b = document.body.classList;
+    if (b.contains('asking') || b.contains('unfurl') || b.contains('look')) return;
+    captionReserve = traceEl.offsetHeight;
+  }
   function clearArea() {
     const vw = innerWidth, vh = innerHeight, look = document.body.classList.contains('look');
     const navH = document.querySelector('.nav').getBoundingClientRect().height;
-    const plateH = plateEl.hidden ? 0 : plateEl.getBoundingClientRect().height + 16;
-    if (phone.matches) {
-      const sheet = look ? 118 : traceEl ? traceEl.offsetHeight : vh * 0.56;
-      return { l: 12, t: navH + 4, r: vw - 12, b: vh - sheet - plateH - 4 };
-    }
-    const L = stageOutline.Lpx || measureL();
-    const right = look || !traceEl ? vw - L : traceEl.offsetLeft - L / 2;
-    return { l: L, t: navH + L / 4, r: right, b: vh - plateH - L / 4 };
+    const L = phone.matches ? 16 : L_();
+    const foot = look ? 0 : captionReserve;
+    return { l: L, t: navH + L / 4, r: vw - L, b: vh - foot - L / 4 };
   }
   function fit(animate) {
     const m = MEDIA[state.media]; if (!m || !view.node) return;
@@ -2335,6 +2200,7 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
     const s = Math.min(max, Math.max(min, view.s * factor)), k = s / view.s;
     view.x = px - (px - view.x) * k; view.y = py - (py - view.y) * k; view.s = s; view.moved = true;
     apply(animate);
+    setLook(true);
     if (!view.logged) { view.logged = true; log('zoom', { media: state.media }); }
   }
   const pointers = new Map(); let pinch = null, drag = null;
@@ -2353,21 +2219,18 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
       zoomAt((p[0] + q[0]) / 2, (p[1] + q[1]) / 2, d / pinch.d); pinch.d = d;
     } else if (drag) {
       view.x += e.clientX - drag.x; view.y += e.clientY - drag.y; drag = { x: e.clientX, y: e.clientY };
-      if (Math.abs(view.x) + Math.abs(view.y) > 0) view.moved = true;
+      if (Math.abs(view.x) + Math.abs(view.y) > 0) { view.moved = true; setLook(true); }
       apply(false);
     }
   });
-  const release = (e) => { pointers.delete(e.pointerId); if (pointers.size < 2) pinch = null; if (!pointers.size) { drag = null; canvasEl.classList.remove('dragging'); } };
+  const release = (e) => { pointers.delete(e.pointerId); if (pointers.size < 2) pinch = null; if (!pointers.size) { drag = null; canvasEl.classList.remove('dragging'); } if (view.node) setLook(true); };
   canvasEl.addEventListener('pointerup', release); canvasEl.addEventListener('pointercancel', release);
   canvasEl.addEventListener('wheel', (e) => { if (!view.node) return; e.preventDefault(); zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0016))); }, { passive: false });
   canvasEl.addEventListener('dblclick', (e) => { if (view.s > view.fitS * 1.3) fit(true); else zoomAt(e.clientX, e.clientY, 2.2, true); });
   canvasEl.addEventListener('keydown', (e) => {
-    const a = clearArea(), cx = (a.l + a.r) / 2, cy = (a.t + a.b) / 2, step = 60;
+    const step = 60;
     const keys = { ArrowLeft: () => { view.x += step; }, ArrowRight: () => { view.x -= step; }, ArrowUp: () => { view.y += step; }, ArrowDown: () => { view.y -= step; } };
-    if (keys[e.key]) { e.preventDefault(); keys[e.key](); view.moved = true; apply(true); }
-    else if (e.key === '+' || e.key === '=') { e.preventDefault(); zoomAt(cx, cy, 1.4, true); }
-    else if (e.key === '-') { e.preventDefault(); zoomAt(cx, cy, 1 / 1.4, true); }
-    else if (e.key === '0') { e.preventDefault(); fit(true); }
+    if (keys[e.key]) { e.preventDefault(); keys[e.key](); view.moved = true; setLook(true); apply(true); }
   });
   let resizeT = 0;
   addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if (!view.moved) fit(false); else apply(false); }, 80); });
@@ -2377,7 +2240,7 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
     const m = MEDIA[id]; if (!m) return;
     if (how === 'live') state.liveMedia = id;
     if (!seenMedia.includes(id)) seenMedia.push(id);
-    if (state.media === id) { renderPlate(); return; }
+    if (state.media === id) { renderLooking(); return; }
     state.media = id;
     const node = m.kind === 'video'
       ? $('video', { class: 'media', src: m.src, muted: '', loop: '', playsinline: '', 'aria-hidden': 'true', ...(reduced ? {} : { autoplay: '' }) })
@@ -2388,41 +2251,30 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
     canvasEl.append(node);
     view.node = node; view.logged = false;
     canvasEl.setAttribute('aria-label', `${m.label}. ${m.alt} Drag to move it, scroll or pinch to zoom.`);
-    renderPlate();
+    renderLooking();
     fit(false);
     const reveal = () => { node.classList.add('on'); old.forEach((o) => o.classList.remove('on')); setTimeout(() => old.forEach((o) => o.remove()), 800); };
     if (m.kind === 'video') { node.addEventListener('loadeddata', reveal, { once: true }); if (node.readyState >= 2) reveal(); } else if (node.complete) requestAnimationFrame(reveal); else node.addEventListener('load', reveal, { once: true });
     pageEl.querySelectorAll('.line.showing').forEach((l) => l.classList.remove('showing'));
     const intro = pageEl.querySelector(`.line[data-intro="${id}"]`); if (intro) intro.classList.add('showing');
     seeProjects([], [m.project]);
+    Persist.recordDrawing(id);
     log('show', { media: id, how });
   }
-  function renderPlate() {
-    const m = MEDIA[state.media]; if (!m) { plateEl.hidden = true; return; }
-    const p = PROJECTS.find((x) => x.id === m.project);
-    const i = seenMedia.indexOf(state.media);
-    const btn = (text, label, onclick, extra = {}) => $('button', { type: 'button', text, 'aria-label': label, title: label, onclick, ...extra });
-    const past = state.liveMedia && state.media !== state.liveMedia;
-    const a = () => { const r = clearArea(); return [(r.l + r.r) / 2, (r.t + r.b) / 2]; };
-    plateEl.replaceChildren(
-      $('div', { class: 'row' }, [
-        $('div', { class: 'cap' }, [$('b', { text: m.label }), $('span', { text: p ? ` · ${p.title} · ${p.when.slice(0, 4)}` : '' })]),
-        $('div', { class: 'tools' }, [
-          btn('‹', 'Previous drawing you have seen', () => showMedia(seenMedia[i - 1], 'past'), i <= 0 ? { disabled: '' } : {}),
-          $('span', { class: 'count', text: `${i + 1} / ${seenMedia.length}` }),
-          btn('›', 'Next drawing you have seen', () => showMedia(seenMedia[i + 1], 'past'), i >= seenMedia.length - 1 ? { disabled: '' } : {}),
-          $('span', { class: 'sep', 'aria-hidden': 'true' }),
-          btn('−', 'Zoom out', () => zoomAt(...a(), 1 / 1.5, true)),
-          btn('Fit', 'Fit the drawing to the screen', () => fit(true)),
-          btn('+', 'Zoom in', () => zoomAt(...a(), 1.5, true)),
-          $('span', { class: 'sep', 'aria-hidden': 'true' }),
-          btn(describe ? 'Hide description' : 'Describe', 'Read a description of the drawing', () => { describe = !describe; renderPlate(); if (!view.moved) fit(true); }),
-          past ? btn('Back to now', 'Back to the drawing for where you are in the story', () => { showMedia(state.liveMedia, 'live'); }, { class: 'now' }) : null
-        ])
-      ]),
-      ...(describe ? [$('p', { class: 'alt', text: m.alt })] : [])
+  // What you are looking at. It is not standing furniture: it appears with look mode,
+  // which you enter by taking hold of the drawing. The description is the same text a
+  // screen reader gets from the canvas label, and it is never truncated - it is also
+  // written into the transcript, so it is something you can keep rather than a panel
+  // you dismiss.
+  function renderLooking() {
+    const m = MEDIA[state.media];
+    if (!m) { lookEl.hidden = true; return; }
+    const pr = PROJECTS.find((x) => x.id === m.project);
+    lookEl.replaceChildren(
+      $('p', { class: 'looking-name' }, [$('b', { text: m.label }), $('span', { text: pr ? ` \u00b7 ${pr.title} \u00b7 ${pr.when.slice(0, 4)}` : '' })]),
+      $('p', { class: 'looking-alt', text: m.alt })
     );
-    plateEl.hidden = false;
+    lookEl.hidden = false;
   }
 
   // ---------- where lines come from ----------
@@ -2463,12 +2315,10 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
     else if (pageEl.children.length) pageEl.append($('div', { class: 'divider', 'aria-hidden': 'true' }));
     setTheme(scene.setting);
     state.metEthan = true; state.scene = id; state.setting = scene.setting; state.visited.add(id);
-    headEl.textContent = `${s.place} · ${scene.title}`;
     log('scene', { scene: id, requested: requested !== id ? requested : undefined });
     noticeTags(scene.tags);
     state.queue = queue;
     state.onDone = () => { seeProjects(scene.factIds); renderEnd(scene.choices, scene.factIds); };
-    renderTrail();
     advance();
   }
   function addLine(text, cls = '', meta = {}) {
@@ -2493,6 +2343,8 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
         $('span', { text: 'This mark means the line comes straight from Ethan\u2019s own records, not from the storytelling.' })
       ]));
     }
+    // The drawing moves, and that is not discoverable without saying so once.
+    teachZoom(el);
     state.story.push(text); if (state.story.length > 60) state.story.shift();
     Persist.recordLine(text, cls, meta);
     requestAnimationFrame(() => {
@@ -2568,55 +2420,46 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
     controlsEl.replaceChildren();
     if (state.queue.length) controlsEl.append($('button', { class: 'continue', type: 'button', onclick: (e) => { e.stopPropagation(); advance(); } }, ['Continue', $('kbd', { text: 'space' })]));
     else if (state.onDone) { const done = state.onDone; state.onDone = null; done(); }
+    requestAnimationFrame(noteCaptionHeight);
   }
   document.addEventListener('keydown', (e) => {
-    if (state.view !== 'scene' || e.target.closest('input, button, [role="button"], .canvas')) return;
-    if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'Enter') { e.preventDefault(); advance(); }
+    if (state.view !== 'scene') return;
+    const typing = e.target.closest('input, textarea');
+    // Escape is the way out of whatever is open, innermost first.
+    if (e.key === 'Escape') {
+      if (document.body.classList.contains('asking')) { e.preventDefault(); stopAsking(); }
+      else if (document.body.classList.contains('unfurl')) { e.preventDefault(); setUnfurl(false); }
+      else if (document.body.classList.contains('look')) { e.preventDefault(); setLook(false); }
+      return;
+    }
+    if (typing) return;
+    if (e.target.closest('button, [role="button"], .canvas')) return;
+    if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'Enter') { e.preventDefault(); advance(); return; }
+    // Just start typing. Space belongs to Continue and the arrows to the drawing, so
+    // only a bare letter or digit summons the field.
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (!/^[a-zA-Z0-9]$/.test(e.key)) return;
+    if (document.body.classList.contains('unfurl')) return;
+    if (!controlsEl || !controlsEl.querySelector('.ask-form input')) return;
+    e.preventDefault();
+    startAsking();
+    const f = controlsEl.querySelector('.ask-form input');
+    if (f) f.value = e.key;
   });
+  // Clicking the drawing puts the ask field away as well as opening look mode.
+  canvasEl.addEventListener('pointerdown', () => stopAsking());
 
-  function renderTrail() {
-    if (!trailEl) return;
-    const top = topInterests();
-    trailEl.replaceChildren($('span', { text: 'Your trail' }), $('span', { class: 'dots' }, PROJECTS.map((p) => $('span', { class: 'dot' + (state.seenProjects.has(p.id) ? ' on' : ''), title: p.title }))),
-      $('span', { text: `${state.seenProjects.size} of ${PROJECTS.length} projects found` }), top.length ? $('span', { class: 'noticed' }, ['· The guide has noticed: ', $('b', { text: top.join(', ') })]) : null);
-  }
-  function projectCard(factIds, projectIds = []) {
-    const ids = [...new Set([...factIds.map((f) => projectOfFact[f]), ...projectIds].filter(Boolean))].filter((id) => !state.cardsShown.has(id));
-    ids.forEach((id) => state.cardsShown.add(id));
-    if (!ids.length) return null;
-    return $('div', { class: 'choices', style: 'display:grid;gap:8px' }, ids.map((id) => {
-      const p = PROJECTS.find((x) => x.id === id);
-      return $('div', { class: 'card' }, [$('span', { class: 'kind', text: p.page ? 'Project · full page on the site' : 'Project' }), $('strong', { text: p.title }), $('div', { class: 'ctx', text: `${p.context} · ${p.when.slice(0, 4)}` }), $('p', { text: p.oneLine })]);
-    }));
-  }
   function renderEnd(choices, factIds, projectIds) {
     controlsEl.replaceChildren();
-    const card = projectCard(factIds || [], projectIds || []);
-    if (card) controlsEl.append(card);
+    seeProjects(factIds || [], projectIds || []);
     // The map is no longer the first page, so every scene keeps a door back to it.
     const elsewhere = Object.keys(WORLD.settings).length > 1
-      ? $('button', { class: 'choice', type: 'button', onclick: () => { log('map'); renderPlaces(); } }, ['Leave for somewhere else entirely', $('span', { class: 'mark', text: '→', 'aria-hidden': 'true' })])
+      ? $('button', { class: 'choice', type: 'button', onclick: () => { log('map'); renderPlaces(); } }, ['Leave for somewhere else entirely', $('span', { class: 'mark', text: '\u2192', 'aria-hidden': 'true' })])
       : null;
-    const askPill = narration === 'c'
-      ? $('button', { class: 'choice ask', type: 'button', onclick: (e) => { e.stopPropagation(); document.body.classList.add('asking'); const f = controlsEl.querySelector('.ask-form input'); if (f) f.focus(); } }, [$('span', { class: 'mark', text: 'Ask' }), 'Say something'])
-      : null;
+    const askPill = $('button', { class: 'choice ask', type: 'button', onclick: (e) => { e.stopPropagation(); startAsking(); } }, [$('span', { class: 'mark', text: 'Ask' }), 'Say something']);
     controlsEl.append($('div', { class: 'choices' }, [...(choices || []).map(choiceButton), askPill, elsewhere]));
     controlsEl.append(askForm(state.metEthan ? 'Ask Ethan something, or say where you want to go next' : 'Tell the guide what you came to find'), $('p', { class: 'ask-note', text: noteText() }));
-    // At caption size there is no room for a header, so the two quiet exits live here:
-    // back through the lines already read, or out to the page that hands them over.
-    if (narration === 'c') {
-      controlsEl.append($('div', { class: 'aside-row' }, [
-        $('button', { class: 'lift', type: 'button', text: 'Read back', onclick: (e) => {
-          e.stopPropagation();
-          const on = document.body.classList.toggle('unfurl');
-          // Opening the readback should put you where you are, not at the beginning:
-          // you scroll up into what you have already read.
-          if (on) requestAnimationFrame(() => { padForFocus(); scrollEl.scrollTop = scrollEl.scrollHeight; focusLines(); });
-          else clearFocus();
-        } }),
-        $('a', { class: 'keepsake', href: 'transcript.html', text: 'Keep this →' })
-      ]));
-    }
+    requestAnimationFrame(noteCaptionHeight);
   }
   function labelFor(go) {
     const scene = WORLD.scenes[go]; if (!scene) return 'Keep going';
@@ -2629,7 +2472,21 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
     return $('button', { class: 'choice', type: 'button', onclick: () => { log('choice', { label, go: c.go }); goScene(c.go); } }, [label, $('span', { class: 'mark', text: '→', 'aria-hidden': 'true' })]);
   }
   function showReach() {
-    controlsEl.prepend($('div', { class: 'card' }, [$('span', { class: 'kind', text: 'Reach Ethan directly' }), $('strong', { text: 'Contact page on the site' }), $('p', {}, [document.createTextNode('Anything the notes don’t cover, Ethan can answer himself. '), $('a', { href: 'contact.html', text: 'Write to him here' }), document.createTextNode('.')])]));
+    controlsEl.prepend($('p', { class: 'hint' }, [document.createTextNode('Anything the notes don’t cover, Ethan can answer himself. '), $('a', { href: 'contact.html', text: 'Write to him here' }), document.createTextNode('.')]));
+  }
+  // The ask field replaces the pills rather than stacking under them, and - unlike
+  // before, where 'asking' was added and never removed - it can be put away again.
+  function startAsking() {
+    if (document.body.classList.contains('unfurl')) return;
+    document.body.classList.add('asking');
+    const f = controlsEl.querySelector('.ask-form input');
+    if (f) f.focus();
+  }
+  function stopAsking() {
+    if (!document.body.classList.contains('asking')) return;
+    document.body.classList.remove('asking');
+    const f = controlsEl.querySelector('.ask-form input');
+    if (f) { f.value = ''; f.blur(); }
   }
   function askForm(placeholder) {
     const input = $('input', { id: 'ask-input', type: 'text', maxlength: '200', autocomplete: 'off', placeholder });
@@ -2657,7 +2514,7 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
 
   async function ask(question) {
     if (state.busy) return;
-    if (state.view !== 'scene') { state.view = 'scene'; storyShell(); headEl.textContent = 'Before you arrive'; }
+    if (state.view !== 'scene') { state.view = 'scene'; storyShell(); }
     if (document.body.classList.contains('look')) setLook(false);
     state.queue = []; state.waiting = false;
     controlsEl.replaceChildren();
@@ -2922,7 +2779,7 @@ html[data-narration="c"] .plate { max-width: calc(100vw - 2 * var(--L)); bottom:
     return { reach: true, items: [{ text: 'Ethan pulls out a notebook and finds the page.', claim: false, kind: 'scene', facts: [], words: [] }, { text: FACTS[best], claim: true, kind: 'claim', facts: [best], words: [] }], factIds: [best], projects: [], show: null, suggest: [], interests: [] };
   }
 
-  document.getElementById('restart').addEventListener('click', () => { stopAsk(); Persist.clearSession(); Object.assign(state, { view: 'scene', setting: null, scene: null, metEthan: false, visited: new Set(), seenProjects: new Set(), cardsShown: new Set(), interests: {}, story: [], queue: [], media: null, liveMedia: null }); trailEl = null; view.node = null; canvasEl.replaceChildren(); plateEl.hidden = true; forgetMarkLesson(); openStory(); });
+  document.getElementById('restart').addEventListener('click', () => { stopAsk(); Persist.clearSession(); Object.assign(state, { view: 'scene', setting: null, scene: null, metEthan: false, visited: new Set(), seenProjects: new Set(), cardsShown: new Set(), interests: {}, story: [], queue: [], media: null, liveMedia: null }); view.node = null; canvasEl.replaceChildren(); lookEl.hidden = true; document.body.classList.remove('look', 'unfurl', 'asking'); forgetMarkLesson(); forgetZoomLesson(); openStory(); });
   if (!Persist.restore()) openStory();
 })();
 </script>

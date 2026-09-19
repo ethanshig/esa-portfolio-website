@@ -67,10 +67,37 @@
         .keep-empty p { margin: 0 0 26px; color: var(--color-text-light); max-width: 46ch;
                         font-size: 1.02rem; line-height: 1.6; }
 
+        /* The drawings the visitor was shown. Same document logic as the story:
+           one column, the description carried in full, nothing that needs colour
+           to be understood. The rule on the left says these belong together. */
+        .keep-drawings { margin: 54px 0 0; padding-top: 26px;
+                         border-top: 1px solid var(--color-border); }
+        .keep-drawings-title { margin: 0 0 10px; font-size: clamp(1.15rem, 3vw, 1.45rem);
+                               line-height: 1.2; letter-spacing: -0.02em; }
+        .keep-drawings-note { margin: 0 0 30px; max-width: 52ch;
+                              color: var(--color-text-light); font-size: 0.82rem;
+                              line-height: 1.6; }
+        .keep-drawing-list { margin: 0; padding: 0; list-style: none;
+                             counter-reset: keep-drawing; }
+        .keep-drawing { margin: 0 0 30px; padding-left: 18px;
+                        border-left: 1px solid var(--color-border);
+                        counter-increment: keep-drawing; }
+        .keep-drawing:last-child { margin-bottom: 0; }
+        .keep-drawing-label { margin: 0; font-size: 1rem; line-height: 1.5; }
+        .keep-drawing-label::before { content: counter(keep-drawing) ". ";
+                                      color: var(--color-text-light); }
+        .keep-drawing-meta { margin: 3px 0 0; color: var(--color-text-light);
+                             font-size: 0.78rem; letter-spacing: 0.02em; }
+        .keep-drawing-alt { margin: 11px 0 0; font-size: 0.98rem; line-height: 1.7; }
+        .keep-drawing-alt.is-missing { color: var(--color-text-light); font-style: italic; }
+
         @media print {
             .navbar, .keep-tools, .keep-legend, .ls-nav-svg { display: none !important; }
             .keep-wrap { max-width: none; padding: 0; }
             .keep-line.is-record { color: inherit; }
+            .keep-drawings-note, .keep-drawing-meta,
+            .keep-drawing-alt.is-missing { color: inherit; }
+            .keep-drawing { page-break-inside: avoid; break-inside: avoid; }
         }
     </style>
 </head>
@@ -126,6 +153,7 @@
         }
 
         var st = Transcript.stats(s);
+        var drawn = Transcript.drawings(s);
         var where = [s.place, s.region].filter(Boolean).join(' · ');
         var said = el('span', { class: 'keep-said', text: '' });
 
@@ -134,7 +162,20 @@
             setTimeout(function () { said.classList.remove('on'); }, 2200);
         }
 
-        root.append(
+        /* A drawing is its label and its description. The description is never
+           shortened: for a reader who cannot see the image it IS the image, and
+           a missing one is said out loud rather than left as a gap. */
+        function drawingItem(d) {
+            var meta = [d.project, d.year].filter(Boolean).join(' · ');
+            return el('li', { class: 'keep-drawing' }, [
+                el('p', { class: 'keep-drawing-label', text: d.label }),
+                meta ? el('p', { class: 'keep-drawing-meta', text: meta }) : null,
+                el('p', { class: 'keep-drawing-alt' + (d.alt ? '' : ' is-missing'),
+                    text: d.alt || 'No description recorded.' })
+            ]);
+        }
+
+        var parts = [
             el('header', { class: 'keep-head' }, [
                 el('p', { class: 'keep-eyebrow', text: 'Your transcript' }),
                 el('h1', { text: 'Where You Arrive' }),
@@ -178,6 +219,13 @@
                     : (Transcript.isQuestion(l) ? ' is-question' : ''));
                 return el('p', { class: cls, text: l.text });
             })),
+            drawn.length ? el('section', { class: 'keep-drawings' }, [
+                el('h2', { class: 'keep-drawings-title', text: 'Drawings you were shown' }),
+                el('p', { class: 'keep-drawings-note', text: 'In the order you saw them. ' +
+                    'Each description is written out in full, so the drawings come with you ' +
+                    'even in plain text.' }),
+                el('ol', { class: 'keep-drawing-list' }, drawn.map(function (d) { return drawingItem(d); }))
+            ]) : null,
             el('footer', { class: 'keep-foot' }, [
                 el('p', { text: 'This transcript lives in this browser tab and nowhere else. ' +
                     'Nothing was uploaded. Download it if you want to keep it.' }),
@@ -186,7 +234,9 @@
                     el('a', { href: 'contact.html', text: 'get in touch' })
                 ])
             ])
-        );
+        ];
+
+        parts.forEach(function (part) { if (part) root.append(part); });
     })();
     </script>
     <script src="js/line-system.js"></script>
