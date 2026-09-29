@@ -1,3 +1,7 @@
+---
+status: superseded by ADR-0004
+---
+
 # Reuse the projection, not the map
 
 An earlier, abandoned portfolio at `/mnt/c/Users/ethan/portfolio-website` (untracked, March
@@ -29,3 +33,16 @@ small fixed radius, because ten Scenes sit at only four coordinates and would ot
 
 Two defects come across with the file and are fixed on the way in: the `-29` rotation constant
 is duplicated as a literal in `drawGrid()`, and `resize()` fails to re-draw boundaries.
+
+## Superseded
+
+Refuted in prototype. All three variants of the projected Map broke identically — overlapping
+labels, no legible scale, a confusing mess — and when three structurally different renderings
+fail the same way, the premise is what is broken. Four Places at 0 / 116 / 182 / 8066 km is a
+knot plus a distant dot; panning between them only makes a reader cross empty ocean.
+
+The invented-river decision this ADR reversed was *also* wrong, for a different reason Ethan
+gave: water recurs in the work but is not its core, so building the armature on it asserts
+something untrue about him.
+
+`projection.js` is not lifted. See ADR-0004 for what replaced it.

@@ -38,37 +38,51 @@ _Avoid_: tag, topic, preference
 ## The map
 
 **Map**:
-The graphic view of the world: every Place projected from Champaign by true bearing and
-distance, with its Scenes arranged around it. It is a navigation surface a reader travels
-from, not a progress readout.
+The graphic view of the work: a Territory generated from track membership, with each Record
+sited in the Lands it belongs to. It is a navigation surface a reader travels from, not a
+progress readout.
 _Avoid_: overview, index, menu, minimap, dashboard, atlas
 
-**Projection**:
-The azimuthal equidistant transform that places the world on the Map. Distance from Home is
-radius; direction from Home is angle. Both are true; shape is not.
-_Avoid_: layout, geometry, coordinates, warp, distortion
+**Territory**:
+The invented world the Map draws. Its geography is the track structure and nothing else — it
+makes no geographic claim and is never hand-drawn, because it must redraw itself as Records
+are added.
+_Avoid_: world map, diagram, chart, graph, canvas
 
-**Home**:
-Champaign, IL at 40.1164° N, 88.2434° W, considered as the Projection's centre — the point
-every bearing and distance is measured from.
-_Avoid_: origin, centre, base, Champaign (which also names a Place — see below)
+**Land**:
+One track, drawn as an area of the Territory. A Land's extent is how many Records it holds,
+so a track with one work looks like frontier, because it is.
+_Avoid_: track (the data key, not the word we draw), category, zone, field, region
 
-**Ring**:
-A contour of equal distance from Home, drawn on the Map at fixed intervals.
-_Avoid_: orbit, circle, band, radius
+**Borderland**:
+The part of the Territory where Lands overlap, where a Record belonging to more than one track
+sits. Each of the six Records currently occupies a distinct Borderland.
+_Avoid_: intersection, overlap, cluster, junction
+
+**Route**:
+The line a reader leaves behind them, joining the Records they reached in the order they
+reached them. The Territory is given; the Route is theirs, and nothing on the Map is drawn
+between Records until a reader walks it.
+_Avoid_: path (fine in speech, but Route is the term), journey, trail, history, progress
 
 **Fog**:
-The concealment of *detail* on terrain that is already visible. The Map's Rings and Places are
+The concealment of *detail* on terrain that is already visible. The Lands and Borderlands are
 legible from the first moment; what Fog hides is what happened at them.
 _Avoid_: fog of war (ambiguous — names both this and the unexplored-black-map sense we rejected),
 unexplored, locked, hidden
 
 **Lifting**:
-What a reader's travel does to Fog: arriving at a Scene discloses the Drawings sited there.
+What a reader's travel does to Fog: reaching a Record discloses the Drawings sited there.
 Lifting is per-Session and never persists to a return visit.
 _Avoid_: unlocking, revealing, completing, discovering, progress
 
 **Session**:
-One reader's unbroken visit in one tab, holding the Scenes they visited, the Records and
-Drawings they were shown, and the Interests they signalled. A new visit starts cold.
+One reader's unbroken visit in one tab, holding the Records they reached, the Drawings they
+were shown, and the Route they walked. A new visit starts cold.
 _Avoid_: save, profile, progress, history, run
+
+---
+
+**A note on Place.** A Record is *not* called a Place on the Map. **Place** is reserved for the
+four real locations the tour visits, which remain narrative content; the Territory has Lands,
+Borderlands and Records, and a Record's Place is a fact it tells you when you reach it.
