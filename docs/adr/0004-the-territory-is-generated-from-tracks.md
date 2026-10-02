@@ -18,6 +18,12 @@ reader leaves behind them is therefore the only path structure on the Map.
 
 ## Consequences
 
+**Amended (ADR-0005): author the vocabulary, generate the world.** "Nothing may be hand-placed"
+binds *placement*, not *appearance*. There are five tracks and they change about once a year;
+there will be sixty Records. So the Biome for a track — its ground, growth and water — is
+authored once, by hand, per track; the terrain laid down from that vocabulary is generated and
+never placed.
+
 **Nothing may be hand-placed.** Ethan will keep adding work, so anchors, Borderland positions
 and Land extents are all computed from track membership and the world redraws on every
 addition. This is why the Territory cannot be an illustration, however much nicer one would
