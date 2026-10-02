@@ -35,54 +35,65 @@ _Avoid_: image, media, asset, picture
 A theme the reader has signalled attention to by the choices they made.
 _Avoid_: tag, topic, preference
 
-## The map
+## The world
 
-**Map**:
-The graphic view of the work: a Territory generated from track membership, with each Record
-sited in the Lands it belongs to. It is a navigation surface a reader travels from, not a
-progress readout.
-_Avoid_: overview, index, menu, minimap, dashboard, atlas
+**World**:
+The walkable territory the portfolio is explored through: a tiled, black-and-white place generated
+from track membership, which a reader crosses on foot. Nothing in it is shown all at once.
+_Avoid_: map (what this replaced), overview, index, menu, minimap, dashboard, game
 
-**Territory**:
-The invented world the Map draws. Its geography is the track structure and nothing else — it
-makes no geographic claim and is never hand-drawn, because it must redraw itself as Records
-are added.
-_Avoid_: world map, diagram, chart, graph, canvas
+**Sprite**:
+The figure a reader moves through the World. It is the scale reference — it never changes size, so
+the World changes size around it, which is how an item and a landscape share one place.
+_Avoid_: avatar, character, player, cursor, you
+
+**Biome**:
+How one Land looks on the ground — its ground, growth and water. A Biome is *authored* once per
+track, by hand; the terrain laid down from it is generated and never placed.
+_Avoid_: theme, style, texture, tileset, palette
 
 **Land**:
-One track, drawn as an area of the Territory. A Land's extent is how many Records it holds,
-so a track with one work looks like frontier, because it is.
-_Avoid_: track (the data key, not the word we draw), category, zone, field, region
+One track, as an area of the World. A Land's extent is how many Records it holds, so a track with
+one work reads as frontier, because it is.
+_Avoid_: track (the data key, not the word we walk), category, zone, field, region
 
 **Borderland**:
-The part of the Territory where Lands overlap, where a Record belonging to more than one track
-sits. Each of the six Records currently occupies a distinct Borderland.
-_Avoid_: intersection, overlap, cluster, junction
+The transitional ground where two Biomes blend.
+_Avoid_: intersection, overlap, edge, seam
+
+**Bridge**:
+A Record belonging to more than one track, standing in the Borderland between them and serving as
+the only crossing between those Lands. To reach one Land from another a reader walks through the
+work that touches both.
+_Avoid_: link, connection, path, gateway
+
+**Frontier**:
+The generated edge of the World. Pushing it makes more of the Biome a reader is in, curving back
+toward work they have not reached. It never makes Records: the World is unbounded, the work is not.
+_Avoid_: border, wall, boundary, infinity
 
 **Route**:
-The line a reader leaves behind them, joining the Records they reached in the order they
-reached them. The Territory is given; the Route is theirs, and nothing on the Map is drawn
-between Records until a reader walks it.
-_Avoid_: path (fine in speech, but Route is the term), journey, trail, history, progress
+The line a reader leaves behind them, joining the Records they reached in the order they reached
+them. The World is given; the Route is theirs.
+_Avoid_: path (Bridge and Frontier use that word), journey, trail, history, progress
 
 **Fog**:
-The concealment of *detail* on terrain that is already visible. The Lands and Borderlands are
-legible from the first moment; what Fog hides is what happened at them.
-_Avoid_: fog of war (ambiguous — names both this and the unexplored-black-map sense we rejected),
-unexplored, locked, hidden
+Ground a reader has not walked to, which is simply not there yet. Fog is never a dimming — ground
+is walked or it is not, and nothing is greyed to show what was missed.
+_Avoid_: fog of war (ambiguous), locked, greyed out, undiscovered
 
 **Lifting**:
-What a reader's travel does to Fog: reaching a Record discloses the Drawings sited there.
-Lifting is per-Session and never persists to a return visit.
+What walking does to Fog. Lifting is per-Session and never persists to a return visit.
 _Avoid_: unlocking, revealing, completing, discovering, progress
 
 **Session**:
-One reader's unbroken visit in one tab, holding the Records they reached, the Drawings they
-were shown, and the Route they walked. A new visit starts cold.
+One reader's unbroken visit in one tab, holding the ground they walked, the Records they reached and
+the Drawings they were shown. A new visit starts cold — in the same World, which is seeded and
+identical for every reader.
 _Avoid_: save, profile, progress, history, run
 
 ---
 
-**A note on Place.** A Record is *not* called a Place on the Map. **Place** is reserved for the
-four real locations the tour visits, which remain narrative content; the Territory has Lands,
-Borderlands and Records, and a Record's Place is a fact it tells you when you reach it.
+**A note on Place.** A Record is not called a Place in the World. **Place** stays reserved for the
+four real locations the tour visits; the World has Lands, Borderlands, Bridges and Records, and a
+Record's Place is a fact it tells a reader when they reach it.
