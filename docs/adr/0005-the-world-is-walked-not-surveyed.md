@@ -1,3 +1,7 @@
+---
+status: superseded by ADR-0006
+---
+
 # The World is walked, not surveyed
 
 The Map became a World: a reader is given a Sprite and walks it through a tiled, black-and-white
@@ -58,3 +62,14 @@ Canvas 2D, not SVG: a tiled world with a sprite and ambient motion cannot be tho
 `sessionStorage` and the cold start hold (ADR-0003, Q45) — with a seeded world, starting cold is not
 waking somewhere unfamiliar, and what persistence would preserve is a completion record this
 deliberately does not keep.
+
+## Superseded
+
+Shelved 2026-10-05, not refuted. Ethan chose a different shape: a site that reads as a
+conventional portfolio at first glance, with the storytelling arriving only once a reader clicks
+into a project. The World is complete and working on branch `prototype/fog-map`
+(worktree `~/cs199/portfolio-fogmap`) if it is ever resumed.
+
+What carried forward into ADR-0006: narration held on one line at the foot of the page, the
+reader's own route as the only path structure, and the refusal to let a reader's progress be
+shown back to them as a score.
