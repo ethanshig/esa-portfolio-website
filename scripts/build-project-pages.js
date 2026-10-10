@@ -217,7 +217,6 @@ ${crossings(p.id)}
 
             <nav class="project-navigation">
                 <a href="../projects.html" class="project-nav-link">All projects</a>
-                <a href="../index.html" class="project-nav-link">Walk into this one instead</a>
             </nav>
         </div>
     </article>
