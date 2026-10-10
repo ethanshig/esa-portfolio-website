@@ -65,3 +65,12 @@ Two Records have no Narration (`mylo-to-go`, `genealogy-of-a-beaver-dam`), `uss-
 no `reflection`, `three-little-pigs` no `outcome`. None of this blocks the build: those pages are
 simply quiet, which is the same output the opt-out path already renders. Ethan writes them; per his
 standing ruling, the assistant does not draft them.
+
+## Amendment — the narrator's replies (2026-10-10)
+
+The scraper contract governs what the page says on its own: the Document and the Narration. A
+reply from the narrator is an answer to something a reader typed, so it is not page text and the
+contract does not cover it. JavaScript may write those replies. The page must still read whole
+without them, and the ask field ships hidden for JS to reveal, so a reader without scripting never
+sees a field that cannot answer. The narrator takes the place of the authored Questions, which are
+retired.
