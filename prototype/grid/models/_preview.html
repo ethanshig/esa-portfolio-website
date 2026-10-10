@@ -1,0 +1,14 @@
+<!doctype html><meta charset="utf-8"><style>html,body{margin:0;background:#fff}</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three'; import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+const name=new URLSearchParams(location.search).get('m'); const W=800,H=600;
+const r=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true}); r.setSize(W,H); r.setClearColor(0xffffff); document.body.appendChild(r.domElement);
+const sc=new THREE.Scene();
+new GLTFLoader().load(name+'.glb',g=>{const o=g.scene; const box=new THREE.Box3().setFromObject(o); const s=box.getSize(new THREE.Vector3()); const c=box.getCenter(new THREE.Vector3());
+ o.traverse(m=>{if(m.isMesh){m.material=new THREE.MeshBasicMaterial({color:0xffffff,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1}); const e=new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry,25),new THREE.LineBasicMaterial({color:0x1a1a1a})); m.add(e);}});
+ sc.add(o); const d=Math.max(s.x,s.y,s.z); const a=W/H; const cam=new THREE.OrthographicCamera(-d*a*0.8,d*a*0.8,d*0.8,-d*0.8,-d*10,d*10);
+ // 2:1 dimetric: azimuth 45°, elevation asin(tan(26.565°)) = 30°
+ const el=Math.asin(Math.tan(Math.atan(0.5))); cam.position.set(c.x+Math.cos(el)*Math.sin(Math.PI/4)*d*3,c.y+Math.sin(el)*d*3,c.z+Math.cos(el)*Math.cos(Math.PI/4)*d*3); cam.lookAt(c);
+ r.render(sc,cam); document.title='done '+JSON.stringify([s.x,s.y,s.z].map(v=>+v.toFixed(2)));});
+</script>

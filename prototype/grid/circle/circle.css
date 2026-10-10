@@ -1,0 +1,255 @@
+/* ===================================================================
+   PROTOTYPE: the circle grid
+   The project grid laid out on the lattice that built the esa mark.
+   Every card is one letter circle: its cell is the circle's bounding
+   square, a whole multiple of 2L, and cells sit tangent on the 2R pitch.
+   The lattice is structural only: nothing here paints a circle field.
+   Load after css/style.css and css/line-system.css.
+   =================================================================== */
+
+/* ---------- theme ---------- */
+/* The site ships one palette (a cool black room, css/style.css). There is
+   no light palette in the site's tokens, so the light reading below is
+   prototype-local: the same tokens, inverted. Default stays the site's. */
+:root[data-theme="light"] {
+    --color-primary: #15181b;
+    --color-secondary: #4b5257;
+    --color-bg: #f2f3f3;
+    --color-bg-alt: #e6e9ea;
+    --color-text: #15181b;
+    --color-text-light: #5b6266;
+    --color-utility-gray: #5b6266;
+    --color-border: #d3d8da;
+    --ls-ink: var(--color-primary);
+    color-scheme: light;
+}
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+        --color-primary: #15181b;
+        --color-secondary: #4b5257;
+        --color-bg: #f2f3f3;
+        --color-bg-alt: #e6e9ea;
+        --color-text: #15181b;
+        --color-text-light: #5b6266;
+        --color-utility-gray: #5b6266;
+        --color-border: #d3d8da;
+        --ls-ink: var(--color-primary);
+        color-scheme: light;
+    }
+}
+:root[data-theme="dark"] { color-scheme: dark; }
+
+/* the nav links are painted white for the dark room; on a light ground they take the text colour */
+:root[data-theme="light"] .navbar .nav-link,
+:root[data-theme="light"] .navbar .nav-link:hover { color: var(--color-text); }
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) .navbar .nav-link,
+    :root:not([data-theme="dark"]) .navbar .nav-link:hover { color: var(--color-text); }
+}
+
+/* ---------- lattice ---------- */
+:root {
+    --k: 2;                                         /* card circle radius, in whole L */
+    --cell: calc(2 * var(--k) * var(--L));          /* the circle's bounding square */
+    --band: calc(2 * var(--L));                     /* caption band, whole L (fallback) */
+    --band: round(up, 7.5rem, var(--L));
+    --rule-w: clamp(1px, calc(0.05 * var(--L)), 3px);
+}
+@media (max-width: 899px) { :root { --k: 3; } }
+@media (max-width: 599px) { :root { --k: 5; } }
+@media (max-width: 339px) { :root { --k: 4; } }
+
+.cg-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+.cg-main {
+    padding-top: calc(var(--logo-h) + 2 * var(--L4) + var(--L));
+    padding-inline: var(--L);
+    padding-bottom: calc(2 * var(--L));
+    transition: opacity 0.28s ease;
+}
+.cg-main.is-leaving { opacity: 0; }
+
+/* columns = whole cells that fit; the block is centred, its left edge snapped to L/4 */
+.cg-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, var(--cell));
+    grid-auto-rows: calc(var(--cell) + var(--band));
+    gap: 0;
+    width: 100%;
+    width: round(down, 100%, var(--cell));
+    margin-left: round(nearest, calc((100% - round(down, 100%, var(--cell))) / 2), var(--L4));
+}
+.cg-grid[data-count="6"] .cg-placeholder { display: none; }
+
+.cg-cell { min-width: 0; }
+
+.cg-card {
+    display: flex;
+    flex-direction: column;
+    width: var(--cell);
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+}
+a.cg-card:focus { outline: none; }
+a.cg-card:focus-visible {
+    outline: 2px solid var(--ls-ink);
+    outline-offset: 4px;
+}
+
+/* ---------- the frame ---------- */
+.cg-frame {
+    position: relative;
+    display: block;
+    width: var(--cell);
+    height: var(--cell);
+    flex: none;
+}
+.cg-frame img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    clip-path: circle(48.2% at 50% 50%);            /* no-JS reading; script replaces it with the octant polygon */
+}
+.cg-ink {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    color: var(--ls-ink);
+    pointer-events: none;
+}
+.cg-arcs {
+    opacity: 0.62;                                  /* spec §2: outline group opacity, on the group */
+}
+.cg-arcs path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 10.8px;                           /* no-JS weight; script sets 0.072 L in screen px */
+    stroke-linecap: round;
+}
+.cg-guide {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2px;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.cg-placeholder-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-xs);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-text-light);
+}
+
+/* ---------- caption: the title stands on the rule, the line hangs from it ---------- */
+.cg-caption {
+    display: flex;
+    flex-direction: column;
+    padding-top: var(--L4);
+    min-width: 0;
+}
+.cg-title {
+    display: flex;
+    align-items: flex-end;
+    height: calc(2 * 1.25em);                       /* two lines held, so every rule in a row lands on one line */
+    padding-right: var(--L4);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    line-height: 1.25;
+    color: var(--color-text);
+}
+.cg-title > span {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+}
+.cg-rule {
+    display: block;
+    height: var(--rule-w);
+    margin-block: clamp(4px, calc(0.6 * var(--L4)), 10px);
+    background: var(--ls-ink);
+    opacity: 0.62;
+    border-radius: 999px;
+    transform-origin: left center;
+}
+.cg-line {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    padding-right: var(--L4);
+    font-size: var(--text-xs);
+    line-height: 1.4;
+    color: var(--color-text-light);
+}
+
+/* ---------- dev panel ---------- */
+.cg-dev {
+    position: fixed;
+    top: calc(var(--nav-top) + var(--logo-h) + var(--L4) + 12px);
+    right: 16px;
+    z-index: 1001;
+    max-width: min(19rem, calc(100vw - 32px));
+    max-height: calc(100vh - 8rem);
+    overflow: auto;
+    font: 12px/1.35 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--color-text);
+    background: var(--color-bg-alt);
+    border: 1px dashed var(--color-text-light);
+    border-radius: 6px;
+}
+.cg-dev summary {
+    padding: 6px 10px;
+    cursor: pointer;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+}
+.cg-dev-form { padding: 0 10px 10px; }
+.cg-dev fieldset {
+    border: none;
+    border-top: 1px solid var(--color-border);
+    padding: 6px 0;
+    margin: 0;
+}
+.cg-dev legend { padding: 0 4px 0 0; color: var(--color-text-light); }
+.cg-dev label { display: block; padding: 2px 0; cursor: pointer; }
+.cg-dev-indent { padding-left: 20px !important; }
+.cg-dev select, .cg-dev input[type="number"], .cg-dev button {
+    font: inherit;
+    color: inherit;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 1px 4px;
+}
+.cg-dev input[type="number"] { width: 7em; }
+.cg-dev button { margin: 4px 0 0 20px; cursor: pointer; }
+
+@media (prefers-reduced-motion: reduce) {
+    .cg-main { transition-duration: 0.2s; }
+}
