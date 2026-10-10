@@ -207,6 +207,10 @@
     document.body.appendChild(layer);
   }
   function sizeLayer() {
+    /* Measure the page without the layer in it. Otherwise the layer's own size counts
+       toward scrollWidth, so it can grow but never shrink: narrow the window and the
+       old width stays, forcing a horizontal scroll that pushes text off the right edge. */
+    layer.setAttribute('width', 0); layer.setAttribute('height', 0);
     var w = document.documentElement.scrollWidth, h = document.documentElement.scrollHeight;
     layer.setAttribute('width', w); layer.setAttribute('height', h);
     layer.setAttribute('viewBox', '0 0 ' + w + ' ' + h);

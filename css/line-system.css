@@ -118,6 +118,11 @@ html.ls-on .project-hero-image {
     margin-inline: var(--L);
     width: round(down, calc(100% - 2 * var(--L)), var(--L));
 }
+/* height in whole L too (spec §4), under the same cap project.css sets */
+html.ls-on .project-hero-image img { max-height: round(down, 70vh, var(--L)); }
+@media (max-width: 768px) {
+    html.ls-on .project-hero-image img { max-height: round(down, 50vh, var(--L)); }
+}
 html.ls-on .gallery-item img {
     border-radius: var(--L);
     border: none;
