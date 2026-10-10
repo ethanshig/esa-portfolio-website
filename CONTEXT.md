@@ -1,9 +1,35 @@
-# esa Portfolio Tour
+# esa Portfolio
 
-The portfolio at ethanshig.design is entered through a narrated tour rather than a project
-grid. A reader travels between real places Ethan has worked, and the work is disclosed to
-them as things encountered along the way. This glossary fixes the language that describes
-that world.
+The portfolio at ethanshig.design reads as a conventional project site: a grid of work, and a page
+per project. The storytelling is a layer a reader finds *inside* a project, never at the front door.
+This glossary fixes the language that describes it.
+
+## The work
+
+**Record**:
+An approved, compiled fact-set about one of Ethan's projects. Records are the only things the
+narrator may assert about his work; they are generated, never authored by hand in the site.
+_Avoid_: fact (the data key), project (fine in speech, Record in the model), claim, content
+
+**Drawing**:
+An image a reader was actually shown, carrying its label, project, date and alt text.
+_Avoid_: image, media, asset, picture
+
+**Scene**:
+The Narration belonging to one Record — its `meet` and `with` lines, and the questions a reader may
+ask there. Each Scene is about exactly one Record.
+_Avoid_: page, step, screen, chapter
+
+**Place**:
+One of the four real locations the work was made in. A Place's `truth` — the factual description of
+the location — survives as a project's sense of *where*; its `travel` lines narrate a Crossing out
+of it. Its `openings` are retired, since a reader now enters by picking a project.
+_Avoid_: setting (the data key), location, destination, portal
+
+**Interest**:
+A theme a reader has signalled attention to by the questions they asked. It steers Narration only,
+and never the Document, the grid or the Crossings offered.
+_Avoid_: tag, topic, preference
 
 ## The page
 
