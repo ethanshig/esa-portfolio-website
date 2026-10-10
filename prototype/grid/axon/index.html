@@ -20,7 +20,8 @@
     </script>
 </head>
 <body class="ax-page">
-    <!-- PROTOTYPE: axonometric dot-grid index. Throwaway; see prototype/grid/axon/axon.js. -->
+    <!-- PROTOTYPE: axonometric dot-grid index. Throwaway; see prototype/grid/axon/axon.js.
+         3D records (data-model) lift into dimetric on hover; 2D records turn to their next Drawing (.ax-next). -->
     <nav class="navbar">
         <div class="nav-container">
             <a href="../../../index.html" class="logo">esa</a>
@@ -48,29 +49,17 @@
         <ul class="ax-grid">
             <li class="ax-card" data-model="three-little-pigs">
                 <a class="ax-card-link" href="../../../projects/three-little-pigs.html">
-                    <span class="ax-sheet" data-fit="contain" style="--ar: 0.6469"><img src="../../../images/tour/tlp-axon.jpg" alt="Cutaway axonometric of a wall corner, peeled back layer by layer from brick veneer and board siding through yellow straw bale insulation to the stud frame, slab and concrete foundation, with every layer labeled." width="1600" height="1035" decoding="async"></span>
+                    <span class="ax-sheet"><img data-fit="contain" style="--ar: 0.6469" src="../../../images/tour/tlp-axon.jpg" alt="Cutaway axonometric of a wall corner, peeled back layer by layer from brick veneer and board siding through yellow straw bale insulation to the stud frame, slab and concrete foundation, with every layer labeled." width="1600" height="1035" decoding="async"></span>
                     <span class="ax-title">3 Little Pigs Wall Assembly</span>
                 </a>
                 <p class="ax-meta">FAA 330 · 2025</p>
-                <div class="ax-hold" role="group" aria-label="3 Little Pigs Wall Assembly, lifted">
-                    <a class="ax-open" href="../../../projects/three-little-pigs.html">Open project →</a>
-                    <button type="button" data-turn="-1" aria-label="Turn a quarter left">↺</button>
-                    <button type="button" data-turn="1" aria-label="Turn a quarter right">↻</button>
-                    <button type="button" data-put aria-label="Lay it back down">Esc</button>
-                </div>
             </li>
             <li class="ax-card">
                 <a class="ax-card-link" href="../../../projects/para-la-tierra.html">
-                    <span class="ax-sheet"><img src="../../../images/tour/plt-canoe.jpg" alt="A photo traced with bold outlines: a small boat moored beside a grassy riverbank reinforced with a concrete grid, under a cloudy sky." width="1060" height="795" decoding="async"></span>
+                    <span class="ax-sheet"><img src="../../../images/tour/plt-canoe.jpg" alt="A photo traced with bold outlines: a small boat moored beside a grassy riverbank reinforced with a concrete grid, under a cloudy sky." width="1060" height="795" decoding="async"><img class="ax-next" data-fit="contain" style="--ar: 0.7069" src="../../../images/tour/plt-poster.jpg" alt="Research poster titled &quot;Anthropogenic Effects of Construction on Freshwater Aquatic Biodiversity&quot; with the Para La Tierra logo: study objectives, hypothesis and methods, a photo of two people seining in shallow water, a table of fish counts by site, and two stacked bar charts of fish caught at each site." width="1600" height="1131" decoding="async"></span>
                     <span class="ax-title">Anthropogenic Effects of Construction on Freshwater Aquatic Biodiversity</span>
                 </a>
                 <p class="ax-meta">Para La Tierra · 2024</p>
-                <div class="ax-hold" role="group" aria-label="Anthropogenic Effects of Construction on Freshwater Aquatic Biodiversity, lifted">
-                    <a class="ax-open" href="../../../projects/para-la-tierra.html">Open project →</a>
-                    <button type="button" data-turn="-1" aria-label="Turn a quarter left">↺</button>
-                    <button type="button" data-turn="1" aria-label="Turn a quarter right">↻</button>
-                    <button type="button" data-put aria-label="Lay it back down">Esc</button>
-                </div>
             </li>
             <li class="ax-card" data-model="beavers-burden">
                 <a class="ax-card-link" href="../../../projects/beavers-burden.html">
@@ -78,12 +67,6 @@
                     <span class="ax-title">Beaver's Burden</span>
                 </a>
                 <p class="ax-meta">ARCH 172 · 2025</p>
-                <div class="ax-hold" role="group" aria-label="Beaver's Burden, lifted">
-                    <a class="ax-open" href="../../../projects/beavers-burden.html">Open project →</a>
-                    <button type="button" data-turn="-1" aria-label="Turn a quarter left">↺</button>
-                    <button type="button" data-turn="1" aria-label="Turn a quarter right">↻</button>
-                    <button type="button" data-put aria-label="Lay it back down">Esc</button>
-                </div>
             </li>
             <li class="ax-card" data-model="mylo-to-go">
                 <a class="ax-card-link" href="../../../projects/mylo-to-go.html">
@@ -91,38 +74,20 @@
                     <span class="ax-title">Mylo To-Go</span>
                 </a>
                 <p class="ax-meta">ArtD 326 · 2025</p>
-                <div class="ax-hold" role="group" aria-label="Mylo To-Go, lifted">
-                    <a class="ax-open" href="../../../projects/mylo-to-go.html">Open project →</a>
-                    <button type="button" data-turn="-1" aria-label="Turn a quarter left">↺</button>
-                    <button type="button" data-turn="1" aria-label="Turn a quarter right">↻</button>
-                    <button type="button" data-put aria-label="Lay it back down">Esc</button>
-                </div>
             </li>
             <li class="ax-card" data-model="uss-lead-revival">
                 <a class="ax-card-link" href="../../../projects/uss-lead-revival.html">
-                    <span class="ax-sheet" data-fit="contain" style="--ar: 0.7725"><img src="../../../images/tour/a273-gable.jpg" alt="A white paper model on a black ground: a shallow, wide gable roof that slopes down to both sides, lifted on a single slim white support, its underside mirrored in the glossy surface below." width="2000" height="1545" decoding="async"></span>
+                    <span class="ax-sheet"><img data-fit="contain" style="--ar: 0.7725" src="../../../images/tour/a273-gable.jpg" alt="A white paper model on a black ground: a shallow, wide gable roof that slopes down to both sides, lifted on a single slim white support, its underside mirrored in the glossy surface below." width="2000" height="1545" decoding="async"></span>
                     <span class="ax-title">The Dark Side of Chicago · USS Lead (ARCH 273)</span>
                 </a>
                 <p class="ax-meta">ARCH 273 · 2025</p>
-                <div class="ax-hold" role="group" aria-label="The Dark Side of Chicago · USS Lead (ARCH 273), lifted">
-                    <a class="ax-open" href="../../../projects/uss-lead-revival.html">Open project →</a>
-                    <button type="button" data-turn="-1" aria-label="Turn a quarter left">↺</button>
-                    <button type="button" data-turn="1" aria-label="Turn a quarter right">↻</button>
-                    <button type="button" data-put aria-label="Lay it back down">Esc</button>
-                </div>
             </li>
             <li class="ax-card">
                 <a class="ax-card-link" href="../../../projects/genealogy-of-a-beaver-dam.html">
-                    <span class="ax-sheet" data-fit="contain" style="--ar: 0.7727"><img src="../../../images/tour/gbd-cover.jpg" alt="Booklet title page: the words Genealogy of a Beaver Dam over a photograph of a beaver dam." width="1540" height="1190" decoding="async"></span>
+                    <span class="ax-sheet"><img data-fit="contain" style="--ar: 0.7727" src="../../../images/tour/gbd-cover.jpg" alt="Booklet title page: the words Genealogy of a Beaver Dam over a photograph of a beaver dam." width="1540" height="1190" decoding="async"><img class="ax-next" data-fit="contain" style="--ar: 0.7727" src="../../../images/tour/gbd-materials.jpg" alt="Booklet page: a collage of dam materials, including mud, rocks, reeds, a gnawed log and a piece of blue plastic." width="1540" height="1190" decoding="async"></span>
                     <span class="ax-title">Genealogy of a Beaver Dam</span>
                 </a>
                 <p class="ax-meta">ArtD 326 · 2025</p>
-                <div class="ax-hold" role="group" aria-label="Genealogy of a Beaver Dam, lifted">
-                    <a class="ax-open" href="../../../projects/genealogy-of-a-beaver-dam.html">Open project →</a>
-                    <button type="button" data-turn="-1" aria-label="Turn a quarter left">↺</button>
-                    <button type="button" data-turn="1" aria-label="Turn a quarter right">↻</button>
-                    <button type="button" data-put aria-label="Lay it back down">Esc</button>
-                </div>
             </li>
             <li class="ax-card ax-placeholder" aria-hidden="true">
                 <span class="ax-sheet"></span>
@@ -145,18 +110,10 @@
             <label><input type="radio" name="ax-count" value="8"> 8</label>
         </fieldset>
         <label>Paper <input type="range" min="0" max="1" step="0.01" value="0.32" data-dev="paper"></label>
-        <label><input type="checkbox" data-dev="auto"> Auto-continue 2 s after the lift</label>
         <label>Theme
             <select data-dev="theme">
                 <option value="dark">dark (site)</option>
                 <option value="light">light</option>
-            </select>
-        </label>
-        <label>Model
-            <select data-dev="source">
-                <option value="glb">glb, else sheet</option>
-                <option value="test">test solid</option>
-                <option value="sheet">sheet only</option>
             </select>
         </label>
         <label>Verticals

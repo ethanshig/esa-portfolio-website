@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" class="env-page" data-story="on" data-arrival="cold" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="A straw-bale wall assembly that ordinary builders can put up: conventional stick framing, R-52 insulation.">
+    <meta name="robots" content="noindex">
+    <title>3 Little Pigs Wall Assembly | Ethan Anderson</title>
+    <link rel="icon" href="../../../../images/favicon.svg">
+    <link rel="stylesheet" href="../../../../css/style.css">
+    <link rel="stylesheet" href="../../../../css/line-system.css">
+    <link rel="stylesheet" href="../../../../css/story.css">
+    <link rel="stylesheet" href="../env.css">
+    <!-- PROTOTYPE (ADR-0007): the project page as a drawing sheet. Prose, Narration and
+         Crossings are copied from projects/three-little-pigs.html (generated from the
+         approved record); nothing here is authored. -->
+    <!-- Attribute-only, before paint: applies ?story= / the stored preference and ?theme=,
+         and turns the CYOA gate on. It writes no text. If env.js never runs, the gate lifts
+         after 8 s and the panel becomes the whole Document. -->
+    <script>(function(){var r=document.documentElement;try{var p=new URLSearchParams(location.search);var q=p.get('story');var v=(q==='off'||q==='on')?q:localStorage.getItem('esa-story');if(v==='off'||v==='on')r.setAttribute('data-story',v);var t=p.get('theme');if(t==='light'||t==='dark')r.setAttribute('data-theme',t);}catch(e){}r.classList.add('env-js');setTimeout(function(){if(!r.classList.contains('env-live')){r.classList.remove('env-js');r.classList.add('env-static','env-nosheet');}},8000);}())</script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  "name": "3 Little Pigs Wall Assembly",
+  "description": "A straw-bale wall assembly that ordinary builders can put up: conventional stick framing, R-52 insulation.",
+  "creator": {
+    "@type": "Person",
+    "name": "Ethan Shig Anderson"
+  },
+  "dateCreated": "2025-01",
+  "temporalCoverage": "2025-01/2025-03",
+  "about": [
+    "architecture"
+  ],
+  "keywords": "natural-materials, building-science, straw-bale",
+  "image": [
+    {
+      "@type": "ImageObject",
+      "contentUrl": "../../../../images/tour/tlp-axon.jpg",
+      "name": "Cutaway axonometric",
+      "description": "Cutaway axonometric of a wall corner, peeled back layer by layer from brick veneer and board siding through yellow straw bale insulation to the stud frame, slab and concrete foundation, with every layer labeled."
+    },
+    {
+      "@type": "ImageObject",
+      "contentUrl": "../../../../images/tour/tlp-section.jpg",
+      "name": "Wall section",
+      "description": "Wall section from the foundation footing up to the double top plate: a thick yellow band of straw bale insulation sits on a concrete pony wall, with labeled layers on both sides."
+    }
+  ],
+  "sourceOrganization": {
+    "@type": "Organization",
+    "name": "University of Illinois Urbana-Champaign"
+  }
+}</script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../../../../index.html" class="logo">esa</a>
+            <ul class="nav-menu">
+                <li><a href="../../../../projects.html" class="nav-link">Projects</a></li>
+                <li><a href="../../../../about.html" class="nav-link">About</a></li>
+                <li><a href="../../../../resume.html" class="nav-link">Résumé</a></li>
+                <li><a href="../../../../contact.html" class="nav-link">Contact</a></li>
+                <li><button type="button" class="story-toggle" aria-pressed="true"><span class="is-on">Story on</span><span class="is-off">Story off</span></button></li>
+            </ul>
+            <div class="hamburger"><span></span><span></span><span></span></div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- The sheet. Drawings and model are drawn by sheet3d.js; every word on the sheet is here. -->
+        <div class="env-stage" role="region" aria-label="Drawing sheet" tabindex="-1">
+            <canvas class="env-dots" aria-hidden="true"></canvas>
+            <div class="env-gl" aria-hidden="true"></div>
+            <div class="env-overlay">
+                <button type="button" class="env-title" data-drawing="hero">Cutaway axonometric</button>
+                <span class="env-title" data-model>Model</span>
+                <button type="button" class="env-title" data-drawing="wall-section">Wall section</button>
+                <button type="button" class="env-title" data-drawing="axon-1">Axon 1</button>
+                <button type="button" class="env-title" data-drawing="section">Section A</button>
+                <button type="button" class="env-title" data-drawing="axon-2">Axon 2</button>
+                <button type="button" class="env-title" data-drawing="axon-3">Axon 3</button>
+                <button type="button" class="env-title" data-drawing="axon-4">Axon 4</button>
+                <button type="button" class="env-bubble" data-mark="section" aria-label="Section A mark">A</button>
+                <button type="button" class="env-bubble" data-mark="axon-1" aria-label="Axon 1 view">1</button>
+                <button type="button" class="env-bubble" data-mark="axon-2" aria-label="Axon 2 view">2</button>
+                <button type="button" class="env-bubble" data-mark="axon-3" aria-label="Axon 3 view">3</button>
+            </div>
+            <button type="button" class="env-home" aria-label="Home view" title="Home view">⌂</button>
+        </div>
+
+        <aside class="env-panel" id="env-panel" data-outline-off data-sheet="collapsed" aria-label="3 Little Pigs Wall Assembly">
+            <button type="button" class="env-handle" aria-controls="env-panel-scroll" aria-expanded="false" aria-label="Story panel"><span class="env-handle-bar"></span></button>
+            <div class="env-panel-scroll" id="env-panel-scroll" tabindex="0">
+                <p class="env-fallback-note">The drawing sheet needs WebGL, so this is the Document. <a href="../../../../projects/three-little-pigs.html">Plain page</a></p>
+
+                <header class="project-header env-head">
+                    <p class="project-eyebrow">FAA 330 · University of Illinois Urbana-Champaign · 2025</p>
+                    <h1 class="project-title-large">3 Little Pigs Wall Assembly</h1>
+                    <p class="project-lead">A straw-bale wall assembly that ordinary builders can put up: conventional stick framing, R-52 insulation.</p>
+                    <div class="project-meta">
+                        <span class="project-meta-item"><strong>Role</strong> Sole designer</span>
+                        <span class="project-meta-item"><strong>Tools</strong> Rhino, Photoshop, Illustrator</span>
+                    </div>
+                </header>
+
+                <!-- Narration, in beats: beat 0 plays on arrival, each choice reaches the next.
+                     Both registers ship; data-arrival picks (story.css). -->
+                <div class="narration" data-beat="0">
+                    <p class="narration-line" data-scene="champaign-1" data-mode="meet">The fields run flat to every horizon, and Champaign sits in the middle of them.</p>
+                    <p class="narration-line" data-scene="champaign-1" data-mode="meet">Winters here get cold enough that a wall has to earn its keep.</p>
+                    <p class="narration-line" data-scene="champaign-1" data-mode="with">Winters here get cold enough that a wall has to earn its keep.</p>
+                    <p class="narration-line" data-scene="champaign-1" data-mode="with">Ethan stops the car at the edge of town, in front of a house built of straw, sticks and brick, all at once.</p>
+                </div>
+                <div class="narration" data-beat="1">
+                    <p class="narration-line" data-scene="champaign-1" data-mode="meet">At the edge of town stands a house built of straw, sticks and brick, all at once.</p>
+                    <p class="narration-line" data-scene="champaign-1" data-mode="with">You knock. Nothing falls down.</p>
+                </div>
+                <div class="narration" data-beat="2">
+                    <p class="narration-line" data-scene="champaign-1" data-mode="meet">You knock. Nothing falls down.</p>
+                    <p class="narration-line" data-scene="champaign-1" data-mode="meet">The door opens, and a hand comes out to shake yours. “Ethan.”</p>
+                    <p class="narration-line" data-scene="champaign-1" data-mode="with">Inside the walls: stick framing and straw bales, with brick on the outside.</p>
+                </div>
+                <div class="narration" data-beat="3">
+                    <p class="narration-line" data-scene="champaign-1" data-mode="meet">Inside the walls: stick framing and straw bales, with brick on the outside.</p>
+                    <p class="narration-line" data-scene="champaign-1" data-mode="with">It is January, and the living room is warm.</p>
+                </div>
+                <div class="narration" data-beat="4">
+                    <p class="narration-line" data-scene="champaign-1" data-mode="meet">It is January, and the living room is warm.</p>
+                    <p class="narration-line" data-scene="champaign-1" data-mode="meet">The straw comes out at R-52.</p>
+                    <p class="narration-line" data-scene="champaign-1" data-mode="with">The straw comes out at R-52.</p>
+                </div>
+                <div class="narration" data-beat="5">
+                    <p class="narration-line" data-scene="champaign-1" data-mode="meet">The wolf is going to need a better plan.</p>
+                    <p class="narration-line" data-scene="champaign-1" data-mode="with">The wolf is going to need a better plan.</p>
+                </div>
+
+                <section class="project-section env-section" data-section="story">
+                    <h2 class="project-section-title">The story</h2>
+                    <p class="project-text">Ever wonder why the three little pigs didn't just work together? Me too.</p>
+                    <p class="project-text">This wall uses all three pigs' materials: straw bale insulation, stick framing, and a brick veneer. It combines what each pig got right. Its traditional stick framing fits the way contractors already build, and its straw bale insulation reaches R-52. That means healthy, thermally comfortable rooms and big energy savings.</p>
+                    <p class="project-text">The project explores natural materials and what their properties can do. The point is that a natural material only spreads if it plugs into construction methods people already use.</p>
+                </section>
+
+                <section class="project-section env-section" data-section="whatIDid">
+                    <h2 class="project-section-title">What I did</h2>
+                    <ul class="project-list"><li>Researched the materials and designed the full assembly, from foundation to finish</li><li>Drew the annotated axonometric and section in Rhino and composited them in Photoshop</li></ul>
+                </section>
+
+                <section class="project-section env-section" data-section="process">
+                    <h2 class="project-section-title">Process</h2>
+                    <ul class="project-list"><li>Layers include a masonry water table, a stick frame and straw bale insulation (worksheet row 4)</li><li>The drawing documents the insulation math: straw bales at 36 × 18 × 14 in and R-1.4 per inch, giving R-52 through the wall and R-40 behind the pony wall</li><li>Designed for Champaign, Illinois (climate zone 5), with platform framing and either brick veneer or horizontal board siding</li><li>Below grade: crushed foam glass under the slab (R-8) and extruded polystyrene at the foundation (R-10)</li></ul>
+                </section>
+
+                <section class="project-section env-section" data-section="outcome">
+                    <h2 class="project-section-title">Outcome</h2>
+                    <ul class="project-list"><li>Annotated axonometric and section drawings, 8.5 × 11 in</li><li>Straw-bale insulation value of R-52 (as documented)</li></ul>
+                </section>
+
+                <section class="project-section env-section" data-section="reflection">
+                    <h2 class="project-section-title">Reflection</h2>
+                    <p class="project-text">I want my work to bring joy and to be fun. Nobody thinks of play when they think of wall sections. But choosing straw bales as insulation reminded me of the children's story and made me smile, so I decided to build with all three pigs' materials.</p>
+                </section>
+
+                <section class="project-gallery env-drawings">
+                    <h2 class="project-section-title">Drawings</h2>
+                    <div class="env-figures">
+                        <figure class="project-figure"><img src="../../../../images/tour/tlp-axon.jpg" alt="Cutaway axonometric of a wall corner, peeled back layer by layer from brick veneer and board siding through yellow straw bale insulation to the stud frame, slab and concrete foundation, with every layer labeled." width="1600" height="1035" loading="lazy"><figcaption>Cutaway axonometric</figcaption></figure>
+                        <figure class="project-figure"><img src="../../../../images/tour/tlp-section.jpg" alt="Wall section from the foundation footing up to the double top plate: a thick yellow band of straw bale insulation sits on a concrete pony wall, with labeled layers on both sides." width="1600" height="1141" loading="lazy"><figcaption>Wall section</figcaption></figure>
+                    </div>
+                </section>
+
+                <!-- The CYOA: one choice per Document section. Labels are the section headings;
+                     narrative choice labels are Ethan's to write. -->
+                <nav class="env-choices" aria-label="Choices">
+                    <button type="button" class="env-choice" data-choose="story">The story</button>
+                    <button type="button" class="env-choice" data-choose="whatIDid">What I did</button>
+                    <button type="button" class="env-choice" data-choose="process">Process</button>
+                    <button type="button" class="env-choice" data-choose="outcome">Outcome</button>
+                    <button type="button" class="env-choice" data-choose="reflection">Reflection</button>
+                </nav>
+
+                <nav class="crossings" aria-labelledby="crossings-heading">
+                    <h2 class="project-section-title crossing-plain" id="crossings-heading">Related work</h2>
+                    <a href="../../../../projects/mylo-to-go.html" class="crossing">
+                        <span class="crossing-narrative">Walk over to campus with Ethan</span>
+                        <span class="crossing-plain">Mylo To-Go</span>
+                    </a>
+                </nav>
+
+                <nav class="project-navigation">
+                    <a href="../../../../projects.html" class="project-nav-link">All projects</a>
+                    <a href="../../../../index.html" class="project-nav-link">Walk into this one instead</a>
+                    <a href="../../../../projects/three-little-pigs.html" class="project-nav-link">Plain page</a>
+                </nav>
+                <p class="env-foot">Ethan Shig Anderson · <a href="../../../../contact.html">Contact</a></p>
+            </div>
+        </aside>
+    </main>
+
+    <!-- The sheet: sheet units are dot steps (u right, v down); vectors at `scale` steps per ft.
+         Line weights by Make2D kind; 'C' is ambiguous in the export (curve vs clipping
+         intersection), so the section reads its C as cut lines and the axons as curves. -->
+    <script type="application/json" id="env-sheet">{
+  "kind": "3d",
+  "record": "three-little-pigs",
+  "linework": "../data/three-little-pigs.drawings.json",
+  "model": { "src": "../../models/three-little-pigs.glb", "ftPerLattice": 2, "box": [52, 0, 84, 31] },
+  "drawings": [
+    { "id": "hero", "kind": "raster", "src": "../../../../images/tour/tlp-axon.jpg", "px": [1600, 1035], "at": [0, 0], "w": 48 },
+    { "id": "wall-section", "kind": "raster", "src": "../../../../images/tour/tlp-section.jpg", "px": [1600, 1141], "at": [0, 37], "w": 20 },
+    { "id": "axon-1", "kind": "vector", "source": "axon-1", "at": [23, 37], "scale": 0.8,
+      "weights": { "S": "medium", "C": "light", "T": "light" }, "markKind": "view", "markLabel": "1" },
+    { "id": "section", "kind": "vector", "source": "section", "at": [52, 37], "scale": 0.8,
+      "weights": { "C": "heavy", "S": "medium", "T": "light" }, "markKind": "section", "markLabel": "A" },
+    { "id": "axon-2", "kind": "vector", "source": "axon-2", "at": [0, 57], "scale": 0.8,
+      "weights": { "S": "medium", "C": "light", "T": "light" }, "markKind": "view", "markLabel": "2" },
+    { "id": "axon-3", "kind": "vector", "source": "axon-3", "at": [38, 57], "scale": 0.8,
+      "weights": { "S": "medium", "C": "light", "T": "light" }, "markKind": "view", "markLabel": "3" },
+    { "id": "axon-4", "kind": "vector", "source": "axon-4", "at": [0, 80], "scale": 0.8,
+      "weights": { "S": "medium", "C": "light", "T": "light" } }
+  ]
+}</script>
+    <!-- Section views (ADR-0007): which part of the sheet each Document section is about.
+         Every entry is a prototype draft, flagged proposed; Ethan authors these. -->
+    <script type="application/json" id="env-views">{
+  "views": [
+    { "section": "arrival", "target": ["hero", "model"], "proposed": true },
+    { "section": "story", "target": "hero", "proposed": true },
+    { "section": "whatIDid", "target": "model", "proposed": true },
+    { "section": "process", "target": ["section", "model"], "proposed": true },
+    { "section": "outcome", "target": { "snap": "axon-1" }, "proposed": true },
+    { "section": "reflection", "target": "sheet", "proposed": true }
+  ]
+}</script>
+    <script src="../../../../js/line-system.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', function () { if (window.LineSystem) LineSystem.init(); });</script>
+    <script type="module" src="../env.js"></script>
+</body>
+</html>

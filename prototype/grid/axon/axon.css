@@ -40,8 +40,8 @@ html[data-theme="light"].ls-on .nav-link.active { color: var(--color-primary); }
     pointer-events: none;
     opacity: var(--ax-paper, 0.32);
 }
-.ax-paper-layer { position: absolute; left: 0; top: 0; transition: opacity 0.9s ease; }
-/* during a lift the square reading recedes; the axon lattice stays */
+.ax-paper-layer { position: absolute; left: 0; top: 0; transition: opacity 0.6s ease; }
+/* while a 3D record is up the square reading recedes; the axon lattice stays */
 .ax-lifting .ax-paper-layer[data-paper="light"] { opacity: 0.12; }
 
 /* ---------- page ---------- */
@@ -90,11 +90,44 @@ html[data-theme="light"].ls-on .nav-link.active { color: var(--color-primary); }
 }
 /* drawings that must not be cropped: the image's own aspect, its height
    snapped to whole dot steps and its top to a dot row */
-.ax-sheet[data-fit="contain"] img {
+.ax-sheet img[data-fit="contain"] {
     --h: round(nearest, calc(var(--W) * var(--ar)), var(--L4));
     height: var(--h);
     margin-top: round(down, calc((var(--W) - var(--h)) / 2), var(--L4));
 }
+
+/* ---------- 2D records: hover turns to the next Drawing ----------
+   Both images are in the HTML. The next one waits, clipped away to its
+   right edge; on hover (pointers that hover) or keyboard focus a single
+   edge sweeps right to left, taking the first Drawing off as it lays the
+   next one down. Purely 2D: no script, no WebGL. */
+.ax-sheet img.ax-next {
+    position: absolute;
+    left: 0;
+    top: 0;
+    visibility: hidden;
+    clip-path: inset(0 0 0 100%);
+    transition: clip-path 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.4s;
+}
+.ax-sheet:has(.ax-next) img:not(.ax-next) {
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@media (hover: hover) {
+    .ax-card-link:hover .ax-sheet img.ax-next {
+        visibility: visible;
+        clip-path: inset(0 0 0 0);
+        transition: clip-path 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s;
+    }
+    .ax-card-link:hover .ax-sheet:has(.ax-next) img:not(.ax-next) { clip-path: inset(0 100% 0 0); }
+}
+.ax-card-link:focus-visible .ax-sheet img.ax-next {
+    visibility: visible;
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s;
+}
+.ax-card-link:focus-visible .ax-sheet:has(.ax-next) img:not(.ax-next) { clip-path: inset(0 100% 0 0); }
+
 .ax-card-link:focus-visible { outline: none; }
 .ax-card-link:focus-visible .ax-sheet {
     outline: 2px solid var(--color-primary);
@@ -125,49 +158,9 @@ html[data-theme="light"].ls-on .nav-link.active { color: var(--color-primary); }
 }
 .ax-placeholder .ax-title { color: var(--color-text-light); font-weight: 400; }
 
-/* ---------- lifted ---------- */
-.ax-hold { display: none; }
-.ax-card.is-lifted .ax-meta { display: none; }
-.ax-card.is-lifted .ax-hold {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: calc(var(--L4) / 2);
-    margin-top: 0.3em;
-}
+/* ---------- 3D records: lifted ---------- */
+/* the stage draws the card while it is up; the HTML image waits underneath */
 .ax-card.is-drawn .ax-sheet img { visibility: hidden; }
-.ax-grid.has-lift .ax-card:not(.is-lifted) { opacity: 0.35; }
-
-.ax-open {
-    display: inline-flex;
-    align-items: center;
-    min-height: 32px;
-    padding: 0 0.9em;
-    border-radius: 999px;
-    font-size: var(--text-xs);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-bg);
-    background: var(--color-primary);
-}
-.ax-open:hover { color: var(--color-bg); }
-.ax-hold button {
-    min-width: 32px;
-    min-height: 32px;
-    padding: 0 0.6em;
-    border: 1px solid color-mix(in srgb, var(--color-primary) 40%, transparent);
-    border-radius: 999px;
-    background: var(--color-bg);
-    color: var(--color-primary);
-    font: inherit;
-    font-size: var(--text-xs);
-    line-height: 1;
-    cursor: pointer;
-}
-.ax-hold a:focus-visible, .ax-hold button:focus-visible {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 2px;
-}
 
 /* the three.js stage: document coordinates, over the grid, under the nav */
 .ax-stage {
@@ -217,5 +210,8 @@ html[data-theme="light"].ls-on .nav-link.active { color: var(--color-primary); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .ax-card, .ax-paper-layer { transition: none; }
+    .ax-card, .ax-paper-layer,
+    .ax-sheet img, .ax-sheet img.ax-next,
+    .ax-card-link:hover .ax-sheet img.ax-next,
+    .ax-card-link:focus-visible .ax-sheet img.ax-next { transition: none; }
 }

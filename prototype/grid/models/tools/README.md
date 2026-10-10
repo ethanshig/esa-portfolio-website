@@ -15,3 +15,17 @@ Rhino 8 (via Rhino MCP) → raw mesh → glb. Rhino's own glTF export wrote empt
 | beavers-burden | Box/Arch 172 Assignment 5/Ethans Final Models.3dm, layer Flake |
 | genealogy-of-a-beaver-dam | none — Beaver Dam.3dm is 960 stick block instances; reads as an ink blot. Sheet instead. |
 | para-la-tierra | none (fieldwork) — sheet |
+
+## Drawings registered to a model (three-little-pigs)
+
+`Wall Assembly.3dm` holds five Make2D drawings of the same model (`Make2D - 2D` = end section; `Make2D`, `- Parallel`, `- Parallel 2`, `- Parallel 4` = cutaway axons). Each was exported as polylines per material layer (Rhino Python, `Curve.ToPolyline(0.005, 0.1, 0, 0)`), then fitted back onto the model: drawing2D ≈ A·rhino3D + t, least squares over matching layer bbox centres with iterative outlier trimming (numpy). Result in `../../project/data/three-little-pigs.drawings.json`.
+
+| drawing | median residual | view |
+|---|---|---|
+| section | 0.006 ft | along +X (exact) |
+| axon-1 | 0.13 ft | (0.89, −0.37, 0.26) |
+| axon-2 | 0.16 ft | (0.73, −0.64, 0.24) |
+| axon-3 | 0.08 ft | (0.76, −0.61, 0.22) |
+| axon-4 | failed (non-orthographic fit) | unregistered — no mark |
+
+Marks are only drawn where a fit exists (ADR-0007).
