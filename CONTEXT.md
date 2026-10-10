@@ -46,8 +46,9 @@ _Avoid_: story (the Record field is named that), copy, voiceover, text
 
 **Crossing**:
 An authored link from one Record's page to another, carrying a narrative label
-("Follow the water east to poisoned ground") and a plain one ("Related work"). Both ship in the
-HTML; which one shows is a CSS decision.
+("Follow the water east to poisoned ground") and a plain one (the destination's title). Both ship
+in the HTML; which one shows is a CSS decision. "Related work" is the heading over the set, never
+a label on a link — three links all reading "Related work" tell a reader nothing and a crawler less.
 _Avoid_: link, next, related, path, bridge
 
 **Route**:

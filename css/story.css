@@ -1,0 +1,56 @@
+/* The story layer (ADR-0006, docs/story-layer-spec.md).
+ *
+ * Narration and both Crossing labels ship in the HTML; this file decides what a
+ * reader sees. Script decides nothing about text. `data-story` and `data-arrival`
+ * are baked onto <html> by the generator, so a reader with scripting off still
+ * gets exactly one Crossing label and exactly one arrival register.
+ */
+
+/* --- what the state attributes hide ---------------------------------------- */
+[data-story="off"] .narration,
+[data-story="off"] .narration-foot { display: none; }
+[data-story="off"] .crossing-narrative { display: none; }
+[data-story="on"] .crossing-plain { display: none; }
+
+/* meet introduces Ethan; with assumes a reader already has. Both ship; arrival picks. */
+[data-arrival="cold"] .narration-line[data-mode="with"],
+[data-arrival="crossed"] .narration-line[data-mode="meet"] { display: none; }
+
+/* --- the narration layer --------------------------------------------------- */
+.narration {
+  margin: 0 0 var(--spacing-xl, 24px);
+  padding-left: 16px;
+  border-left: 1px solid currentColor;
+  opacity: .78;
+}
+.narration-line { margin: 0 0 .55em; font-size: 1.05rem; line-height: 1.55; }
+
+/* With script, one line is held at the foot and the inline block steps back. The
+   class is set by the head script, before paint, so nothing flashes. */
+.narration-held .narration { position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0; padding: 0; margin: 0; }
+.narration-foot {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; pointer-events: none;
+  padding: 20px 28px 24px; min-height: 72px;
+  background: linear-gradient(to top, var(--color-bg, #fafafa) 38%, transparent);
+  font-size: 1.12rem; line-height: 1.45;
+  opacity: 0; transition: opacity .28s ease;
+}
+.narration-foot[data-shown] { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .narration-foot { transition: none; } }
+
+/* --- crossings ------------------------------------------------------------- */
+.crossings { display: flex; flex-direction: column; gap: 10px;
+  margin: var(--spacing-xl, 24px) 0; padding-top: var(--spacing-lg, 16px);
+  border-top: 1px solid currentColor; }
+.crossing { text-decoration: none; color: inherit; font-size: 1.05rem; padding: 4px 0; }
+.crossing:hover, .crossing:focus-visible { text-decoration: underline; }
+
+/* --- the control ----------------------------------------------------------- */
+.story-toggle { background: none; border: 1px solid currentColor; color: inherit;
+  font: inherit; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 999px; cursor: pointer; }
+.story-toggle:hover { opacity: .7; }
+.story-toggle .is-off { display: none; }
+[data-story="off"] .story-toggle .is-on { display: none; }
+[data-story="off"] .story-toggle .is-off { display: inline; }

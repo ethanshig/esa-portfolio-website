@@ -19,7 +19,14 @@ A project page ships complete, in this order, every section present in the HTML:
 | `Drawings` | `world.json` media + alt | as now | unchanged |
 | **Narration** | Scene `meet` / `with` | hidden (CSS) | one line at the foot, keyed to the section in view |
 | **Questions** | Scene `choices[].ask` + answer from Records | visible as a Q&A list | inline beside their section, behind one "Ask Ethan" |
-| **Crossings** | Scene `choices[].go` + label | "Related work" list | the authored narrative labels |
+
+**Questions are blocked, not forgotten.** `ask` choices carry no authored answer anywhere in
+`world.json` — the tour generates them at runtime — so "answer shipped in the HTML" is not
+buildable as written. The scene's cited facts only partly stand in: "Why a figure eight?" is
+answered by the lemniscate fact, but "Who taught the class?" has no answer in the facts at all, and
+a question whose adjacent text does not answer it is worse than no question. Unblocked when Ethan
+writes answers.
+| **Crossings** | Scene `choices[].go` + label | the destination's title, under a "Related work" heading | the authored narrative labels |
 
 The Document never moves, reflows or rearranges when the layer is on. Narration accrues beside it.
 
@@ -28,7 +35,9 @@ The Document never moves, reflows or rearranges when the layer is on. Narration 
 1. Every word a reader can ever see is in the HTML at request time. **JavaScript adds no text.**
 2. Narration and Questions are hidden with CSS only, never injected, never `display:none` applied
    by script before paint.
-3. A Crossing is one `<a href>` carrying **both** labels; CSS picks which renders.
+3. A Crossing is one `<a href>` carrying **both** labels; CSS picks which renders. **`data-story`
+   and `data-arrival` are baked onto `<html>` by the generator**, or CSS has nothing to key on and a
+   no-JS reader sees both labels at once.
 4. Each page carries JSON-LD `CreativeWork`: title, description, dates, creator, institution,
    `about` (tracks), and each Drawing as `ImageObject` with its alt text.
 5. Consequence, free: a Record with no Narration renders exactly the story-off page. Unwritten
@@ -47,8 +56,9 @@ of the Document is the end of the Scene.
 
 ## The story control
 
-Nav, persistent, default on, state in `localStorage`. `?story=off` renders the plain version for
-sharing and overrides the stored preference for that load. `prefers-reduced-motion` does **not**
+Nav, persistent, default on, state in `localStorage`. `?story=off` renders the plain version for sharing and
+overrides the stored preference for that load; `?story=on` does the inverse, so a shared link can
+force either state. `prefers-reduced-motion` does **not**
 disable it. The control is the only hint the site gives that a story exists: no banner, no hover
 lure, no visited markers on the grid.
 
