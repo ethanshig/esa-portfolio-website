@@ -4,22 +4,24 @@
 
    The page never scrolls. The viewport is the paper; the sheet module
    (sheet3d.js for a Record with a model, sheet2d.js for one without)
-   lays the Drawings on it. The story sits on the tour's sheet of trace
-   (main:index.html): fixed on the right, its .trace-scroll the only
-   scroller, lifted away by "Just the drawing" (body.look), a bottom
-   sheet with a peek on a phone, and the .plate captioning what is in view.
+   lays the Drawings on it. The story is the tour's caption, the surface
+   Ethan chose on 2026-09-18 (adventure/tour.template.html, "surface c"):
+   one line at a time at the foot of the drawing over a veil with no edge,
+   and one row of pills. Taking hold of the drawing is looking (body.look):
+   the caption drops away and the drawing's name and description show.
+   "Your story" unfurls the readback, the only scroller.
 
    THIS FILE ADDS NO TEXT (docs/story-layer-spec.md, contract 1). Every
-   word is in the HTML; script toggles classes and attributes, sets flex
-   `order` so revealed sections read in the order chosen, draws the
-   trace's outline, and moves a camera.
+   word is in the HTML; script toggles classes, sets `order` so the
+   readback reads in the order lines were said, and moves a camera.
 
-   The CYOA, story on: Narration is in beats (.narration[data-beat]);
-   beat 0 plays on arrival, one line at a time (Continue, or space), as
-   the tour paces it. When a beat is told, the choices show: one per
-   Document section. A choice reveals its section in the trace, flies the
-   camera to that section's view, and tells the next beat.
-   Story off: the trace is the plain Document, every section, in order.
+   The CYOA, story on: Narration is in beats (.narration[data-beat]); beat 0
+   plays on arrival, one line at a time (Continue, or space). When a beat is
+   told the pills show, one per Document section. A choice flies the camera
+   to that section's view and tells the section as caption lines (one per
+   paragraph or list item), then the next beat. The template has no place
+   for long prose at the foot; its answers are caption lines too.
+   Story off: the readback surface, held open, holds the whole Document.
 
    URL switches: ?story=on|off  ?theme=dark|light (head script)
                  ?webgl=off     force the no-WebGL fallback (verification)
@@ -28,8 +30,7 @@ import { NoSheetError } from './errors.js';
 
 const STORY_KEY = 'esa-story';
 const SECTIONS = ['story', 'whatIDid', 'process', 'outcome', 'reflection'];
-const ORDER = { head: 0, firstBeat: 1, drawings: 800, controls: 900, crossings: 950, nav: 990, foot: 995 };
-const PHONE = '(max-width: 900px)';          /* the tour's break */
+const PHONE = '(max-width: 900px)';          /* the template's break */
 
 const root = document.documentElement;
 root.classList.add('env-live');
@@ -110,245 +111,181 @@ function initHamburger() {
 }
 
 /* ===================================================================
-   the trace's outline: the tour's breathing ribbon (line-system constants)
+   the caption (adventure/tour.template.html, "surface c")
    =================================================================== */
-const R = 300, OUTLINE_W = 21.6, DEPTH = 0.45, TAU = Math.PI * 2;
-const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
-const easeOut = (p) => 1 - Math.pow(1 - clamp01(p), 3);
-function breathAt(xu, yu, t) {
-  const field = 0.55 * Math.sin(xu * 0.0021 + t * 0.83) + 0.30 * Math.sin(yu * 0.0033 - t * 0.61 + 1.7) + 0.15 * Math.sin((xu - yu) * 0.0015 + t * 1.13 + 0.4);
-  return Math.max(0.35, 1 + DEPTH * (0.70 * field + 0.30 * Math.sin(t * TAU / 7.5)));
-}
-function ribbon(pts, reveal, base, wmul, strokeLen) {
-  const n = pts.length;
-  if (reveal <= 0.002 || n < 2) return null;
-  const taper = clamp01((reveal * strokeLen) / (base * 2.2));
-  const m = Math.max(2, Math.min(n, Math.round(1 + (n - 1) * reveal)));
-  const L = [], Rt = [];
-  let wS = 0, wE = 0;
-  for (let i = 0; i < m; i++) {
-    const p = pts[i], a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)];
-    const tx = b[0] - a[0], ty = b[1] - a[1], len = Math.hypot(tx, ty) || 1, nx = -ty / len, ny = tx / len;
-    const w = base * (wmul ? wmul(p[0], p[1]) : 1) / 2 * taper;
-    if (i === 0) wS = w;
-    if (i === m - 1) wE = w;
-    L.push(`${(p[0] + nx * w).toFixed(1)} ${(p[1] + ny * w).toFixed(1)}`);
-    Rt.push(`${(p[0] - nx * w).toFixed(1)} ${(p[1] - ny * w).toFixed(1)}`);
-  }
-  return { d: `M${L.join('L')}L${Rt.reverse().join('L')}Z`, caps: [[pts[0][0], pts[0][1], wS], [pts[m - 1][0], pts[m - 1][1], wE]] };
-}
-function createOutline(svg) {
-  const NS = 'http://www.w3.org/2000/svg';
-  const g = svg.querySelector('g') || svg.appendChild(document.createElementNS(NS, 'g'));
-  const body = g.appendChild(document.createElementNS(NS, 'path'));
-  body.setAttribute('fill', 'currentColor');
-  const caps = [0, 1].map(() => { const c = g.appendChild(document.createElementNS(NS, 'circle')); c.setAttribute('fill', 'currentColor'); c.setAttribute('r', '0'); return c; });
-  const o = { pts: null, len: 0, basePx: 2, Lpx: 80, start: null };
-  function layout() {
-    const box = svg.getBoundingClientRect();
-    if (!box.width || !box.height) return;
-    o.Lpx = measure('var(--L)') || 80;
-    o.basePx = Math.max(1.5, Math.min(4.5, OUTLINE_W * o.Lpx / R));
-    const inset = o.basePx / 2, w = box.width - 2 * inset, h = box.height - 2 * inset;
-    const r = Math.max(0, Math.min(parseFloat(getComputedStyle(svg.parentElement).borderTopLeftRadius) || 0, w / 2, h / 2) - inset);
-    svg.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`);
-    const pts = [], step = 6;
-    const seg = (x0, y0, x1, y1) => { const n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0) / step)); for (let i = 0; i < n; i++) pts.push([x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n]); };
-    const arc = (cx, cy, a0) => { const n = Math.max(2, Math.ceil(r * Math.PI / 2 / step)); for (let i = 0; i < n; i++) { const a = a0 + (Math.PI / 2) * i / n; pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); } };
-    const x = inset, y = inset;
-    seg(x + r, y, x + w - r, y); arc(x + w - r, y + r, -Math.PI / 2);
-    seg(x + w, y + r, x + w, y + h - r); arc(x + w - r, y + h - r, 0);
-    seg(x + w - r, y + h, x + r, y + h); arc(x + r, y + h - r, Math.PI / 2);
-    seg(x, y + h - r, x, y + r); arc(x + r, y + r, Math.PI);
-    pts.push(pts[0]);
-    o.pts = pts; o.len = 2 * (w + h);
-  }
-  function draw(t) {
-    if (!o.pts) return;
-    if (o.start === null) o.start = t;
-    const p = reduceMotion ? 1 : easeOut((t - o.start) / 1.6);
-    const scale = R / o.Lpx;
-    const r = ribbon(o.pts, p, o.basePx, reduceMotion ? null : (x, y) => breathAt(x * scale, y * scale, t), o.len);
-    if (!r) { body.setAttribute('d', ''); return; }
-    body.setAttribute('d', r.d);
-    caps.forEach((c, k) => { c.setAttribute('cx', r.caps[k][0].toFixed(1)); c.setAttribute('cy', r.caps[k][1].toFixed(1)); c.setAttribute('r', r.caps[k][2].toFixed(2)); });
-  }
-  new ResizeObserver(layout).observe(svg);
-  layout();
-  let last = 0;
-  (function tick() {
-    const t = performance.now() / 1000;
-    if (!document.hidden && t - last > 1 / 45) { draw(t); last = t; }
-    if (!reduceMotion) requestAnimationFrame(tick);
-    else setTimeout(() => draw(performance.now() / 1000), 60);
-  }());
-}
+const FOCUS_FLOOR = 0.07;                /* the template's readback floor */
+const MARK_KEY = 'esa-mark-taught';      /* shared with the tour: the lesson is taught once */
 
-/* ===================================================================
-   the trace: the CYOA with the story on, the plain Document with it off
-   =================================================================== */
-function createTrace({ onChoose, onLook }) {
+function createCaption({ onChoose, onLook }) {
   const trace = must('.trace');
   const scroller = must('.trace-scroll', trace);
-  const handle = trace.querySelector('.handle');
-  const lift = trace.querySelector('.lift');
+  const page = must('.page', scroller);
   const storyTab = document.querySelector('.story-tab');
+  const storyLink = document.querySelector('.story-link');
   const cont = trace.querySelector('.continue');
   const mode = root.getAttribute('data-arrival') === 'crossed' ? 'with' : 'meet';
 
-  const head = must(':scope > .env-head', scroller);
-  head.style.order = ORDER.head;
-  const traceHead = scroller.querySelector(':scope > .trace-head');
-  if (traceHead) traceHead.style.order = -1;
-  const beats = [...scroller.querySelectorAll(':scope > .narration[data-beat]')]
+  const head = page.querySelector(':scope > .env-head');
+  if (head) head.style.order = -20;
+  const placeMark = page.querySelector(':scope > .place-mark');
+  if (placeMark) placeMark.style.order = -10;
+  const beats = [...page.querySelectorAll(':scope > .narration[data-beat]')]
     .map((el) => ({ el, n: Number(el.dataset.beat) }))
-    .sort((a, b) => a.n - b.n);
-  for (const b of beats) {
-    if (!Number.isInteger(b.n) || b.n < 0) throw new Error(`env: bad data-beat "${b.el.dataset.beat}"`);
-    b.lines = [...b.el.querySelectorAll(`.line[data-mode="${mode}"]`)];
-    b.el.classList.toggle('is-empty', b.lines.length === 0);
+    .sort((x, y) => x.n - y.n);
+  for (const bt of beats) {
+    if (!Number.isInteger(bt.n) || bt.n < 0) throw new Error(`env: bad data-beat "${bt.el.dataset.beat}"`);
+    bt.lines = [...bt.el.querySelectorAll(`.line[data-mode="${mode}"]`)];
   }
   const sections = new Map();
-  for (const el of scroller.querySelectorAll(':scope > .env-section[data-section]')) {
-    if (!SECTIONS.includes(el.dataset.section)) throw new Error(`env: unknown section "${el.dataset.section}"`);
-    sections.set(el.dataset.section, el);
+  for (const el of page.querySelectorAll(':scope > .env-section[data-section]')) {
+    const id = el.dataset.section;
+    if (!SECTIONS.includes(id)) throw new Error(`env: unknown section "${id}"`);
+    const lines = [...el.querySelectorAll('.line')];
+    if (!lines.length) throw new Error(`env: section "${id}" has no lines`);
+    sections.set(id, { el, lines, title: el.querySelector('.eyebrow') });
   }
-  const choices = [...scroller.querySelectorAll('.env-choice[data-choose]')];
+  const choices = [...trace.querySelectorAll('.env-choice[data-choose]')];
   for (const c of choices) if (!sections.has(c.dataset.choose)) throw new Error(`env: choice "${c.dataset.choose}" has no section`);
-  for (const [sel, o] of [['.env-drawings', ORDER.drawings], ['.controls', ORDER.controls], ['.crossings', ORDER.crossings],
-    ['.project-navigation', ORDER.nav], ['.env-foot', ORDER.foot]]) {
-    const el = scroller.querySelector(`:scope > ${sel}`);
-    if (el) el.style.order = o;
-  }
 
   const revealed = [];
-  const queue = [];            /* lines of reached beats not yet said */
+  const queue = [];
   let current = null;
-
-  /* the tour's scroll rule: keep the current line near 45% of the trace */
-  function bringIntoView(el) {
-    requestAnimationFrame(() => {
-      const box = scroller.getBoundingClientRect(), r = el.getBoundingClientRect();
-      if (r.bottom > box.top + box.height * 0.8 || r.top < box.top + box.height * 0.3) {
-        scroller.scrollTo({ top: scroller.scrollTop + r.top - box.top - box.height * 0.45, behavior: reduceMotion ? 'auto' : 'smooth' });
-      }
-    });
-  }
+  let said = 0;                       /* the readback reads in the order lines were said */
 
   function say() {
     const line = queue.shift();
     if (!line) return false;
-    if (current) current.classList.remove('current');
+    if (current) current.classList.remove('current', 'enter');
     current = line;
+    said += 2;
+    line.style.order = said;
     line.classList.add('is-said', 'current', 'enter');
+    const lesson = line.querySelector('.mark-lesson');
+    if (lesson) {
+      let taught = false;
+      try { taught = localStorage.getItem(MARK_KEY) === '1'; } catch { /* private window: teach it */ }
+      if (!taught) {
+        lesson.classList.add('is-teaching');
+        try { localStorage.setItem(MARK_KEY, '1'); } catch { /* as above */ }
+      }
+    }
     trace.classList.toggle('is-telling', queue.length > 0);
-    bringIntoView(line);
     return true;
   }
   function advance() { if (queue.length) say(); }
-
   function reach(n) {
-    for (const b of beats) {
-      if (b.n !== n) continue;
-      b.el.classList.add('is-reached');
-      b.el.style.order = n === 0 ? ORDER.firstBeat : 1 + 2 * n;
-      queue.push(...b.lines);
-    }
-    trace.classList.toggle('is-telling', queue.length > 0);
+    for (const bt of beats) if (bt.n === n) queue.push(...bt.lines);
     if (!say()) trace.classList.remove('is-telling');
   }
 
   function choose(id) {
-    const el = sections.get(id);
-    if (!el) throw new Error(`env: no section "${id}"`);
-    /* a choice made mid-beat finishes the beat first, silently: nothing said is skipped */
-    while (queue.length) say();
+    const sec = sections.get(id);
+    if (!sec) throw new Error(`env: no section "${id}"`);
+    setUnfurl(false);
+    setLook(false);
     if (!revealed.includes(id)) {
+      queue.length = 0;               /* a choice is only offered once the beat is told */
       revealed.push(id);
-      el.style.order = 2 * revealed.length;
-      el.classList.add('is-revealed', 'enter');
-      reach(revealed.length);
+      sec.el.classList.add('is-revealed');
+      if (sec.title) sec.title.style.order = said + 1;
+      queue.push(...sec.lines);
+      for (const bt of beats) if (bt.n === revealed.length) queue.push(...bt.lines);
+      say();
     }
     for (const c of choices) {
-      const on = c.dataset.choose === id;
-      if (on) c.classList.add('is-taken');
-      c.setAttribute('aria-current', on ? 'true' : 'false');
+      if (c.dataset.choose === id) c.classList.add('is-taken');
+      c.setAttribute('aria-current', c.dataset.choose === id ? 'true' : 'false');
     }
-    if (!queue.length) bringIntoView(el);
-    setLook(false);
     onChoose(id);
   }
 
-  scroller.addEventListener('click', (e) => {
+  trace.addEventListener('click', (e) => {
     const c = e.target.closest('.env-choice[data-choose]');
-    if (c) choose(c.dataset.choose);
+    if (c) { choose(c.dataset.choose); return; }
+    if (e.target.closest('[data-close]')) { e.stopPropagation(); setUnfurl(false); }
   });
   if (cont) cont.addEventListener('click', (e) => { e.stopPropagation(); advance(); });
   document.addEventListener('keydown', (e) => {
     if (root.getAttribute('data-story') !== 'on' || !root.classList.contains('env-js')) return;
+    if (document.body.classList.contains('unfurl')) return;
     if (e.target.closest && e.target.closest('input, textarea, select, button, a, .env-stage')) return;
-    if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'Enter') { if (queue.length) { e.preventDefault(); advance(); } }
+    if ((e.key === ' ' || e.key === 'ArrowRight' || e.key === 'Enter') && queue.length) { e.preventDefault(); advance(); }
   });
 
-  /* ---------- looking: lift the trace off the drawing (the tour's setLook) ---------- */
+  /* ---------- looking: the caption drops away and the drawing has the screen ----------
+     Entered by taking hold of the drawing (drag, zoom, click), as on the tour; the view is
+     not re-fitted on the way in or out, since the drawing is under the reader's hand. */
   function setLook(on) {
     if (document.body.classList.contains('look') === on) return;
+    if (on) setUnfurl(false);
     document.body.classList.toggle('look', on);
-    if (handle) handle.setAttribute('aria-expanded', String(!on));
-    /* on a phone only the top of the sheet shows while looking: bring the current line up to meet it */
-    if (current && phone.matches) {
-      scroller.scrollTo({ top: on ? current.offsetTop - 30 : Math.max(0, current.offsetTop - scroller.clientHeight * 0.45), behavior: reduceMotion ? 'auto' : 'smooth' });
-    }
     onLook(on);
   }
-  if (lift) lift.addEventListener('click', () => setLook(true));
   if (storyTab) storyTab.addEventListener('click', () => setLook(false));
-  if (handle) {
-    let startY = null, moved = false;
-    handle.addEventListener('pointerdown', (e) => { startY = e.clientY; moved = false; try { handle.setPointerCapture(e.pointerId); } catch { /* fine without */ } });
-    handle.addEventListener('pointermove', (e) => {
-      if (startY !== null && Math.abs(e.clientY - startY) > 24) { moved = true; setLook(e.clientY > startY); startY = e.clientY; }
-    });
-    handle.addEventListener('pointerup', () => { if (startY !== null && !moved) setLook(!document.body.classList.contains('look')); startY = null; });
-    handle.addEventListener('pointercancel', () => { startY = null; });
-    handle.addEventListener('click', (e) => { if (e.detail === 0) setLook(!document.body.classList.contains('look')); });
-  }
 
-  createOutline(must('svg.outline', trace));
+  /* ---------- the readback: what has been said, returned only when asked for ---------- */
+  let focusPending = false;
+  function visibleLines() { return [...page.querySelectorAll('.line, .eyebrow')].filter((el) => el.offsetParent !== null); }
+  function padForFocus() {
+    const lines = visibleLines().filter((el) => el.classList.contains('line'));
+    if (!lines.length) return;
+    lines.sort((x, y) => x.getBoundingClientRect().top - y.getBoundingClientRect().top);
+    page.style.paddingTop = page.style.paddingBottom = '0px';
+    const box = scroller.getBoundingClientRect(), half = box.height / 2;
+    scroller.scrollTop = 0;
+    const f = lines[0].getBoundingClientRect();
+    page.style.paddingTop = Math.max(0, half - (f.top + f.height / 2 - box.top)) + 'px';
+    scroller.scrollTop = scroller.scrollHeight;
+    const l = lines[lines.length - 1].getBoundingClientRect();
+    page.style.paddingBottom = Math.max(0, half - (box.bottom - (l.top + l.height / 2))) + 'px';
+  }
+  function focusLines() {
+    focusPending = false;
+    if (!document.body.classList.contains('unfurl')) return;
+    const box = scroller.getBoundingClientRect();
+    const eye = box.top + box.height / 2, reach = box.height / 2;
+    for (const el of visibleLines()) {
+      const r = el.getBoundingClientRect();
+      const t = Math.min(1, Math.abs(r.top + r.height / 2 - eye) / reach);
+      el.style.opacity = (FOCUS_FLOOR + (1 - FOCUS_FLOOR) * (0.5 + 0.5 * Math.cos(Math.PI * t))).toFixed(3);
+    }
+  }
+  function queueFocus() { if (!focusPending) { focusPending = true; requestAnimationFrame(focusLines); } }
+  function clearFocus() {
+    for (const el of page.querySelectorAll('.line, .eyebrow')) el.style.opacity = '';
+    page.style.paddingTop = page.style.paddingBottom = '';
+  }
+  function setUnfurl(on) {
+    if (document.body.classList.contains('unfurl') === on) return;
+    document.body.classList.toggle('unfurl', on);
+    if (on) requestAnimationFrame(() => { padForFocus(); scroller.scrollTop = scroller.scrollHeight; focusLines(); });
+    else { clearFocus(); scroller.scrollTop = 0; }
+  }
+  scroller.addEventListener('scroll', queueFocus, { passive: true });
+  if (storyLink) storyLink.addEventListener('click', (e) => { e.stopPropagation(); setLook(false); setUnfurl(!document.body.classList.contains('unfurl')); });
+  window.addEventListener('resize', () => { if (document.body.classList.contains('unfurl')) { padForFocus(); queueFocus(); } });
+
   reach(0);
 
   return {
-    choose,
-    advance,
-    setLook,
+    choose, advance, setLook, setUnfurl,
     revealed: () => revealed.slice(),
     pending: () => queue.length,
     trace,
   };
 }
 
-/* ---------- the plate: the caption for the drawing in view ---------- */
-function createPlate(getSheet) {
-  const plate = document.querySelector('.plate');
-  if (!plate) return { show() {} };
-  const caps = [...plate.querySelectorAll('.plate-cap[data-drawing]')];
-  const alts = [...plate.querySelectorAll('.alt[data-drawing]')];
-  plate.addEventListener('click', (e) => {
-    const b = e.target.closest('button');
-    const sheet = getSheet();
-    if (!b || !sheet) return;
-    if (b.dataset.zoom) sheet.zoomBy(b.dataset.zoom === 'in' ? 1.5 : 1 / 1.5);
-    else if (b.hasAttribute('data-fit')) sheet.refit({ force: true });
-    else if (b.hasAttribute('data-describe')) { plate.classList.toggle('describing'); sheet.refit(); }
-  });
+/* ---------- looking: the name and description of the drawing in view ---------- */
+function createLooking() {
+  const el = document.querySelector('.looking');
+  if (!el) return { show() {} };
+  const items = [...el.querySelectorAll('.looking-item[data-drawing]')];
   return {
     show(id) {
       let any = false;
-      for (const c of caps) { const on = c.dataset.drawing === id; c.classList.toggle('is-on', on); any = any || on; }
-      for (const a of alts) a.classList.toggle('is-on', a.dataset.drawing === id);
-      plate.hidden = !any;
+      for (const it of items) { const on = it.dataset.drawing === id; it.classList.toggle('is-on', on); any = any || on; }
+      el.classList.toggle('has-item', any);
     },
-    height() { return plate.hidden ? 0 : plate.getBoundingClientRect().height; },
   };
 }
 
@@ -360,7 +297,7 @@ let pendingSection = null;
 const views = readViews();
 const sheetData = readJSON('env-sheet');
 if (sheetData.kind !== '2d' && sheetData.kind !== '3d') throw new Error(`env: unknown sheet kind "${sheetData.kind}"`);
-const plate = createPlate(() => sheet);
+const looking = createLooking();
 
 /* the drawing a view is about, for the plate */
 function focusOf(target) {
@@ -370,39 +307,41 @@ function focusOf(target) {
   return null;
 }
 function showView(target) {
-  plate.show(focusOf(target));
+  looking.show(focusOf(target));
   if (sheet) sheet.show(target);
 }
 
-const trace = createTrace({
+const caption = createCaption({
   onChoose(id) {
     const v = views.get(id);
     if (!v) { console.warn(`[env] no view for section "${id}"; the camera stays`); return; }
     if (sheet) showView(v.target);
     else pendingSection = id;
   },
-  onLook() { if (sheet) sheet.refit(); },
+  onLook() { /* the template does not re-fit: the drawing is under the reader's hand */ },
 });
 initStoryToggle(() => {});
 initHamburger();
 
-/* where the sheet may frame: clear of the nav, the trace and the plate (the tour's clearArea) */
+/* Where the sheet may frame: the template's clearArea. The screen, less the nav and less
+   the caption at the foot, measured only at rest (one line and one row of pills), so
+   opening the readback or looking never rescales the drawing under the reader. */
+let captionReserve = 0;
+function noteCaptionHeight() {
+  const b = document.body.classList;
+  if (b.contains('unfurl') || b.contains('look') || root.getAttribute('data-story') !== 'on') return;
+  captionReserve = caption.trace.offsetHeight;
+}
 function freeRegion() {
   const vw = window.innerWidth, vh = window.innerHeight;
-  const look = document.body.classList.contains('look');
   const nav = document.querySelector('.navbar');
   const navH = nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 0;
-  const plateH = plate.height() ? plate.height() + 16 : 0;
-  const t = trace.trace;
   if (root.classList.contains('env-nosheet')) return { left: 0, top: navH, right: vw, bottom: vh };
-  if (phone.matches) {
-    const peek = parseFloat(getComputedStyle(root).getPropertyValue('--peek')) || 118;
-    const sheetH = look ? peek : t.offsetHeight;
-    return { left: 12, top: navH + 4, right: vw - 12, bottom: Math.max(navH + 60, vh - sheetH - plateH - 4) };
-  }
-  const L = measure('var(--L)') || 80;
-  const right = look ? vw - L : t.offsetLeft - L / 2;
-  return { left: L, top: navH + L / 4, right: Math.max(L + 80, right), bottom: Math.max(navH + 80, vh - plateH - L / 4) };
+  noteCaptionHeight();
+  const L = phone.matches ? 16 : (measure('var(--L)') || 80);
+  const look = document.body.classList.contains('look');
+  const foot = look ? 0 : (captionReserve || Math.min(caption.trace.offsetHeight, vh * 0.3));
+  return { left: L, top: navH + L / 4, right: vw - L, bottom: Math.max(navH + 80, vh - foot - L / 4) };
 }
 
 function fallback(err) {
@@ -424,11 +363,12 @@ async function boot() {
   try {
     if (sheetData.kind === '3d' && params.get('webgl') === 'off') throw new NoSheetError('WebGL turned off by ?webgl=off');
     const mod = sheetData.kind === '3d' ? await import('./sheet3d.js') : await import('./sheet2d.js');
-    root.classList.add('env-sheet-on');                 /* the plate shows: framing must see its height */
-    plate.show(focusOf(views.get('arrival').target));
+    root.classList.add('env-sheet-on');
+    looking.show(focusOf(views.get('arrival').target));
     sheet = await mod.createSheet({
       stage, data: sheetData, views, reduceMotion, freeRegion,
-      onFocus: (id) => plate.show(id),
+      onFocus: (id) => looking.show(id),
+      onHold: () => caption.setLook(true),          /* taking hold of the drawing is looking */
     });
     if (pendingSection) showView(views.get(pendingSection).target);
   } catch (err) {
@@ -443,7 +383,8 @@ phone.addEventListener('change', () => { if (sheet) sheet.refit({ animate: false
 
 /* for the verifier: the same actions a reader has, and read-only state */
 window.__env = {
-  trace,
+  caption,
+  trace: caption,
   views,
   freeRegion,
   get sheet() { return sheet; },

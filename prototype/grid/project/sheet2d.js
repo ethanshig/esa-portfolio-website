@@ -43,7 +43,7 @@ function validate(data) {
   if (data.hero && !ids.has(data.hero)) throw new Error(`sheet2d: hero "${data.hero}" is not a drawing`);
 }
 
-export async function createSheet({ stage, data, views, reduceMotion, freeRegion, onFocus = () => {} }) {
+export async function createSheet({ stage, data, views, reduceMotion, freeRegion, onFocus = () => {}, onHold = () => {} }) {
   validate(data);
   const dotsCanvas = stage.querySelector('canvas.env-dots');
   const planeEl = stage.querySelector('.env-plane');
@@ -209,19 +209,19 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   function panBy(dx, dy) { cam.T[0] -= dx / cam.s; cam.T[1] -= dy / cam.s; dirty = true; kick(); }
 
   attachGestures(stage, {
-    begin() { fly = null; moved = true; },
+    begin() { fly = null; moved = true; onHold(); },
     orbit: panBy,                     /* a flat sheet: right-drag pans */
     pan: panBy,
     zoom: zoomAt,
     roll() { /* no rotation on a flat sheet */ },
-    pick(x, y) { const id = drawingAt(x, y); if (id) { onFocus(id); show(id); } },
+    pick(x, y) { const id = drawingAt(x, y); if (id) { onHold(); onFocus(id); show(id); } },
     hover(x, y) { setHot(drawingAt(x, y)); },
     leave() { setHot(null); },
   });
 
   overlay.addEventListener('click', (e) => {
     const t = e.target.closest('.env-title[data-drawing]');
-    if (t && byId.has(t.dataset.drawing)) { onFocus(t.dataset.drawing); show(t.dataset.drawing); }
+    if (t && byId.has(t.dataset.drawing)) { onHold(); onFocus(t.dataset.drawing); show(t.dataset.drawing); }
   });
   overlay.addEventListener('pointerover', (e) => {
     const t = e.target.closest('.env-title[data-drawing]');

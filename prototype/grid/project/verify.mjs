@@ -58,7 +58,7 @@ async function checkStatic(key) {
   const T = await textsBySelector(proto, sels);
   const flatProto = norm(proto.replace(/<[^>]+>/g, ' '));
   for (const sel of sels) {
-    const missing = G[sel].filter((t) => t && !T[sel].includes(t));
+    const missing = G[sel].filter((t) => t && !T[sel].some((x) => x === t || x.startsWith(`From Ethan’s records: ${t}`)));
     check(`${key} no-JS: every ${sel} of the generated page is in the HTML`, missing.length === 0,
       missing.length ? `missing: ${missing.map((m) => JSON.stringify(m.slice(0, 50))).join(', ')}` : `${G[sel].length} strings`);
   }
@@ -127,6 +127,10 @@ async function scrollerInfo(page) {
 }
 /* the tour's pacing: Continue until the beat is told, then the choice */
 async function chooseSection(page, id, tap = false) {
+  if (await page.evaluate(() => document.body.classList.contains('look'))) {   /* the reader comes back to the story first */
+    if (tap) await page.tap('.story-tab'); else await page.click('.story-tab');
+    await page.waitForTimeout(650);
+  }
   for (let i = 0; i < 12 && await page.evaluate(() => window.__env.trace.pending() > 0); i++) {
     if (tap) await page.tap('.continue'); else await page.click('.continue');
   }
@@ -172,39 +176,63 @@ const browser = await chromium.launch({
   const pairs = mA.corners.map((c) => Math.min(...mA.endFace.map((e) => dist(c, e))));
   check('tlp: Section A mark lies on the model end face (home view)', Math.max(...pairs) <= mA.marginPx * Math.SQRT2 + 1.5,
     `corner offsets ${pairs.map((p) => p.toFixed(1)).join(', ')} px; margin ${mA.marginPx.toFixed(1)} px`);
-  const traceLeft = await page.$eval('.trace', (t) => t.getBoundingClientRect().left);
-  check('tlp: arrival frames hero and model clear of the trace', Math.max(...modelXs) < traceLeft && hero.screen[0][0] > 0,
-    `model right ${Math.max(...modelXs).toFixed(0)} < trace left ${traceLeft.toFixed(0)}`);
+  const free = await page.evaluate(() => window.__env.freeRegion());
+  const lineTop = await page.$eval('.line.current', (l) => l.getBoundingClientRect().top);
+  const modelYs = d.model.screen.map((p) => p[1]);
+  check('tlp: arrival frames hero and model above the caption band', Math.max(...modelYs) <= free.bottom + 1 && hero.screen[1][1] <= free.bottom + 1 && free.bottom < lineTop,
+    `model bottom ${Math.max(...modelYs).toFixed(0)}, hero bottom ${hero.screen[1][1].toFixed(0)} <= free bottom ${free.bottom.toFixed(0)} < caption line ${lineTop.toFixed(0)}`);
+  const capW = await page.$eval('.trace', (t) => [t.getBoundingClientRect().width, getComputedStyle(t).backgroundImage.startsWith('linear-gradient'), getComputedStyle(t).borderTopWidth]);
+  check('tlp: the caption is a full-width veil with no edge', capW[0] === 1440 && capW[1] && capW[2] === '0px', JSON.stringify(capW));
   const said = await page.$$eval('.line.is-said', (els) => els.map((e) => e.offsetHeight > 0));
   const choicesShown = await visible(page, '.env-choices');
   check('tlp: arrival tells one line, Continue showing, choices held', said.length === 1 && said[0] && choicesShown.every((v) => !v) &&
     (await visible(page, '.continue')).every(Boolean), `${said.length} line(s) said`);
   await page.keyboard.press('Space');
-  check('tlp: space says the next line', (await page.$$eval('.line.is-said', (e) => e.length)) === 2 &&
-    (await page.$$eval('.line.current', (e) => e.length)) === 1);
+  const shown = await page.$$eval('.trace .line', (els) => els.filter((e) => e.offsetHeight > 0).length);
+  check('tlp: space says the next line; only the current line is on screen', (await page.$$eval('.line.is-said', (e) => e.length)) === 2 &&
+    (await page.$$eval('.line.current', (e) => e.length)) === 1 && shown === 1, `${shown} line(s) on screen`);
+  const rec = await page.$eval('.line.current', (l) => [l.classList.contains('record'), getComputedStyle(l).color, getComputedStyle(l, '::before').width]);
+  check('tlp: a record line wears the accent with its dot', rec[0] && rec[1] === 'rgb(196, 122, 92)' && rec[2] === '8px', JSON.stringify(rec));
+  await page.waitForTimeout(700);
+  const pills = await page.$$eval('.trace .choice', (els) => els.filter((e) => e.offsetHeight > 0).map((e) => e.getBoundingClientRect().top));
+  check('tlp: a told beat shows one row of pills (sections + crossing)', pills.length === 6 && Math.max(...pills) - Math.min(...pills) < 2, `${pills.length} pills, rows spread ${(Math.max(...pills) - Math.min(...pills)).toFixed(0)} px`);
   const nav = await page.$eval('.navbar', (n) => { const cs = getComputedStyle(n); return [cs.backgroundColor, cs.mixBlendMode]; });
   check('tlp: the nav is transparent and inverts what is under it', nav[0] === 'rgba(0, 0, 0, 0)' && nav[1] === 'difference', JSON.stringify(nav));
   await page.waitForTimeout(800);                      /* the tour's rise animations */
-  await page.screenshot({ path: `${SHOTS}/env3-tlp-arrival.png` });
+  await page.screenshot({ path: `${SHOTS}/env4-tlp-arrival.png` });
 
   /* look mode: the trace lifts away, the framing widens into its room */
   const sBefore = (await dbg(page)).camera.s;
-  await page.click('.lift');
+  await page.mouse.move(500, 300);
+  await page.mouse.wheel(0, -120);                      /* taking hold of the drawing is looking */
   await page.waitForTimeout(800);
-  await settle(page);
   const look = await page.evaluate(() => ({
     look: document.body.classList.contains('look'),
-    traceLeft: document.querySelector('.trace').getBoundingClientRect().left,
+    traceTop: document.querySelector('.trace').getBoundingClientRect().top,
     tab: getComputedStyle(document.querySelector('.story-tab')).opacity,
+    name: [...document.querySelectorAll('.looking-item')].filter((e) => e.offsetHeight > 0).map((e) => e.dataset.drawing),
+    looking: getComputedStyle(document.querySelector('.looking')).opacity,
   }));
   const sLook = (await dbg(page)).camera.s;
-  check('tlp: "Just the drawing" lifts the trace off and refits wider', look.look && look.traceLeft >= 1440 && +look.tab > 0.9 && sLook > sBefore,
-    `trace left ${look.traceLeft.toFixed(0)}, s ${sBefore.toFixed(2)} -> ${sLook.toFixed(2)}`);
-  await page.screenshot({ path: `${SHOTS}/env3-tlp-look.png` });
+  check('tlp: taking hold (wheel) is look mode: caption away, the drawing named, "Back to the story"',
+    look.look && look.traceTop >= 899 && +look.tab > 0.9 && +look.looking > 0.9 && look.name.join() === 'hero' && sLook > sBefore,
+    JSON.stringify(look));
+  await page.screenshot({ path: `${SHOTS}/env4-tlp-look.png` });
   await page.click('.story-tab');
   await page.waitForTimeout(800);
   await settle(page);
-  check('tlp: "Back to the story" brings the trace back', !(await page.evaluate(() => document.body.classList.contains('look'))));
+  check('tlp: "Back to the story" brings the caption back', !(await page.evaluate(() => document.body.classList.contains('look'))));
+  await page.click('.story-link');
+  await page.waitForTimeout(300);
+  const rb = await page.evaluate(() => ({
+    unfurl: document.body.classList.contains('unfurl'),
+    lines: [...document.querySelectorAll('.trace .line')].filter((e) => e.offsetHeight > 0).length,
+    said: document.querySelectorAll('.line.is-said').length,
+    close: !!document.querySelector('[data-close]').offsetHeight,
+  }));
+  check('tlp: "Your story" unfurls every line said, with Close', rb.unfurl && rb.lines === rb.said && rb.close, JSON.stringify(rb));
+  await page.click('[data-close]');
+  check('tlp: Close puts the readback away', !(await page.evaluate(() => document.body.classList.contains('unfurl'))));
 
   /* nav over the hero: slide the sheet up under the bar, then crop */
   await page.mouse.move(400, 300); await page.mouse.down();
@@ -212,7 +240,7 @@ const browser = await chromium.launch({
   await page.mouse.move(400, -120);
   await page.mouse.up();
   await page.waitForTimeout(150);
-  await page.screenshot({ path: `${SHOTS}/env3-nav-over-hero.png`, clip: { x: 0, y: 0, width: 1440, height: 170 } });
+  await page.screenshot({ path: `${SHOTS}/env4-nav-over-hero.png`, clip: { x: 0, y: 0, width: 1440, height: 170 } });
   await page.click('.env-home');
   await settle(page);
 
@@ -272,7 +300,7 @@ const browser = await chromium.launch({
     return !document.querySelector('.env-stage').dispatchEvent(e);
   });
   check('tlp: context menu suppressed over the canvas', menu);
-  await page.screenshot({ path: `${SHOTS}/env3-tlp-orbited.png` });
+  await page.screenshot({ path: `${SHOTS}/env4-tlp-orbited.png` });
 
   /* shift+right-drag pans (orientation kept); ctrl+right-drag zooms */
   const q1 = d.camera.q, s1 = d.camera.s;
@@ -323,7 +351,7 @@ const browser = await chromium.launch({
   check('tlp: in the section view the mark frames the end face', Math.abs(mb[0] - (eb[0] - mS.marginPx)) < m && Math.abs(mb[2] - (eb[2] + mS.marginPx)) < m &&
     Math.abs(mb[1] - (eb[1] - mS.marginPx)) < m && Math.abs(mb[3] - (eb[3] + mS.marginPx)) < m,
     `mark ${mb.map((v) => v.toFixed(0))} vs face ${eb.map((v) => v.toFixed(0))} (margin ${mS.marginPx.toFixed(1)} px)`);
-  await page.screenshot({ path: `${SHOTS}/env3-tlp-section-a.png` });
+  await page.screenshot({ path: `${SHOTS}/env4-tlp-section-a.png` });
 
   /* the A bubble snaps too; axon-1's bubble to axon-1's view */
   await page.click('.env-home'); await settle(page);
@@ -332,27 +360,30 @@ const browser = await chromium.launch({
   const v1 = [0.89331, 0.26221, 0.36504];                /* rhino (x, y, z) -> glb (x, z, -y), toward the viewer */
   const dot1 = d.camera.back[0] * v1[0] + d.camera.back[1] * v1[1] + d.camera.back[2] * v1[2];
   check('tlp: mark 1 snaps to Axon 1\'s fitted view', dot1 > 0.999, `back . viewDir = ${dot1.toFixed(5)}`);
-  await page.screenshot({ path: `${SHOTS}/env3-tlp-axon-1.png` });
+  await page.screenshot({ path: `${SHOTS}/env4-tlp-axon-1.png` });
   await page.click('.env-home'); await settle(page);
 
   /* CYOA: a choice reveals its section and moves the camera */
-  const hiddenBefore = await page.$eval('.env-section[data-section="process"]', (e) => getComputedStyle(e).display === 'none');
+  const hiddenBefore = (await page.$$eval('.env-section[data-section="process"] .line.is-said', (e) => e.length)) === 0;
   const camBefore = camKey((await dbg(page)).camera);
   await chooseSection(page, 'process');
   await settle(page);
   d = await dbg(page);
-  const shownAfter = await page.$eval('.env-section[data-section="process"]', (e) => getComputedStyle(e).display !== 'none');
-  check('tlp: choosing Process reveals its section', hiddenBefore && shownAfter);
+  const firstLine = await page.$eval('.line.current', (l) => [!!l.closest('.env-section[data-section="process"]'), l.offsetHeight > 0]);
+  check('tlp: choosing Process tells its section at the foot, a line at a time', hiddenBefore && firstLine[0] && firstLine[1]);
+  await page.waitForTimeout(700);
+  await page.screenshot({ path: `${SHOTS}/env4-tlp-after-choice.png` });
   check('tlp: choosing Process moves the camera', camKey(d.camera) !== camBefore, `${camBefore} -> ${camKey(d.camera)}`);
-  const beat1 = await page.$eval('.narration[data-beat="1"]', (e) => getComputedStyle(e).display !== 'none');
-  const beat2 = await page.$eval('.narration[data-beat="2"]', (e) => getComputedStyle(e).display !== 'none');
-  check('tlp: the choice reaches the next Narration beat only', beat1 && !beat2);
+  while (await page.evaluate(() => window.__env.trace.pending() > 0)) await page.click('.continue');
+  const beats = await page.evaluate(() => [1, 2].map((n) => document.querySelectorAll(`.narration[data-beat="${n}"] .line[data-mode="meet"].is-said`).length));
+  const procSaid = await page.$$eval('.env-section[data-section="process"] .line.is-said', (e) => e.length);
+  check('tlp: the section is told in full, then the next Narration beat only', procSaid === 4 && beats[0] > 0 && beats[1] === 0, JSON.stringify({ procSaid, beats }));
   await chooseSection(page, 'outcome');
   await settle(page);
   d = await dbg(page);
   const dotO = d.camera.back[0] * v1[0] + d.camera.back[1] * v1[1] + d.camera.back[2] * v1[2];
   check('tlp: Outcome flies to Axon 1\'s view (proposed)', dotO > 0.999 && d.ghost > 0.99, `back . viewDir = ${dotO.toFixed(5)}`);
-  const order = await page.$$eval('.trace-scroll > .env-section.is-revealed', (els) => els.map((e) => [e.dataset.section, +e.style.order]));
+  const order = await page.$$eval('.env-section.is-revealed', (els) => els.map((e) => [e.dataset.section, +e.querySelector('.line').style.order]));
   check('tlp: revealed sections read in the order chosen', order.find((o) => o[0] === 'process')[1] < order.find((o) => o[0] === 'outcome')[1], JSON.stringify(order));
   while (await page.evaluate(() => window.__env.trace.pending() > 0)) await page.click('.continue');
   const cross = await visible(page, '.crossing-narrative');
@@ -384,19 +415,19 @@ const browser = await chromium.launch({
 {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await open(ctx, `${PAGES.tlp.url}?story=off`, 'tlp-off', sink);
-  const secs = await visible(page, '.env-section');
+  const secs = await visible(page, '.env-section .line');
   const narr = await visible(page, '.narration-line');
-  const choices = await visible(page, '.env-choices');
-  check('tlp story off: every section visible, no gating', secs.length === 5 && secs.every(Boolean));
+  const choices = await visible(page, '.env-choice');
+  check('tlp story off: every line of every section visible, no gating', secs.length === 12 && secs.every(Boolean), `${secs.filter(Boolean).length}/${secs.length}`);
   check('tlp story off: Narration and choices hidden', narr.every((v) => !v) && choices.every((v) => !v));
-  check('tlp story off: plain crossing labels', (await visible(page, '.crossing-plain')).every(Boolean) && (await visible(page, '.crossing-narrative')).every((v) => !v));
+  check('tlp story off: plain crossing labels', (await visible(page, '.crossing .crossing-plain')).every(Boolean) && (await visible(page, '.crossing-narrative')).every((v) => !v));
   const sc = await scrollerInfo(page);
   check('tlp story off: the panel scrolls', sc.sh > sc.ch && sc.moved > 0, JSON.stringify(sc));
   const ps = await noPageScroll(page);
   check('tlp story off: the page still never scrolls', ps.sh === ps.ih && ps.y === 0, JSON.stringify(ps));
   await page.evaluate(() => { document.querySelector('.trace-scroll').scrollTop = 160; });
   await page.waitForTimeout(150);
-  await page.screenshot({ path: `${SHOTS}/env3-tlp-story-off.png` });
+  await page.screenshot({ path: `${SHOTS}/env4-tlp-story-off.png` });
   /* the toggle remembers */
   await page.goto(PAGES.tlp.url);
   await page.waitForFunction(() => window.__env && window.__env.sheet);
@@ -427,10 +458,10 @@ const browser = await chromium.launch({
     panelTop: document.querySelector('.trace').getBoundingClientRect().top,
     sheet: !!window.__env.sheet,
   }));
-  const secs = await visible(page, '.env-section');
+  const secs = await visible(page, '.env-section .line');
   check('tlp no WebGL: the trace is the whole Document', st.nosheet && !st.sheet && st.panelTop < 120 && secs.every(Boolean), JSON.stringify(st));
   check('tlp no WebGL: links to the generated page', (await visible(page, '.env-fallback-note')).every(Boolean));
-  await page.screenshot({ path: `${SHOTS}/env3-tlp-nowebgl.png` });
+  await page.screenshot({ path: `${SHOTS}/env4-tlp-nowebgl.png` });
   await ctx.close();
 }
 
@@ -450,13 +481,14 @@ async function touchDrag(page, cdp, tracks, steps = 8) {
   await page.waitForTimeout(2600);
   const ps = await noPageScroll(page);
   check('tlp phone: no horizontal scroll, no page scroll', ps.sw <= ps.iw && ps.sh === ps.ih && ps.x === 0, JSON.stringify(ps));
-  const sheet = await page.evaluate(() => { const r = document.querySelector('.trace').getBoundingClientRect(); return { top: r.top, h: r.height, w: r.width }; });
-  const cur = await page.$$eval('.line.current', (els) => els.map((e) => { const r = e.getBoundingClientRect(); return r.height > 0 && r.top < innerHeight; }));
-  check('tlp phone: the trace is a bottom sheet with the current line in view', sheet.w === 390 && Math.abs(sheet.h - 844 * 0.52) < 2 && cur.length === 1 && cur[0], JSON.stringify(sheet));
+  const capt = await page.evaluate(() => { const r = document.querySelector('.trace').getBoundingClientRect(); const l = document.querySelector('.line.current').getBoundingClientRect(); return { top: r.top, w: r.width, h: r.height, line: [l.top, l.bottom, l.height > 0] }; });
+  check('tlp phone: the same caption, not a sheet (full width at the foot, the current line in view)', capt.w === 390 && capt.h < 844 * 0.3 && capt.line[2] && capt.line[1] <= 844, JSON.stringify(capt));
   const dm = await dbg(page);
   const mys = dm.model.screen.map((p) => p[1]);
-  check('tlp phone: arrival frames above the sheet', Math.max(...mys) < sheet.top, `model bottom ${Math.max(...mys).toFixed(0)} < sheet top ${sheet.top.toFixed(0)}`);
-  await page.screenshot({ path: `${SHOTS}/env3-tlp-phone.png` });
+  const freeP = await page.evaluate(() => window.__env.freeRegion());
+  await page.waitForTimeout(700);
+  await page.screenshot({ path: `${SHOTS}/env4-tlp-phone.png` });
+  check('tlp phone: arrival frames above the caption band', Math.max(...mys) <= freeP.bottom + 1, `model bottom ${Math.max(...mys).toFixed(0)} <= ${freeP.bottom.toFixed(0)}`);
   const cdp = await ctx.newCDPSession(page);
   let d = await dbg(page);
   const c0 = d.camera;
@@ -471,21 +503,16 @@ async function touchDrag(page, cdp, tracks, steps = 8) {
   await touchDrag(page, cdp, [[[150, 300], [190, 360]], [[250, 300], [290, 360]]]);
   d = await dbg(page);
   check('tlp phone: two-finger drag orbits', qAngle(d.camera.q, c2.q) > 0.1 && d.ghost > 0.5, `turned ${qAngle(d.camera.q, c2.q).toFixed(3)} rad`);
-  const top0 = await page.$eval('.trace', (p) => p.getBoundingClientRect().top);
-  await page.tap('.handle');
-  await page.waitForTimeout(800);
-  const top1 = await page.$eval('.trace', (p) => p.getBoundingClientRect().top);
-  check('tlp phone: the handle lowers the sheet to its peek', Math.abs((844 - top1) - 118) < 2, `sheet top ${top0.toFixed(0)} -> ${top1.toFixed(0)} (peek ${(844 - top1).toFixed(0)} px)`);
-  await page.screenshot({ path: `${SHOTS}/env3-tlp-phone-peek.png` });
-  await page.tap('.handle');
-  await page.waitForTimeout(800);
-  const top2 = await page.$eval('.trace', (p) => p.getBoundingClientRect().top);
-  check('tlp phone: and raises it again', Math.abs(top2 - top0) < 2, `${top2.toFixed(0)}`);
+  check('tlp phone: taking hold of the drawing is look mode', await page.evaluate(() => document.body.classList.contains('look')));
+  await page.screenshot({ path: `${SHOTS}/env4-tlp-phone-look.png` });
+  await page.tap('.story-tab');
+  await page.waitForTimeout(700);
+  check('tlp phone: "Back to the story" returns', !(await page.evaluate(() => document.body.classList.contains('look'))));
   await chooseSection(page, 'story', true);
   await page.waitForTimeout(300);
   const ps2 = await noPageScroll(page);
   check('tlp phone: still no horizontal scroll with the sheet open', ps2.sw <= ps2.iw && ps2.x === 0, JSON.stringify(ps2));
-  await page.screenshot({ path: `${SHOTS}/env3-tlp-phone-story.png` });
+  await page.screenshot({ path: `${SHOTS}/env4-tlp-phone-story.png` });
   await ctx.close();
 }
 
@@ -507,7 +534,7 @@ async function touchDrag(page, cdp, tracks, steps = 8) {
   check('plt: flat sheet is up', d && d.webgl === false && d.dots > 0);
   const canoe = d.drawings.find((x) => x.id === 'plt-canoe');
   check('plt: arrival frames the hero drawing', canoe.screen[0] > 0 && canoe.screen[2] < 1440 && canoe.screen[1] > 60, JSON.stringify(canoe.screen.map((v) => +v.toFixed(0))));
-  await page.screenshot({ path: `${SHOTS}/env3-plt-arrival.png` });
+  await page.screenshot({ path: `${SHOTS}/env4-plt-arrival.png` });
   const ps = await noPageScroll(page);
   check('plt: the page never scrolls', ps.sh === ps.ih && ps.y === 0 && ps.sw <= ps.iw, JSON.stringify(ps));
 
@@ -526,7 +553,7 @@ async function touchDrag(page, cdp, tracks, steps = 8) {
   await settle(page);
   d = await dbg(page);
   check('plt: choosing Outcome reveals it and moves the camera to the poster',
-    camKey(d.camera) !== camBefore && (await page.$eval('.env-section[data-section="outcome"]', (e) => getComputedStyle(e).display !== 'none')));
+    camKey(d.camera) !== camBefore && (await page.$$eval('.env-section[data-section="outcome"] .line.is-said', (e) => e.length)) > 0);
   const poster = d.drawings.find((x) => x.id === 'plt-poster').screen;
   check('plt: the poster is framed', poster[0] >= 0 && poster[2] <= 1440, JSON.stringify(poster.map((v) => +v.toFixed(0))));
   await ctx.close();
@@ -535,11 +562,11 @@ async function touchDrag(page, cdp, tracks, steps = 8) {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await open(ctx, `${PAGES.plt.url}?story=off`, 'plt-off', sink);
   await page.waitForTimeout(2600);
-  const secs = await visible(page, '.env-section');
-  check('plt story off: every section visible', secs.length === 5 && secs.every(Boolean));
+  const secs = await visible(page, '.env-section .line');
+  check('plt story off: every section line visible', secs.length > 0 && secs.every(Boolean), `${secs.length} lines`);
   const sc = await scrollerInfo(page);
   check('plt story off: the panel scrolls, the page does not', sc.sh > sc.ch && (await noPageScroll(page)).y === 0, JSON.stringify(sc));
-  await page.screenshot({ path: `${SHOTS}/env3-plt-story-off.png` });
+  await page.screenshot({ path: `${SHOTS}/env4-plt-story-off.png` });
   await ctx.close();
 }
 {
@@ -553,22 +580,21 @@ async function touchDrag(page, cdp, tracks, steps = 8) {
   await touchDrag(page, cdp, [[[150, 300], [190, 360]], [[250, 300], [290, 360]]]);
   d = await dbg(page);
   check('plt phone: two-finger drag pans, never turns', dist(d.camera.T, c0.T) > 0.5 && !d.camera.q);
-  await page.tap('.handle'); await page.waitForTimeout(800);
-  check('plt phone: the handle lowers the sheet to its peek', await page.evaluate(() => document.body.classList.contains('look')));
-  await page.screenshot({ path: `${SHOTS}/env3-plt-phone.png` });
+  check('plt phone: taking hold is look mode', await page.evaluate(() => document.body.classList.contains('look')));
+  await page.screenshot({ path: `${SHOTS}/env4-plt-phone.png` });
   await ctx.close();
 }
 {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await open(ctx, `${PAGES.tlp.url}?theme=light`, 'tlp-light', sink);
   await page.waitForTimeout(2600);
-  await page.screenshot({ path: `${SHOTS}/env3-tlp-light.png` });
+  await page.screenshot({ path: `${SHOTS}/env4-tlp-light.png` });
   await page.mouse.move(400, 300); await page.mouse.down();
   for (let i = 1; i <= 16; i++) await page.mouse.move(400, 300 - i * 25);
   await page.mouse.move(400, -120);
   await page.mouse.up();
   await page.waitForTimeout(150);
-  await page.screenshot({ path: `${SHOTS}/env3-nav-over-hero-light.png`, clip: { x: 0, y: 0, width: 1440, height: 170 } });
+  await page.screenshot({ path: `${SHOTS}/env4-nav-over-hero-light.png`, clip: { x: 0, y: 0, width: 1440, height: 170 } });
   await ctx.close();
 }
 
@@ -582,7 +608,7 @@ async function touchDrag(page, cdp, tracks, steps = 8) {
   await page.waitForTimeout(2500);
   const ad = await page.evaluate(() => window.__axon.debug());
   console.log('      axon lift debug:', JSON.stringify(ad).slice(0, 400));
-  await page.screenshot({ path: `${SHOTS}/env3-axon-tlp-hover.png` });
+  await page.screenshot({ path: `${SHOTS}/env4-axon-tlp-hover.png` });
   await ctx.close();
 }
 

@@ -70,6 +70,7 @@
                 <li><a href="../../../../about.html" class="nav-link">About</a></li>
                 <li><a href="../../../../resume.html" class="nav-link">Résumé</a></li>
                 <li><a href="../../../../contact.html" class="nav-link">Contact</a></li>
+                <li><button type="button" class="nav-link story-link" id="story-link">Your story</button></li>
                 <li><button type="button" class="story-toggle" aria-pressed="true"><span class="is-on">Story on</span><span class="is-off">Story off</span></button></li>
             </ul>
             <div class="hamburger"><span></span><span></span><span></span></div>
@@ -98,17 +99,14 @@
             <button type="button" class="env-home" aria-label="Home view" title="Home view">⌂</button>
         </div>
 
-        <!-- The story sits on a sheet of trace over the drawing, as on the tour (main:index.html):
-             the trace is the only scroller. -->
+        <!-- The caption (the tour's "surface c", adventure/tour.template.html): the story sits at the
+             foot of the drawing, one line at a time, over a veil with no edge. Read back unfurls
+             what has been said; story off unfurls the whole Document. The only scroller. -->
         <section class="trace" id="trace" aria-label="Story" data-outline-off>
-            <svg class="outline" aria-hidden="true"><g opacity="0.62"></g></svg>
-            <button type="button" class="handle" aria-label="Raise or lower the story" aria-controls="trace-scroll"></button>
-            <div class="trace-scroll" id="trace-scroll" tabindex="0">
-                <div class="trace-head"><p class="eyebrow">Champaign-Urbana · The house that stays up</p><button type="button" class="lift">Just the drawing</button></div>
-
-                <p class="env-fallback-note">The drawing sheet needs WebGL, so this is the Document. <a href="../../../../projects/three-little-pigs.html">Plain page</a></p>
-
-                <header class="project-header env-head">
+            <div class="trace-scroll" id="trace-scroll">
+                <div class="page">
+                    <p class="env-fallback-note">The drawing sheet needs WebGL, so this is the Document. <a href="../../../../projects/three-little-pigs.html">Plain page</a></p>
+                    <header class="project-header env-head">
                     <p class="project-eyebrow">FAA 330 · University of Illinois Urbana-Champaign · 2025</p>
                     <h1 class="project-title-large">3 Little Pigs Wall Assembly</h1>
                     <p class="project-lead">A straw-bale wall assembly that ordinary builders can put up: conventional stick framing, R-52 insulation.</p>
@@ -117,126 +115,101 @@
                         <span class="project-meta-item"><strong>Tools</strong> Rhino, Photoshop, Illustrator</span>
                     </div>
                 </header>
-
-                <!-- Narration, in beats: beat 0 plays on arrival, each choice reaches the next.
-                     Both registers ship; data-arrival picks (story.css). -->
-                <div class="narration page" data-beat="0">
+                    <p class="eyebrow place-mark">Champaign-Urbana · The house that stays up</p>
+                    <div class="narration" data-beat="0">
                     <p class="line narration-line" data-scene="champaign-1" data-mode="meet">The fields run flat to every horizon, and Champaign sits in the middle of them.</p>
-                    <p class="line narration-line" data-scene="champaign-1" data-mode="meet">Winters here get cold enough that a wall has to earn its keep.</p>
-                    <p class="line narration-line" data-scene="champaign-1" data-mode="with">Winters here get cold enough that a wall has to earn its keep.</p>
+                    <p class="line narration-line record" data-scene="champaign-1" data-mode="meet"><span class="sr">From Ethan’s records: </span>Winters here get cold enough that a wall has to earn its keep.<span class="mark-lesson"><i aria-hidden="true"></i><span>This mark means the line comes straight from Ethan’s own records, not from the storytelling.</span></span></p>
+                    <p class="line narration-line record" data-scene="champaign-1" data-mode="with"><span class="sr">From Ethan’s records: </span>Winters here get cold enough that a wall has to earn its keep.<span class="mark-lesson"><i aria-hidden="true"></i><span>This mark means the line comes straight from Ethan’s own records, not from the storytelling.</span></span></p>
                     <p class="line narration-line" data-scene="champaign-1" data-mode="with">Ethan stops the car at the edge of town, in front of a house built of straw, sticks and brick, all at once.</p>
                 </div>
-                <div class="narration page" data-beat="1">
+                    <div class="narration" data-beat="1">
                     <p class="line narration-line" data-scene="champaign-1" data-mode="meet">At the edge of town stands a house built of straw, sticks and brick, all at once.</p>
                     <p class="line narration-line" data-scene="champaign-1" data-mode="with">You knock. Nothing falls down.</p>
                 </div>
-                <div class="narration page" data-beat="2">
+                    <div class="narration" data-beat="2">
                     <p class="line narration-line" data-scene="champaign-1" data-mode="meet">You knock. Nothing falls down.</p>
                     <p class="line narration-line" data-scene="champaign-1" data-mode="meet">The door opens, and a hand comes out to shake yours. “Ethan.”</p>
-                    <p class="line narration-line" data-scene="champaign-1" data-mode="with">Inside the walls: stick framing and straw bales, with brick on the outside.</p>
+                    <p class="line narration-line record" data-scene="champaign-1" data-mode="with"><span class="sr">From Ethan’s records: </span>Inside the walls: stick framing and straw bales, with brick on the outside.</p>
                 </div>
-                <div class="narration page" data-beat="3">
-                    <p class="line narration-line" data-scene="champaign-1" data-mode="meet">Inside the walls: stick framing and straw bales, with brick on the outside.</p>
+                    <div class="narration" data-beat="3">
+                    <p class="line narration-line record" data-scene="champaign-1" data-mode="meet"><span class="sr">From Ethan’s records: </span>Inside the walls: stick framing and straw bales, with brick on the outside.</p>
                     <p class="line narration-line" data-scene="champaign-1" data-mode="with">It is January, and the living room is warm.</p>
                 </div>
-                <div class="narration page" data-beat="4">
+                    <div class="narration" data-beat="4">
                     <p class="line narration-line" data-scene="champaign-1" data-mode="meet">It is January, and the living room is warm.</p>
-                    <p class="line narration-line" data-scene="champaign-1" data-mode="meet">The straw comes out at R-52.</p>
-                    <p class="line narration-line" data-scene="champaign-1" data-mode="with">The straw comes out at R-52.</p>
+                    <p class="line narration-line record" data-scene="champaign-1" data-mode="meet"><span class="sr">From Ethan’s records: </span>The straw comes out at R-52.</p>
+                    <p class="line narration-line record" data-scene="champaign-1" data-mode="with"><span class="sr">From Ethan’s records: </span>The straw comes out at R-52.</p>
                 </div>
-                <div class="narration page" data-beat="5">
+                    <div class="narration" data-beat="5">
                     <p class="line narration-line" data-scene="champaign-1" data-mode="meet">The wolf is going to need a better plan.</p>
                     <p class="line narration-line" data-scene="champaign-1" data-mode="with">The wolf is going to need a better plan.</p>
                 </div>
-
-                <section class="project-section env-section" data-section="story">
-                    <h2 class="project-section-title">The story</h2>
-                    <p class="project-text">Ever wonder why the three little pigs didn't just work together? Me too.</p>
-                    <p class="project-text">This wall uses all three pigs' materials: straw bale insulation, stick framing, and a brick veneer. It combines what each pig got right. Its traditional stick framing fits the way contractors already build, and its straw bale insulation reaches R-52. That means healthy, thermally comfortable rooms and big energy savings.</p>
-                    <p class="project-text">The project explores natural materials and what their properties can do. The point is that a natural material only spreads if it plugs into construction methods people already use.</p>
+                    <section class="project-section env-section" data-section="story">
+                    <h2 class="project-section-title eyebrow">The story</h2>
+                    <p class="project-text line">Ever wonder why the three little pigs didn't just work together? Me too.</p>
+                    <p class="project-text line">This wall uses all three pigs' materials: straw bale insulation, stick framing, and a brick veneer. It combines what each pig got right. Its traditional stick framing fits the way contractors already build, and its straw bale insulation reaches R-52. That means healthy, thermally comfortable rooms and big energy savings.</p>
+                    <p class="project-text line">The project explores natural materials and what their properties can do. The point is that a natural material only spreads if it plugs into construction methods people already use.</p>
                 </section>
-
-                <section class="project-section env-section" data-section="whatIDid">
-                    <h2 class="project-section-title">What I did</h2>
-                    <ul class="project-list"><li>Researched the materials and designed the full assembly, from foundation to finish</li><li>Drew the annotated axonometric and section in Rhino and composited them in Photoshop</li></ul>
+                    <section class="project-section env-section" data-section="whatIDid">
+                    <h2 class="project-section-title eyebrow">What I did</h2>
+                    <ul class="project-list"><li class="line">Researched the materials and designed the full assembly, from foundation to finish</li><li class="line">Drew the annotated axonometric and section in Rhino and composited them in Photoshop</li></ul>
                 </section>
-
-                <section class="project-section env-section" data-section="process">
-                    <h2 class="project-section-title">Process</h2>
-                    <ul class="project-list"><li>Layers include a masonry water table, a stick frame and straw bale insulation (worksheet row 4)</li><li>The drawing documents the insulation math: straw bales at 36 × 18 × 14 in and R-1.4 per inch, giving R-52 through the wall and R-40 behind the pony wall</li><li>Designed for Champaign, Illinois (climate zone 5), with platform framing and either brick veneer or horizontal board siding</li><li>Below grade: crushed foam glass under the slab (R-8) and extruded polystyrene at the foundation (R-10)</li></ul>
+                    <section class="project-section env-section" data-section="process">
+                    <h2 class="project-section-title eyebrow">Process</h2>
+                    <ul class="project-list"><li class="line">Layers include a masonry water table, a stick frame and straw bale insulation (worksheet row 4)</li><li class="line">The drawing documents the insulation math: straw bales at 36 × 18 × 14 in and R-1.4 per inch, giving R-52 through the wall and R-40 behind the pony wall</li><li class="line">Designed for Champaign, Illinois (climate zone 5), with platform framing and either brick veneer or horizontal board siding</li><li class="line">Below grade: crushed foam glass under the slab (R-8) and extruded polystyrene at the foundation (R-10)</li></ul>
                 </section>
-
-                <section class="project-section env-section" data-section="outcome">
-                    <h2 class="project-section-title">Outcome</h2>
-                    <ul class="project-list"><li>Annotated axonometric and section drawings, 8.5 × 11 in</li><li>Straw-bale insulation value of R-52 (as documented)</li></ul>
+                    <section class="project-section env-section" data-section="outcome">
+                    <h2 class="project-section-title eyebrow">Outcome</h2>
+                    <ul class="project-list"><li class="line">Annotated axonometric and section drawings, 8.5 × 11 in</li><li class="line">Straw-bale insulation value of R-52 (as documented)</li></ul>
                 </section>
-
-                <section class="project-section env-section" data-section="reflection">
-                    <h2 class="project-section-title">Reflection</h2>
-                    <p class="project-text">I want my work to bring joy and to be fun. Nobody thinks of play when they think of wall sections. But choosing straw bales as insulation reminded me of the children's story and made me smile, so I decided to build with all three pigs' materials.</p>
+                    <section class="project-section env-section" data-section="reflection">
+                    <h2 class="project-section-title eyebrow">Reflection</h2>
+                    <p class="project-text line">I want my work to bring joy and to be fun. Nobody thinks of play when they think of wall sections. But choosing straw bales as insulation reminded me of the children's story and made me smile, so I decided to build with all three pigs' materials.</p>
                 </section>
-
-                <section class="project-gallery env-drawings">
+                    <section class="project-gallery env-drawings">
                     <h2 class="project-section-title">Drawings</h2>
                     <div class="env-figures">
                         <figure class="project-figure"><img src="../../../../images/tour/tlp-axon.jpg" alt="Cutaway axonometric of a wall corner, peeled back layer by layer from brick veneer and board siding through yellow straw bale insulation to the stud frame, slab and concrete foundation, with every layer labeled." width="1600" height="1035" loading="lazy"><figcaption>Cutaway axonometric</figcaption></figure>
                         <figure class="project-figure"><img src="../../../../images/tour/tlp-section.jpg" alt="Wall section from the foundation footing up to the double top plate: a thick yellow band of straw bale insulation sits on a concrete pony wall, with labeled layers on both sides." width="1600" height="1141" loading="lazy"><figcaption>Wall section</figcaption></figure>
                     </div>
                 </section>
-
-                <!-- The CYOA: one choice per Document section. Labels are the section headings;
-                     narrative choice labels are Ethan's to write. -->
-                <div class="controls">
-                    <button type="button" class="continue">Continue <kbd>space</kbd></button>
-                    <nav class="choices env-choices" aria-label="Choices">
-                    <button type="button" class="choice env-choice" data-choose="story">The story <span class="mark" aria-hidden="true">→</span></button>
-                    <button type="button" class="choice env-choice" data-choose="whatIDid">What I did <span class="mark" aria-hidden="true">→</span></button>
-                    <button type="button" class="choice env-choice" data-choose="process">Process <span class="mark" aria-hidden="true">→</span></button>
-                    <button type="button" class="choice env-choice" data-choose="outcome">Outcome <span class="mark" aria-hidden="true">→</span></button>
-                    <button type="button" class="choice env-choice" data-choose="reflection">Reflection <span class="mark" aria-hidden="true">→</span></button>
-                    </nav>
-                </div>
-
-                <nav class="crossings" aria-labelledby="crossings-heading">
-                    <h2 class="project-section-title crossing-plain" id="crossings-heading">Related work</h2>
-                    <a href="../../../../projects/mylo-to-go.html" class="crossing choice">
-                        <span class="crossing-narrative">Walk over to campus with Ethan</span>
-                        <span class="crossing-plain">Mylo To-Go</span>
-                        <span class="mark" aria-hidden="true">→</span>
-                    </a>
-                </nav>
-
-                <nav class="project-navigation">
+                    <nav class="project-navigation">
                     <a href="../../../../projects.html" class="project-nav-link">All projects</a>
                     <a href="../../../../index.html" class="project-nav-link">Walk into this one instead</a>
                     <a href="../../../../projects/three-little-pigs.html" class="project-nav-link">Plain page</a>
                 </nav>
-                <p class="env-foot">Ethan Shig Anderson · <a href="../../../../contact.html">Contact</a></p>
+                    <p class="env-foot">Ethan Shig Anderson · <a href="../../../../contact.html">Contact</a></p>
+                </div>
+                <div class="controls">
+                    <button type="button" class="continue">Continue <kbd>space</kbd></button>
+                    <div class="choices">
+                        <button type="button" class="choice env-choice" data-choose="story">The story <span class="mark" aria-hidden="true">→</span></button>
+                        <button type="button" class="choice env-choice" data-choose="whatIDid">What I did <span class="mark" aria-hidden="true">→</span></button>
+                        <button type="button" class="choice env-choice" data-choose="process">Process <span class="mark" aria-hidden="true">→</span></button>
+                        <button type="button" class="choice env-choice" data-choose="outcome">Outcome <span class="mark" aria-hidden="true">→</span></button>
+                        <button type="button" class="choice env-choice" data-choose="reflection">Reflection <span class="mark" aria-hidden="true">→</span></button>
+                        <nav class="crossings" aria-labelledby="crossings-heading">
+                    <h2 class="project-section-title crossing-plain crossings-head" id="crossings-heading">Related work</h2>
+                    <a href="../../../../projects/mylo-to-go.html" class="crossing choice">
+                        <span class="crossing-narrative">Walk over to campus with Ethan</span>
+                        <span class="crossing-plain">Mylo To-Go</span> <span class="mark" aria-hidden="true">→</span>
+                    </a>
+                </nav>
+                    </div>
+                </div>
+                <div class="aside-row"><button type="button" class="keepsake" data-close>Close</button><a class="keepsake" href="../../../../transcript.html">Keep this →</a></div>
             </div>
         </section>
-        <!-- The plate: what you are looking at, and the tools to look closer. -->
-        <div class="plate" id="plate" data-outline-off>
-            <div class="row">
-                <div class="cap">
-                <p class="plate-cap" data-drawing="hero"><b>Cutaway axonometric</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p>
-                <p class="plate-cap" data-drawing="model"><b>Model</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p>
-                <p class="plate-cap" data-drawing="wall-section"><b>Wall section</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p>
-                <p class="plate-cap" data-drawing="axon-1"><b>Axon 1</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p>
-                <p class="plate-cap" data-drawing="section"><b>Section A</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p>
-                <p class="plate-cap" data-drawing="axon-2"><b>Axon 2</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p>
-                <p class="plate-cap" data-drawing="axon-3"><b>Axon 3</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p>
-                <p class="plate-cap" data-drawing="axon-4"><b>Axon 4</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p>
-                </div>
-                <div class="tools">
-                    <button type="button" data-zoom="out" aria-label="Zoom out" title="Zoom out">−</button>
-                    <button type="button" data-fit aria-label="Fit the drawing to the screen" title="Fit the drawing to the screen">Fit</button>
-                    <button type="button" data-zoom="in" aria-label="Zoom in" title="Zoom in">+</button>
-                    <span class="sep" aria-hidden="true"></span>
-                    <button type="button" data-describe aria-label="Read a description of the drawing" title="Read a description of the drawing"><span class="is-show">Describe</span><span class="is-hide">Hide description</span></button>
-                </div>
-            </div>
-        <p class="alt" data-drawing="hero">Cutaway axonometric of a wall corner, peeled back layer by layer from brick veneer and board siding through yellow straw bale insulation to the stud frame, slab and concrete foundation, with every layer labeled.</p>
-        <p class="alt" data-drawing="wall-section">Wall section from the foundation footing up to the double top plate: a thick yellow band of straw bale insulation sits on a concrete pony wall, with labeled layers on both sides.</p>
+        <!-- Looking: the drawing's own name and description, with look mode. -->
+        <div class="looking" id="looking">
+            <div class="looking-item" data-drawing="hero"><p class="looking-name"><b>Cutaway axonometric</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p><p class="looking-alt">Cutaway axonometric of a wall corner, peeled back layer by layer from brick veneer and board siding through yellow straw bale insulation to the stud frame, slab and concrete foundation, with every layer labeled.</p></div>
+            <div class="looking-item" data-drawing="model"><p class="looking-name"><b>Model</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p></div>
+            <div class="looking-item" data-drawing="wall-section"><p class="looking-name"><b>Wall section</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p><p class="looking-alt">Wall section from the foundation footing up to the double top plate: a thick yellow band of straw bale insulation sits on a concrete pony wall, with labeled layers on both sides.</p></div>
+            <div class="looking-item" data-drawing="axon-1"><p class="looking-name"><b>Axon 1</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p></div>
+            <div class="looking-item" data-drawing="section"><p class="looking-name"><b>Section A</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p></div>
+            <div class="looking-item" data-drawing="axon-2"><p class="looking-name"><b>Axon 2</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p></div>
+            <div class="looking-item" data-drawing="axon-3"><p class="looking-name"><b>Axon 3</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p></div>
+            <div class="looking-item" data-drawing="axon-4"><p class="looking-name"><b>Axon 4</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p></div>
         </div>
         <button type="button" class="story-tab" id="story-tab">Back to the story</button>
     </main>

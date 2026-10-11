@@ -160,7 +160,7 @@ function fitInGlb(fit, offset) {
 /* ===================================================================
    createSheet
    =================================================================== */
-export async function createSheet({ stage, data, views, reduceMotion, freeRegion, onFocus = () => {} }) {
+export async function createSheet({ stage, data, views, reduceMotion, freeRegion, onFocus = () => {}, onHold = () => {} }) {
   validateSheet(data);
   const dotsCanvas = stage.querySelector('canvas.env-dots');
   const glHost = stage.querySelector('.env-gl');
@@ -694,7 +694,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   }
 
   attachGestures(stage, {
-    begin() { fly = null; orbitPivot = null; moved = true; },
+    begin() { fly = null; orbitPivot = null; moved = true; onHold(); },
     orbit(dx, dy) {
       if (!orbitPivot) orbitPivot = pivot();
       const { right } = camAxes();
@@ -711,9 +711,9 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     },
     pick(x, y) {
       const m = markAt(x, y);
-      if (m) { activate(m, 'mark'); return; }
+      if (m) { onHold(); activate(m, 'mark'); return; }
       const d = drawingAt(x, y);
-      if (d) activate(d, 'body');
+      if (d) { onHold(); activate(d, 'body'); }
     },
     hover(x, y) { setHot(markAt(x, y) || drawingAt(x, y)); },
     leave() { setHot(null); },
@@ -723,7 +723,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     const t = e.target.closest('.env-title[data-drawing], .env-bubble[data-mark]');
     if (!t) return;
     const id = t.dataset.drawing || t.dataset.mark;
-    if (byId.has(id)) activate(id, t.dataset.mark ? 'mark' : 'title');
+    if (byId.has(id)) { onHold(); activate(id, t.dataset.mark ? 'mark' : 'title'); }
   });
   const hoverTarget = (e) => {
     const t = e.target.closest('.env-title[data-drawing], .env-bubble[data-mark]');
