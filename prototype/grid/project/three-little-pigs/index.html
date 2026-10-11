@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="../../../../css/line-system.css">
     <link rel="stylesheet" href="../../../../css/story.css">
     <link rel="stylesheet" href="../env.css">
+    <link rel="stylesheet" href="../proto.css">
     <!-- PROTOTYPE (ADR-0007): the project page as a drawing sheet. Prose, Narration and
          Crossings are copied from projects/three-little-pigs.html (generated from the
          approved record); nothing here is authored. -->
@@ -212,6 +213,14 @@
             <div class="looking-item" data-drawing="axon-4"><p class="looking-name"><b>Axon 4</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p></div>
         </div>
         <button type="button" class="story-tab" id="story-tab">Back to the story</button>
+        <!-- PROTOTYPE switcher (proto.js): the paper-in-3D decisions. Not part of the design. -->
+        <div class="proto-bar" role="group" aria-label="Prototype: the paper in 3D">
+            <span class="proto-tag">PROTOTYPE</span>
+            <span class="proto-group"><button type="button" data-step="-1" aria-label="Previous preset ([)" title="Previous preset ([)">‹</button><button type="button" data-preset="P1">P1</button><button type="button" data-preset="P2">P2</button><button type="button" data-preset="P3">P3</button><button type="button" data-preset="P4">P4</button><button type="button" data-step="1" aria-label="Next preset (])" title="Next preset (])">›</button></span>
+            <span class="proto-group" data-param="extent"><span>extent</span><button type="button" data-value="tight">tight</button><button type="button" data-value="sheet">sheet</button></span>
+            <span class="proto-group" data-param="drawings"><span>drawings</span><button type="button" data-value="clear">clear</button><button type="button" data-value="under">under</button></span>
+            <span class="proto-group" data-param="verticals"><span>verticals</span><button type="button" data-value="lattice">lattice</button><button type="button" data-value="all">all</button></span>
+        </div>
     </main>
 
     <!-- The sheet: sheet units are dot steps (u right, v down); vectors at `scale` steps per ft.
@@ -221,7 +230,7 @@
   "kind": "3d",
   "record": "three-little-pigs",
   "linework": "../data/three-little-pigs.drawings.json",
-  "model": { "src": "../../models/three-little-pigs.glb", "ftPerLattice": 4, "box": [52, 0, 84, 31] },
+  "model": { "src": "../../models/three-little-pigs.glb", "ftPerLattice": 5, "box": [52, 0, 84, 31] },
   "drawings": [
     { "id": "hero", "kind": "raster", "src": "../../../../images/tour/tlp-axon.jpg", "px": [1600, 1035], "at": [0, 0], "w": 48 },
     { "id": "wall-section", "kind": "raster", "src": "../../../../images/tour/tlp-section.jpg", "px": [1600, 1141], "at": [0, 37], "w": 20 },
@@ -252,5 +261,6 @@
     <script src="../../../../js/line-system.js"></script>
     <script>document.addEventListener('DOMContentLoaded', function () { if (window.LineSystem) LineSystem.init(); });</script>
     <script type="module" src="../env.js"></script>
+    <script type="module" src="../proto.js"></script>
 </body>
 </html>

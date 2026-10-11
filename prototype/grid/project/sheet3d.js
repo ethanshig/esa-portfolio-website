@@ -40,6 +40,21 @@ import { createInkMaterials, makeInk, lineWidthForStep } from '../axon/ink.js';
 import { DotField } from './dots.js';
 import { attachGestures } from './gestures.js';
 import { NoSheetError } from './errors.js';
+import { buildLattice, cornerRings } from './lattice.js';
+
+/* The paper in 3D (prototype, Ethan's option A): the three open decisions as URL params.
+   Defaults are P1, the coordinator's recommendation. */
+const OPTIONS = { extent: ['tight', 'sheet'], drawings: ['clear', 'under'], verticals: ['lattice', 'all'] };
+function readOptions() {
+  const q = new URLSearchParams(location.search);
+  const out = { extent: 'tight', drawings: 'clear', verticals: 'lattice' };
+  for (const [key, allowed] of Object.entries(OPTIONS)) {
+    const v = q.get(key);
+    if (v !== null && allowed.includes(v)) out[key] = v;
+  }
+  return out;
+}
+const LIFT_TO = 0.6;                /* radians off home (34 deg) at which the lattice is fully lifted: wide, so a snap home visibly collapses it */
 
 const REGISTER_FT = 0.5;            /* a fit worse than this (median residual, ft) is not a registration */
 const LOAD_TIMEOUT_MS = 20000;
@@ -207,6 +222,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   const cam = { q: Q_HOME.clone(), T: new THREE.Vector3(), s: 16 };
   let fly = null;
   let ghost = 0;
+  let lift = 0;                     /* how far the bold dots have lifted into the lattice */
 
   /* ---------- materials ---------- */
   const lineMat = (color, width, extra = {}) => new LineMaterial({
@@ -313,6 +329,10 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   const ink = createInkMaterials();
   ink.setColors(colors.ink, colors.bg);
   const k = (2 * Math.SQRT2) / data.model.ftPerLattice;   /* ft -> world units */
+  const opts = readOptions();
+  /* verticals=all: the model's heights on paper spacing too (unit height 2 steps, not sqrt 6) */
+  const vs = opts.verticals === 'all' ? 2 / Math.sqrt(6) : 1;
+  const kv = new THREE.Vector3(k, k * vs, k);
   let model = null;      /* { group, box (glb ft), center (world), endX, ... } */
   const modelTitle = overlay.querySelector('.env-title[data-model]');
   try {
@@ -320,13 +340,13 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
       LOAD_TIMEOUT_MS, 'model');
     const { object, box } = makeInk(gltf.scene, { materials: ink });
     const group = new THREE.Group();
-    group.scale.setScalar(k);
+    group.scale.copy(kv);
     group.add(object);
 
     /* place: centre the projected box in model.box, then put the footprint's back corner on a bold node */
     const corners = [];
     for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) {
-      corners.push(new THREE.Vector3(x, y, z).multiplyScalar(k));
+      corners.push(new THREE.Vector3(x, y, z).multiply(kv));
     }
     const uv = corners.map(toPaperUV);
     const pu0 = Math.min(...uv.map((p) => p[0])), pu1 = Math.max(...uv.map((p) => p[0]));
@@ -334,7 +354,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     const [bu0, bv0, bu1, bv1] = data.model.box;
     let du = (bu0 + bu1) / 2 - (pu0 + pu1) / 2;
     let dv = (bv0 + bv1) / 2 - (pv0 + pv1) / 2;
-    const backCorner = toPaperUV(new THREE.Vector3(box.min.x, box.min.y, box.min.z).multiplyScalar(k));
+    const backCorner = toPaperUV(new THREE.Vector3(box.min.x, box.min.y, box.min.z).multiply(kv));
     const node = D.nearestBold(backCorner[0] + du, backCorner[1] + dv);
     if (node) { du = node[0] - backCorner[0]; dv = node[1] - backCorner[1]; }
     const diag = box.getSize(new THREE.Vector3()).length() * k;
@@ -348,6 +368,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
       center: group.localToWorld(center.clone()),
       paperRect: { u0: pu0 + du, v0: pv0 + dv, u1: pu1 + du, v1: pv1 + dv },
       cornersWorld: corners.map((c) => c.clone().add(group.position)),
+      originWorld: new THREE.Vector3(box.min.x, box.min.y, box.min.z).multiply(kv).add(group.position),
     };
   } catch (err) {
     console.warn('[sheet3d] the model did not load; the sheet shows drawings only', err);
@@ -471,6 +492,29 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   } else {
     for (const b of overlay.querySelectorAll('.env-bubble')) b.hidden = true;
   }
+
+  /* ---------- the lattice: the bold dots, lifted (lattice.js) ---------- */
+  let lattice = null, rings = null;
+  if (model) {
+    const wbox = new THREE.Box3().setFromPoints(model.cornersWorld);
+    const rects = drawings.map((d) => ({ u0: d.rect.u0, v0: d.rect.v0, u1: d.rect.u1, v1: d.rect.v1 + TITLE_ROOM }));
+    const all = rects.concat([model.paperRect]);
+    const sheetRect = {
+      u0: Math.min(...all.map((r) => r.u0)) - 6, v0: Math.min(...all.map((r) => r.v0)) - 6,
+      u1: Math.max(...all.map((r) => r.u1)) + 6, v1: Math.max(...all.map((r) => r.v1)) + 6,
+    };
+    lattice = buildLattice({
+      origin: model.originWorld, backH: B_H, toUV: toPaperUV, nodeUV: model.node, box: wbox,
+      extent: opts.extent, drawingRects: rects, clearDrawings: opts.drawings === 'clear', sheetRect, color: colors.ink,
+    });
+    scene.add(lattice.points);
+    /* the top edges of the model, ringed: where they land at home is the verticals decision */
+    const tops = model.cornersWorld.filter((c, i) => i % 4 >= 2);      /* corners with y = max */
+    rings = cornerRings(tops, colors.accent);
+    scene.add(rings.points);
+    model.tops = tops;
+  }
+  const paperInk = parseFloat(getComputedStyle(stage).getPropertyValue('--env-paper')) || 0.34;
 
   /* ===================================================================
      camera: orientation q, the world point T at the stage centre, scale s
@@ -756,6 +800,9 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     const dot = Math.min(1, Math.abs(cam.q.dot(Q_HOME)));
     const angle = 2 * Math.acos(dot);
     ghost = smooth(GHOST_FROM, GHOST_TO, angle);
+    lift = smooth(GHOST_FROM, LIFT_TO, angle);
+    if (lattice) lattice.update(lift, cam.s, renderer.getPixelRatio(), paperInk);
+    if (rings) rings.setSize(11 * renderer.getPixelRatio());
     const op = 1 - (1 - GHOST_OPACITY) * ghost;
     const zoomK = clamp(cam.s / 16, 0.55, 1.5) * (1 - 0.45 * ghost);
     for (const [w, m] of Object.entries(weightMats)) { m.linewidth = WEIGHT_PX[w] * zoomK; m.opacity = op; }
@@ -773,7 +820,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     const o = project(new THREE.Vector3());
     const a = [R_H.dot(right) * cam.s, -R_H.dot(up) * cam.s];
     const b = [-U_H.dot(right) * cam.s, U_H.dot(up) * cam.s];
-    dots.draw({ origin: o, a, b }, { ink: colors.ink, fade: 1 - 0.7 * ghost });
+    dots.draw({ origin: o, a, b }, { ink: colors.ink, fade: 1 - 0.7 * ghost, boldFade: lattice ? 1 - lift : 1 });
 
     overlay.style.setProperty('--env-title-size', clamp(cam.s * 0.8, 11, 17) + 'px');
     for (const d of drawings) {
@@ -790,6 +837,30 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
       const [x, y] = project(model.group.localToWorld(m.anchor.clone()));
       m.bubble.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, -50%)`;
     }
+  }
+
+  /* verification: how far the drawn lattice points, and the model's top corners, sit from the
+     nearest bold dot on screen (meaningful at home, where they should coincide) */
+  function latticeDebug() {
+    const err = (X) => {
+      const [u, v] = toPaperUV(X);
+      const n = D.nearestBold(u, v);
+      const a = project(X), b = project(paper(n[0], n[1]));
+      return Math.hypot(a[0] - b[0], a[1] - b[1]);
+    };
+    let maxFlat = 0, maxNow = 0, maxLifted = 0;
+    const step = Math.max(1, Math.floor(lattice.count / 4000));
+    for (let i = 0; i < lattice.count; i += step) {
+      maxFlat = Math.max(maxFlat, err(lattice.pointAt(i, 0)));
+      maxLifted = Math.max(maxLifted, err(lattice.pointAt(i, 1)));
+      const a = project(lattice.pointAt(i, lift)), b = project(lattice.pointAt(i, 0));
+      maxNow = Math.max(maxNow, Math.hypot(a[0] - b[0], a[1] - b[1]));
+    }
+    const sample = [0, Math.floor(lattice.count / 2), lattice.count - 1].map((i) => project(lattice.pointAt(i, lift)));
+    return {
+      count: lattice.count, maxFlatErrPx: maxFlat, maxLiftedErrPx: maxLifted, maxFromCollapsedPx: maxNow, sample,
+      topCornerErrPx: model.tops.map(err), vScale: vs,
+    };
   }
 
   function kick() { if (!raf) raf = requestAnimationFrame(tick); }
@@ -854,6 +925,9 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
           hasMark: !!d.mark,
           screen: [project(paper(d.rect.u0, d.rect.v0)), project(paper(d.rect.u1, d.rect.v1))],
         })),
+        options: opts,
+        lift,
+        lattice: lattice ? latticeDebug() : null,
         marks: marks.map((m) => ({
           id: m.id,
           kind: m.kind,

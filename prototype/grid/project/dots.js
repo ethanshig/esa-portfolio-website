@@ -47,7 +47,7 @@ export class DotField {
 
   /* map: { origin: [x, y], a: [ax, ay], b: [bx, by] } in css px.
      fade: 0..1 multiplies all ink (the ghosted paper). ink: CSS colour. */
-  draw(map, { fade = 1, ink = '#888' } = {}) {
+  draw(map, { fade = 1, boldFade = 1, ink = '#888' } = {}) {
     const { ctx, w, h, dpr } = this;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
@@ -74,7 +74,7 @@ export class DotField {
     const rLight = Math.max(LIGHT_R_PER_PITCH * stepPx, MIN_LIGHT_R);
     const rBold = Math.max(BOLD_R_PER_PITCH * stepPx, MIN_LIGHT_R * (BOLD_R_PER_PITCH / LIGHT_R_PER_PITCH));
     let lightAlpha = (LIGHT_INK / BOLD_INK) * clamp01((stepPx - 3) / 5) * fade;
-    let boldAlpha = clamp01((stepPx - 1.2) / 3) * fade;
+    let boldAlpha = clamp01((stepPx - 1.2) / 3) * fade * boldFade;    /* bold dots lift into the lattice */
     if (total > MAX_DOTS) lightAlpha = 0;
     if (total / 4 > MAX_DOTS) boldAlpha = 0;
 

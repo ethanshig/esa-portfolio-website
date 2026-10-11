@@ -1,0 +1,18 @@
+/* PROTOTYPE switcher for the paper-in-3D decisions. Deliberately not part of the design:
+   a loud pill floating above the caption band. */
+.proto-bar {
+    position: fixed; z-index: 40; left: 50%; bottom: 150px; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;
+    max-width: calc(100vw - 24px);
+    padding: 6px 10px; border-radius: 999px;
+    background: #ffd400; color: #111; border: 2px dashed #111;
+    font: 600 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.02em;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+}
+.proto-tag { padding: 4px 8px; border-radius: 999px; background: #111; color: #ffd400; }
+.proto-bar button { font: inherit; color: inherit; background: transparent; border: 1px solid #111; border-radius: 999px; padding: 4px 9px; cursor: pointer; }
+.proto-bar button[aria-pressed="true"] { background: #111; color: #ffd400; }
+.proto-bar button:focus-visible { outline: 2px solid #111; outline-offset: 2px; }
+.proto-group { display: inline-flex; align-items: center; gap: 3px; }
+.proto-group > span { margin-right: 3px; opacity: 0.75; font-weight: 500; }
+@media (max-width: 900px) { .proto-bar { bottom: 132px; gap: 6px; font-size: 11px; border-radius: 18px; } }
