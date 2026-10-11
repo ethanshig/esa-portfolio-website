@@ -98,9 +98,14 @@
             <button type="button" class="env-home" aria-label="Home view" title="Home view">⌂</button>
         </div>
 
-        <aside class="env-panel" id="env-panel" data-outline-off data-sheet="collapsed" aria-label="3 Little Pigs Wall Assembly">
-            <button type="button" class="env-handle" aria-controls="env-panel-scroll" aria-expanded="false" aria-label="Story panel"><span class="env-handle-bar"></span></button>
-            <div class="env-panel-scroll" id="env-panel-scroll" tabindex="0">
+        <!-- The story sits on a sheet of trace over the drawing, as on the tour (main:index.html):
+             the trace is the only scroller. -->
+        <section class="trace" id="trace" aria-label="Story" data-outline-off>
+            <svg class="outline" aria-hidden="true"><g opacity="0.62"></g></svg>
+            <button type="button" class="handle" aria-label="Raise or lower the story" aria-controls="trace-scroll"></button>
+            <div class="trace-scroll" id="trace-scroll" tabindex="0">
+                <div class="trace-head"><p class="eyebrow">Champaign-Urbana · The house that stays up</p><button type="button" class="lift">Just the drawing</button></div>
+
                 <p class="env-fallback-note">The drawing sheet needs WebGL, so this is the Document. <a href="../../../../projects/three-little-pigs.html">Plain page</a></p>
 
                 <header class="project-header env-head">
@@ -115,33 +120,33 @@
 
                 <!-- Narration, in beats: beat 0 plays on arrival, each choice reaches the next.
                      Both registers ship; data-arrival picks (story.css). -->
-                <div class="narration" data-beat="0">
-                    <p class="narration-line" data-scene="champaign-1" data-mode="meet">The fields run flat to every horizon, and Champaign sits in the middle of them.</p>
-                    <p class="narration-line" data-scene="champaign-1" data-mode="meet">Winters here get cold enough that a wall has to earn its keep.</p>
-                    <p class="narration-line" data-scene="champaign-1" data-mode="with">Winters here get cold enough that a wall has to earn its keep.</p>
-                    <p class="narration-line" data-scene="champaign-1" data-mode="with">Ethan stops the car at the edge of town, in front of a house built of straw, sticks and brick, all at once.</p>
+                <div class="narration page" data-beat="0">
+                    <p class="line narration-line" data-scene="champaign-1" data-mode="meet">The fields run flat to every horizon, and Champaign sits in the middle of them.</p>
+                    <p class="line narration-line" data-scene="champaign-1" data-mode="meet">Winters here get cold enough that a wall has to earn its keep.</p>
+                    <p class="line narration-line" data-scene="champaign-1" data-mode="with">Winters here get cold enough that a wall has to earn its keep.</p>
+                    <p class="line narration-line" data-scene="champaign-1" data-mode="with">Ethan stops the car at the edge of town, in front of a house built of straw, sticks and brick, all at once.</p>
                 </div>
-                <div class="narration" data-beat="1">
-                    <p class="narration-line" data-scene="champaign-1" data-mode="meet">At the edge of town stands a house built of straw, sticks and brick, all at once.</p>
-                    <p class="narration-line" data-scene="champaign-1" data-mode="with">You knock. Nothing falls down.</p>
+                <div class="narration page" data-beat="1">
+                    <p class="line narration-line" data-scene="champaign-1" data-mode="meet">At the edge of town stands a house built of straw, sticks and brick, all at once.</p>
+                    <p class="line narration-line" data-scene="champaign-1" data-mode="with">You knock. Nothing falls down.</p>
                 </div>
-                <div class="narration" data-beat="2">
-                    <p class="narration-line" data-scene="champaign-1" data-mode="meet">You knock. Nothing falls down.</p>
-                    <p class="narration-line" data-scene="champaign-1" data-mode="meet">The door opens, and a hand comes out to shake yours. “Ethan.”</p>
-                    <p class="narration-line" data-scene="champaign-1" data-mode="with">Inside the walls: stick framing and straw bales, with brick on the outside.</p>
+                <div class="narration page" data-beat="2">
+                    <p class="line narration-line" data-scene="champaign-1" data-mode="meet">You knock. Nothing falls down.</p>
+                    <p class="line narration-line" data-scene="champaign-1" data-mode="meet">The door opens, and a hand comes out to shake yours. “Ethan.”</p>
+                    <p class="line narration-line" data-scene="champaign-1" data-mode="with">Inside the walls: stick framing and straw bales, with brick on the outside.</p>
                 </div>
-                <div class="narration" data-beat="3">
-                    <p class="narration-line" data-scene="champaign-1" data-mode="meet">Inside the walls: stick framing and straw bales, with brick on the outside.</p>
-                    <p class="narration-line" data-scene="champaign-1" data-mode="with">It is January, and the living room is warm.</p>
+                <div class="narration page" data-beat="3">
+                    <p class="line narration-line" data-scene="champaign-1" data-mode="meet">Inside the walls: stick framing and straw bales, with brick on the outside.</p>
+                    <p class="line narration-line" data-scene="champaign-1" data-mode="with">It is January, and the living room is warm.</p>
                 </div>
-                <div class="narration" data-beat="4">
-                    <p class="narration-line" data-scene="champaign-1" data-mode="meet">It is January, and the living room is warm.</p>
-                    <p class="narration-line" data-scene="champaign-1" data-mode="meet">The straw comes out at R-52.</p>
-                    <p class="narration-line" data-scene="champaign-1" data-mode="with">The straw comes out at R-52.</p>
+                <div class="narration page" data-beat="4">
+                    <p class="line narration-line" data-scene="champaign-1" data-mode="meet">It is January, and the living room is warm.</p>
+                    <p class="line narration-line" data-scene="champaign-1" data-mode="meet">The straw comes out at R-52.</p>
+                    <p class="line narration-line" data-scene="champaign-1" data-mode="with">The straw comes out at R-52.</p>
                 </div>
-                <div class="narration" data-beat="5">
-                    <p class="narration-line" data-scene="champaign-1" data-mode="meet">The wolf is going to need a better plan.</p>
-                    <p class="narration-line" data-scene="champaign-1" data-mode="with">The wolf is going to need a better plan.</p>
+                <div class="narration page" data-beat="5">
+                    <p class="line narration-line" data-scene="champaign-1" data-mode="meet">The wolf is going to need a better plan.</p>
+                    <p class="line narration-line" data-scene="champaign-1" data-mode="with">The wolf is going to need a better plan.</p>
                 </div>
 
                 <section class="project-section env-section" data-section="story">
@@ -181,19 +186,23 @@
 
                 <!-- The CYOA: one choice per Document section. Labels are the section headings;
                      narrative choice labels are Ethan's to write. -->
-                <nav class="env-choices" aria-label="Choices">
-                    <button type="button" class="env-choice" data-choose="story">The story</button>
-                    <button type="button" class="env-choice" data-choose="whatIDid">What I did</button>
-                    <button type="button" class="env-choice" data-choose="process">Process</button>
-                    <button type="button" class="env-choice" data-choose="outcome">Outcome</button>
-                    <button type="button" class="env-choice" data-choose="reflection">Reflection</button>
-                </nav>
+                <div class="controls">
+                    <button type="button" class="continue">Continue <kbd>space</kbd></button>
+                    <nav class="choices env-choices" aria-label="Choices">
+                    <button type="button" class="choice env-choice" data-choose="story">The story <span class="mark" aria-hidden="true">→</span></button>
+                    <button type="button" class="choice env-choice" data-choose="whatIDid">What I did <span class="mark" aria-hidden="true">→</span></button>
+                    <button type="button" class="choice env-choice" data-choose="process">Process <span class="mark" aria-hidden="true">→</span></button>
+                    <button type="button" class="choice env-choice" data-choose="outcome">Outcome <span class="mark" aria-hidden="true">→</span></button>
+                    <button type="button" class="choice env-choice" data-choose="reflection">Reflection <span class="mark" aria-hidden="true">→</span></button>
+                    </nav>
+                </div>
 
                 <nav class="crossings" aria-labelledby="crossings-heading">
                     <h2 class="project-section-title crossing-plain" id="crossings-heading">Related work</h2>
-                    <a href="../../../../projects/mylo-to-go.html" class="crossing">
+                    <a href="../../../../projects/mylo-to-go.html" class="crossing choice">
                         <span class="crossing-narrative">Walk over to campus with Ethan</span>
                         <span class="crossing-plain">Mylo To-Go</span>
+                        <span class="mark" aria-hidden="true">→</span>
                     </a>
                 </nav>
 
@@ -204,7 +213,32 @@
                 </nav>
                 <p class="env-foot">Ethan Shig Anderson · <a href="../../../../contact.html">Contact</a></p>
             </div>
-        </aside>
+        </section>
+        <!-- The plate: what you are looking at, and the tools to look closer. -->
+        <div class="plate" id="plate" data-outline-off>
+            <div class="row">
+                <div class="cap">
+                <p class="plate-cap" data-drawing="hero"><b>Cutaway axonometric</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p>
+                <p class="plate-cap" data-drawing="model"><b>Model</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p>
+                <p class="plate-cap" data-drawing="wall-section"><b>Wall section</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p>
+                <p class="plate-cap" data-drawing="axon-1"><b>Axon 1</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p>
+                <p class="plate-cap" data-drawing="section"><b>Section A</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p>
+                <p class="plate-cap" data-drawing="axon-2"><b>Axon 2</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p>
+                <p class="plate-cap" data-drawing="axon-3"><b>Axon 3</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p>
+                <p class="plate-cap" data-drawing="axon-4"><b>Axon 4</b><span> · 3 Little Pigs Wall Assembly · 2025</span></p>
+                </div>
+                <div class="tools">
+                    <button type="button" data-zoom="out" aria-label="Zoom out" title="Zoom out">−</button>
+                    <button type="button" data-fit aria-label="Fit the drawing to the screen" title="Fit the drawing to the screen">Fit</button>
+                    <button type="button" data-zoom="in" aria-label="Zoom in" title="Zoom in">+</button>
+                    <span class="sep" aria-hidden="true"></span>
+                    <button type="button" data-describe aria-label="Read a description of the drawing" title="Read a description of the drawing"><span class="is-show">Describe</span><span class="is-hide">Hide description</span></button>
+                </div>
+            </div>
+        <p class="alt" data-drawing="hero">Cutaway axonometric of a wall corner, peeled back layer by layer from brick veneer and board siding through yellow straw bale insulation to the stud frame, slab and concrete foundation, with every layer labeled.</p>
+        <p class="alt" data-drawing="wall-section">Wall section from the foundation footing up to the double top plate: a thick yellow band of straw bale insulation sits on a concrete pony wall, with labeled layers on both sides.</p>
+        </div>
+        <button type="button" class="story-tab" id="story-tab">Back to the story</button>
     </main>
 
     <!-- The sheet: sheet units are dot steps (u right, v down); vectors at `scale` steps per ft.
@@ -214,7 +248,7 @@
   "kind": "3d",
   "record": "three-little-pigs",
   "linework": "../data/three-little-pigs.drawings.json",
-  "model": { "src": "../../models/three-little-pigs.glb", "ftPerLattice": 2, "box": [52, 0, 84, 31] },
+  "model": { "src": "../../models/three-little-pigs.glb", "ftPerLattice": 4, "box": [52, 0, 84, 31] },
   "drawings": [
     { "id": "hero", "kind": "raster", "src": "../../../../images/tour/tlp-axon.jpg", "px": [1600, 1035], "at": [0, 0], "w": 48 },
     { "id": "wall-section", "kind": "raster", "src": "../../../../images/tour/tlp-section.jpg", "px": [1600, 1141], "at": [0, 37], "w": 20 },

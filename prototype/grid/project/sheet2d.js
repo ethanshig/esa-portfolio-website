@@ -43,7 +43,7 @@ function validate(data) {
   if (data.hero && !ids.has(data.hero)) throw new Error(`sheet2d: hero "${data.hero}" is not a drawing`);
 }
 
-export async function createSheet({ stage, data, views, reduceMotion, freeRegion }) {
+export async function createSheet({ stage, data, views, reduceMotion, freeRegion, onFocus = () => {} }) {
   validate(data);
   const dotsCanvas = stage.querySelector('canvas.env-dots');
   const planeEl = stage.querySelector('.env-plane');
@@ -110,16 +110,20 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     const u0 = Math.min(...rs.map((r) => r.u0)), u1 = Math.max(...rs.map((r) => r.u1));
     const v0 = Math.min(...rs.map((r) => r.v0)), v1 = Math.max(...rs.map((r) => r.v1 + 2.4)); /* + title */
     const free = freeRegion();
-    const fh = Math.max(40, free.bottom - free.top);
-    const s = clamp(Math.min((W - 2 * PAD_PX) / (u1 - u0), (fh - 2 * PAD_PX) / (v1 - v0)), S_MIN, S_MAX);
-    const fc = (free.top + free.bottom) / 2;
-    return { T: [(u0 + u1) / 2, (v0 + v1) / 2 - (fc - H / 2) / s], s };
+    const fw = Math.max(40, free.right - free.left), fh = Math.max(40, free.bottom - free.top);
+    const s = clamp(Math.min((fw - 2 * PAD_PX) / (u1 - u0), (fh - 2 * PAD_PX) / (v1 - v0)), S_MIN, S_MAX);
+    const fcx = (free.left + free.right) / 2, fcy = (free.top + free.bottom) / 2;
+    return { T: [(u0 + u1) / 2 - (fcx - W / 2) / s, (v0 + v1) / 2 - (fcy - H / 2) / s], s };
   }
 
   function setCam(c) { cam.T = c.T.slice(); cam.s = c.s; dirty = true; kick(); }
 
+  let lastTarget = views.get('arrival').target;
+  let moved = false;
   function show(target, { animate = !reduceMotion } = {}) {
     const to = frameFor(target);
+    lastTarget = target;
+    moved = false;
     if (!animate) { fly = null; setCam(to); return; }
     fly = { from: { T: cam.T.slice(), s: cam.s }, to, t0: performance.now() / 1000, dur: T_FLY };
     kick();
@@ -205,19 +209,19 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   function panBy(dx, dy) { cam.T[0] -= dx / cam.s; cam.T[1] -= dy / cam.s; dirty = true; kick(); }
 
   attachGestures(stage, {
-    begin() { fly = null; },
+    begin() { fly = null; moved = true; },
     orbit: panBy,                     /* a flat sheet: right-drag pans */
     pan: panBy,
     zoom: zoomAt,
     roll() { /* no rotation on a flat sheet */ },
-    pick(x, y) { const id = drawingAt(x, y); if (id) show(id); },
+    pick(x, y) { const id = drawingAt(x, y); if (id) { onFocus(id); show(id); } },
     hover(x, y) { setHot(drawingAt(x, y)); },
     leave() { setHot(null); },
   });
 
   overlay.addEventListener('click', (e) => {
     const t = e.target.closest('.env-title[data-drawing]');
-    if (t && byId.has(t.dataset.drawing)) show(t.dataset.drawing);
+    if (t && byId.has(t.dataset.drawing)) { onFocus(t.dataset.drawing); show(t.dataset.drawing); }
   });
   overlay.addEventListener('pointerover', (e) => {
     const t = e.target.closest('.env-title[data-drawing]');
@@ -232,7 +236,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     if (t) setHot(t.dataset.drawing);
   });
   overlay.addEventListener('focusout', () => setHot(null));
-  if (homeBtn) homeBtn.addEventListener('click', () => home());
+  if (homeBtn) homeBtn.addEventListener('click', () => { home(); onFocus(data.hero || null); });
 
   resize();
   show(views.get('arrival').target, { animate: false });
@@ -243,6 +247,12 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     show,
     home,
     resize() { resize(); },
+    refit({ force = false, animate = !reduceMotion } = {}) { if (force || !moved) show(lastTarget, { animate }); },
+    zoomBy(f) {
+      const free = freeRegion();
+      fly = null;
+      zoomAt(f, (free.left + free.right) / 2, (free.top + free.bottom) / 2);
+    },
     /* verification only */
     debug() {
       return {

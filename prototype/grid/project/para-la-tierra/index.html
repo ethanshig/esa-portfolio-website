@@ -94,9 +94,14 @@
             <button type="button" class="env-home" aria-label="Home view" title="Home view">⌂</button>
         </div>
 
-        <aside class="env-panel" id="env-panel" data-outline-off data-sheet="collapsed" aria-label="Anthropogenic Effects of Construction on Freshwater Aquatic Biodiversity">
-            <button type="button" class="env-handle" aria-controls="env-panel-scroll" aria-expanded="false" aria-label="Story panel"><span class="env-handle-bar"></span></button>
-            <div class="env-panel-scroll" id="env-panel-scroll" tabindex="0">
+        <!-- The story sits on a sheet of trace over the drawing, as on the tour (main:index.html):
+             the trace is the only scroller. -->
+        <section class="trace" id="trace" aria-label="Story" data-outline-off>
+            <svg class="outline" aria-hidden="true"><g opacity="0.62"></g></svg>
+            <button type="button" class="handle" aria-label="Raise or lower the story" aria-controls="trace-scroll"></button>
+            <div class="trace-scroll" id="trace-scroll" tabindex="0">
+                <div class="trace-head"><p class="eyebrow">Río Paraguay · Wading depth</p><button type="button" class="lift">Just the drawing</button></div>
+
                 <p class="env-fallback-note">The drawing sheet could not start, so this is the Document. <a href="../../../../projects/para-la-tierra.html">Plain page</a></p>
 
                 <header class="project-header env-head">
@@ -111,28 +116,28 @@
 
                 <!-- Narration, in beats: beat 0 plays on arrival, each choice reaches the next.
                      Both registers ship; data-arrival picks (story.css). -->
-                <div class="narration" data-beat="0">
-                    <p class="narration-line" data-scene="pilar-1" data-mode="meet">You come down the Arroyo Ñeembucú to where it pours into the Río Paraguay.</p>
-                    <p class="narration-line" data-scene="pilar-1" data-mode="meet">The big river runs wide and brown past Pilar, with Argentina on the far bank.</p>
-                    <p class="narration-line" data-scene="pilar-1" data-mode="with">The big river runs wide and brown past Pilar, with Argentina on the far bank.</p>
+                <div class="narration page" data-beat="0">
+                    <p class="line narration-line" data-scene="pilar-1" data-mode="meet">You come down the Arroyo Ñeembucú to where it pours into the Río Paraguay.</p>
+                    <p class="line narration-line" data-scene="pilar-1" data-mode="meet">The big river runs wide and brown past Pilar, with Argentina on the far bank.</p>
+                    <p class="line narration-line" data-scene="pilar-1" data-mode="with">The big river runs wide and brown past Pilar, with Argentina on the far bank.</p>
                 </div>
-                <div class="narration" data-beat="1">
-                    <p class="narration-line" data-scene="pilar-1" data-mode="meet">Near the shore, someone stands knee-deep in the current, walking a measured line upstream.</p>
-                    <p class="narration-line" data-scene="pilar-1" data-mode="with">Ethan wades in to the knees and starts walking a measured line upstream.</p>
+                <div class="narration page" data-beat="1">
+                    <p class="line narration-line" data-scene="pilar-1" data-mode="meet">Near the shore, someone stands knee-deep in the current, walking a measured line upstream.</p>
+                    <p class="line narration-line" data-scene="pilar-1" data-mode="with">Ethan wades in to the knees and starts walking a measured line upstream.</p>
                 </div>
-                <div class="narration" data-beat="2">
-                    <p class="narration-line" data-scene="pilar-1" data-mode="meet">Ten meters. A pause. Ten meters again.</p>
+                <div class="narration page" data-beat="2">
+                    <p class="line narration-line" data-scene="pilar-1" data-mode="meet">Ten meters. A pause. Ten meters again.</p>
                 </div>
-                <div class="narration" data-beat="3">
-                    <p class="narration-line" data-scene="pilar-1" data-mode="meet">You call down, “What are you doing down there?”</p>
-                    <p class="narration-line" data-scene="pilar-1" data-mode="with">Ten meters. A pause. Ten meters again.</p>
+                <div class="narration page" data-beat="3">
+                    <p class="line narration-line" data-scene="pilar-1" data-mode="meet">You call down, “What are you doing down there?”</p>
+                    <p class="line narration-line" data-scene="pilar-1" data-mode="with">Ten meters. A pause. Ten meters again.</p>
                 </div>
-                <div class="narration" data-beat="4">
-                    <p class="narration-line" data-scene="pilar-1" data-mode="meet">“Sampling for fish!”</p>
-                    <p class="narration-line" data-scene="pilar-1" data-mode="with">“Sampling for fish,” Ethan calls back over the current.</p>
+                <div class="narration page" data-beat="4">
+                    <p class="line narration-line" data-scene="pilar-1" data-mode="meet">“Sampling for fish!”</p>
+                    <p class="line narration-line" data-scene="pilar-1" data-mode="with">“Sampling for fish,” Ethan calls back over the current.</p>
                 </div>
-                <div class="narration" data-beat="5">
-                    <p class="narration-line" data-scene="pilar-1" data-mode="meet">The figure wades out and offers you a wet hand. “Ethan.”</p>
+                <div class="narration page" data-beat="5">
+                    <p class="line narration-line" data-scene="pilar-1" data-mode="meet">The figure wades out and offers you a wet hand. “Ethan.”</p>
                 </div>
 
                 <section class="project-section env-section" data-section="story">
@@ -174,23 +179,28 @@
 
                 <!-- The CYOA: one choice per Document section. Labels are the section headings;
                      narrative choice labels are Ethan's to write. -->
-                <nav class="env-choices" aria-label="Choices">
-                    <button type="button" class="env-choice" data-choose="story">The story</button>
-                    <button type="button" class="env-choice" data-choose="whatIDid">What I did</button>
-                    <button type="button" class="env-choice" data-choose="process">Process</button>
-                    <button type="button" class="env-choice" data-choose="outcome">Outcome</button>
-                    <button type="button" class="env-choice" data-choose="reflection">Reflection</button>
-                </nav>
+                <div class="controls">
+                    <button type="button" class="continue">Continue <kbd>space</kbd></button>
+                    <nav class="choices env-choices" aria-label="Choices">
+                    <button type="button" class="choice env-choice" data-choose="story">The story <span class="mark" aria-hidden="true">→</span></button>
+                    <button type="button" class="choice env-choice" data-choose="whatIDid">What I did <span class="mark" aria-hidden="true">→</span></button>
+                    <button type="button" class="choice env-choice" data-choose="process">Process <span class="mark" aria-hidden="true">→</span></button>
+                    <button type="button" class="choice env-choice" data-choose="outcome">Outcome <span class="mark" aria-hidden="true">→</span></button>
+                    <button type="button" class="choice env-choice" data-choose="reflection">Reflection <span class="mark" aria-hidden="true">→</span></button>
+                    </nav>
+                </div>
 
                 <nav class="crossings" aria-labelledby="crossings-heading">
                     <h2 class="project-section-title crossing-plain" id="crossings-heading">Related work</h2>
-                    <a href="../../../../projects/beavers-burden.html" class="crossing">
+                    <a href="../../../../projects/beavers-burden.html" class="crossing choice">
                         <span class="crossing-narrative">Follow the water north with Ethan</span>
                         <span class="crossing-plain">Beaver's Burden</span>
+                        <span class="mark" aria-hidden="true">→</span>
                     </a>
-                    <a href="../three-little-pigs/index.html" class="crossing">
+                    <a href="../three-little-pigs/index.html" class="crossing choice">
                         <span class="crossing-narrative">Ask Ethan what he builds</span>
                         <span class="crossing-plain">3 Little Pigs Wall Assembly</span>
+                        <span class="mark" aria-hidden="true">→</span>
                     </a>
                 </nav>
 
@@ -201,7 +211,30 @@
                 </nav>
                 <p class="env-foot">Ethan Shig Anderson · <a href="../../../../contact.html">Contact</a></p>
             </div>
-        </aside>
+        </section>
+        <!-- The plate: what you are looking at, and the tools to look closer. -->
+        <div class="plate" id="plate" data-outline-off>
+            <div class="row">
+                <div class="cap">
+                <p class="plate-cap" data-drawing="plt-canoe"><b>Line-traced photo, Pilar</b><span> · Anthropogenic Effects of Construction on Freshwater Aquatic Biodiversity · 2024</span></p>
+                <p class="plate-cap" data-drawing="plt-poster"><b>Research poster</b><span> · Anthropogenic Effects of Construction on Freshwater Aquatic Biodiversity · 2024</span></p>
+                <p class="plate-cap" data-drawing="plt-piranha"><b>Specimen photo</b><span> · Anthropogenic Effects of Construction on Freshwater Aquatic Biodiversity · 2024</span></p>
+                <p class="plate-cap" data-drawing="plt-mugshot"><b>Fish “mugshot”</b><span> · Anthropogenic Effects of Construction on Freshwater Aquatic Biodiversity · 2024</span></p>
+                </div>
+                <div class="tools">
+                    <button type="button" data-zoom="out" aria-label="Zoom out" title="Zoom out">−</button>
+                    <button type="button" data-fit aria-label="Fit the drawing to the screen" title="Fit the drawing to the screen">Fit</button>
+                    <button type="button" data-zoom="in" aria-label="Zoom in" title="Zoom in">+</button>
+                    <span class="sep" aria-hidden="true"></span>
+                    <button type="button" data-describe aria-label="Read a description of the drawing" title="Read a description of the drawing"><span class="is-show">Describe</span><span class="is-hide">Hide description</span></button>
+                </div>
+            </div>
+        <p class="alt" data-drawing="plt-canoe">A photo traced with bold outlines: a small boat moored beside a grassy riverbank reinforced with a concrete grid, under a cloudy sky.</p>
+        <p class="alt" data-drawing="plt-poster">Research poster titled &quot;Anthropogenic Effects of Construction on Freshwater Aquatic Biodiversity&quot; with the Para La Tierra logo: study objectives, hypothesis and methods, a photo of two people seining in shallow water, a table of fish counts by site, and two stacked bar charts of fish caught at each site.</p>
+        <p class="alt" data-drawing="plt-piranha">A small spotted piranha lying on a white mesh board beneath a ruler, photographed for identification, with the date and GPS coordinates stamped along the edge.</p>
+        <p class="alt" data-drawing="plt-mugshot">A sepia booking photo of a fish in profile, holding a placard that reads &quot;PARALATIERRA 53263&quot;.</p>
+        </div>
+        <button type="button" class="story-tab" id="story-tab">Back to the story</button>
     </main>
 
     <!-- The sheet: flat, in dot steps (u right, v down). -->

@@ -160,7 +160,7 @@ function fitInGlb(fit, offset) {
 /* ===================================================================
    createSheet
    =================================================================== */
-export async function createSheet({ stage, data, views, reduceMotion, freeRegion }) {
+export async function createSheet({ stage, data, views, reduceMotion, freeRegion, onFocus = () => {} }) {
   validateSheet(data);
   const dotsCanvas = stage.querySelector('canvas.env-dots');
   const glHost = stage.querySelector('.env-gl');
@@ -375,7 +375,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   if (model) {
     const { box, group } = model;
     let axonIndex = 0;
-    const axonOffsets = [2.6, 0, -2.6];          /* ft, so near-parallel arrows do not overlap */
+    const axonOffsets = [4.5, 0, -4.5];          /* ft, so near-parallel arrows (axon 2 and 3 differ by ~2 deg) do not overlap */
     for (const d of drawings) {
       if (!d.markLabel) continue;
       const bubble = bubbleFor(d.id);
@@ -409,10 +409,18 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
         };
         const B2 = d.bounds2d;
         const pts = [back2d(B2.x0, B2.y0), back2d(B2.x1, B2.y0), back2d(B2.x0, B2.y1), back2d(B2.x1, B2.y1)];
-        const gy0 = Math.max(Math.min(...pts.map((p) => p[0])), box.min.y - MARK_MARGIN_FT);
-        const gy1 = Math.min(Math.max(...pts.map((p) => p[0])), box.max.y + MARK_MARGIN_FT);
-        const gz0 = Math.max(Math.min(...pts.map((p) => p[1])), box.min.z - MARK_MARGIN_FT);
-        const gz1 = Math.min(Math.max(...pts.map((p) => p[1])), box.max.z + MARK_MARGIN_FT);
+        /* The drawing's extent through the fit, clipped to the face. Where it covers most of
+           the face (COVER), the cut is the face: the fit's scale is a least-squares estimate
+           (the section's runs 1.068 across, yet its linework is exactly the model's 35.67 ft). */
+        const COVER = 0.8;
+        const fy0 = box.min.y - MARK_MARGIN_FT, fy1 = box.max.y + MARK_MARGIN_FT;
+        const fz0 = box.min.z - MARK_MARGIN_FT, fz1 = box.max.z + MARK_MARGIN_FT;
+        let gy0 = Math.max(Math.min(...pts.map((p) => p[0])), fy0);
+        let gy1 = Math.min(Math.max(...pts.map((p) => p[0])), fy1);
+        let gz0 = Math.max(Math.min(...pts.map((p) => p[1])), fz0);
+        let gz1 = Math.min(Math.max(...pts.map((p) => p[1])), fz1);
+        if ((gy1 - gy0) >= COVER * (fy1 - fy0)) { gy0 = fy0; gy1 = fy1; }
+        if ((gz1 - gz0) >= COVER * (fz1 - fz0)) { gz0 = fz0; gz1 = fz1; }
         if (!(gy1 > gy0 && gz1 > gz0)) {
           console.warn(`[sheet3d] ${d.id}: the drawing does not overlap the model through its fit; no mark`);
           if (bubble) bubble.hidden = true;
@@ -448,7 +456,8 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
         const xEnd = back.x >= 0 ? box.max.x : box.min.x;
         const off = axonOffsets[axonIndex % axonOffsets.length];
         axonIndex++;
-        const E = V([xEnd, (box.min.y + box.max.y) / 2 + off, (box.min.z + box.max.z) / 2]);
+        /* aimed at the upper part of the end, where the wall stands above its ground */
+        const E = V([xEnd, box.min.y + 0.62 * (box.max.y - box.min.y) + off, (box.min.z + box.max.z) / 2]);
         const head = E.clone().addScaledVector(back, 2.4);
         const tail = E.clone().addScaledVector(back, 8.5);
         arrow(markGroup, tail, head, lineM, headM);
@@ -507,13 +516,14 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     }
     mean.multiplyScalar(1 / points.length);
     const free = freeRegion();
-    const fh = Math.max(40, free.bottom - free.top);
-    const s = clamp(Math.min((W - 2 * PAD_PX) / Math.max(r1 - r0, 1e-3), (fh - 2 * PAD_PX) / Math.max(u1 - u0, 1e-3)), S_MIN, S_MAX);
+    const fw = Math.max(40, free.right - free.left), fh = Math.max(40, free.bottom - free.top);
+    const s = clamp(Math.min((fw - 2 * PAD_PX) / Math.max(r1 - r0, 1e-3), (fh - 2 * PAD_PX) / Math.max(u1 - u0, 1e-3)), S_MIN, S_MAX);
     const C = mean.clone()
       .addScaledVector(right, (r0 + r1) / 2 - mean.dot(right))
       .addScaledVector(up, (u0 + u1) / 2 - mean.dot(up));
-    const fc = (free.top + free.bottom) / 2;
-    return { q: q.clone(), T: C.addScaledVector(up, (fc - H / 2) / s), s };
+    /* the content centre lands on the free region's centre, not the stage's */
+    const fcx = (free.left + free.right) / 2, fcy = (free.top + free.bottom) / 2;
+    return { q: q.clone(), T: C.addScaledVector(up, (fcy - H / 2) / s).addScaledVector(right, -(fcx - W / 2) / s), s };
   }
 
   /* resolve a view target to a camera; unknown or unusable targets fall back loudly */
@@ -544,13 +554,18 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
 
   function setCam(c) { cam.q.copy(c.q); cam.T.copy(c.T); cam.s = c.s; dirty = true; kick(); }
 
+  let lastTarget = views.get('arrival').target;
+  let moved = false;              /* the reader has driven the camera since the last view */
   function show(target, { animate = !reduceMotion } = {}) {
     const to = cameraFor(target);
+    lastTarget = target;
+    moved = false;
     if (!animate) { fly = null; setCam(to); return; }
     fly = { from: { q: cam.q.clone(), T: cam.T.clone(), s: cam.s }, to, t0: performance.now() / 1000, dur: T_FLY };
     kick();
   }
   const home = (opts) => show(views.get('arrival').target, opts);
+  const focusOf = (t) => (typeof t === 'string' ? t : Array.isArray(t) ? t[0] : t && t.snap) || null;
   const snapTo = (id) => show({ snap: id });
 
   function stepFly(t) {
@@ -672,13 +687,14 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   function activate(id, how) {
     const d = byId.get(id);
     if (!d) return;
-    if (how === 'body' && ghost > 0.5) { home(); return; }
+    if (how === 'body' && ghost > 0.5) { home(); onFocus(focusOf(views.get('arrival').target)); return; }
+    onFocus(id);
     if (how !== 'body' && d.fit && d.fit.registered && model && d.mark) { snapTo(id); return; }
     show(id);
   }
 
   attachGestures(stage, {
-    begin() { fly = null; orbitPivot = null; },
+    begin() { fly = null; orbitPivot = null; moved = true; },
     orbit(dx, dy) {
       if (!orbitPivot) orbitPivot = pivot();
       const { right } = camAxes();
@@ -720,7 +736,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   });
   overlay.addEventListener('focusin', (e) => { const id = hoverTarget(e); if (id && byId.has(id)) setHot(id); });
   overlay.addEventListener('focusout', () => setHot(null));
-  if (homeBtn) homeBtn.addEventListener('click', () => home());
+  if (homeBtn) homeBtn.addEventListener('click', () => { home(); onFocus(focusOf(views.get('arrival').target)); });
   stage.addEventListener('keydown', (e) => { if (e.key === 'Escape' && ghost > 0.01) { e.preventDefault(); home(); } });
 
   /* ===================================================================
@@ -811,6 +827,13 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     home,
     snapTo,
     resize,
+    /* re-frame the last view for a new free region, unless the reader has moved the camera */
+    refit({ force = false, animate = !reduceMotion } = {}) { if (force || !moved) show(lastTarget, { animate }); },
+    zoomBy(f) {
+      const free = freeRegion();
+      fly = null;
+      zoomAt(f, (free.left + free.right) / 2, (free.top + free.bottom) / 2);
+    },
     /* verification only: numbers, never text */
     debug() {
       const { back } = camAxes();
