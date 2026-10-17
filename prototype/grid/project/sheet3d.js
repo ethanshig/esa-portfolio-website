@@ -82,13 +82,21 @@ const MARK_MARGIN_FT = 0.5;
 /* section / view marks: quiet at rest, full on hover (round 6) */
 const MARK_W = { rest: 1.0, hot: 1.8 };
 const MARK_A = { rest: 0.55, hot: 1 };
-const MARK_FILL = { rest: 0.05, hot: 0.18 };         /* the cut rectangle stands this far proud of the end face */
+const MARK_FILL = { rest: 0.05, hot: 0.18 };
+/* story focus (prototype, round 8): everything stays on the sheet; what the story points at holds
+   full ink and the rest dims to DIM. ?focus=off keeps everything lit, for comparison. */
+const DIM = 0.2;
+const FOCUS_EASE = 0.16;            /* seconds: the time constant of the dim */         /* the cut rectangle stands this far proud of the end face */
 
 /* line weights, css px at a 16 px step; scaled with zoom inside [0.55, 1.5] */
 const WEIGHT_PX = { heavy: 2.1, medium: 1.25, light: 0.65 };
 
 const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 const calm = (u) => 0.5 - 0.5 * Math.cos(Math.PI * clamp(u, 0, 1));
+function mixCss(a, b, t) {      /* t = 1: a; t = 0: b */
+  const A = new THREE.Color(a), B = new THREE.Color(b);
+  return '#' + B.lerp(A, t).getHexString();
+}
 const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
 const V = (a) => new THREE.Vector3(a[0], a[1], a[2]);
 
@@ -271,10 +279,11 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   }
 
   const drawings = [];
+  const lineMats = [];
   for (const d of data.drawings) {
     const title = overlay.querySelector(`.env-title[data-drawing="${d.id}"]`);
     if (!title) console.warn(`[sheet3d] ${d.id}: no title in the HTML`);
-    const item = { ...d, title, fit: null, mark: null };
+    const item = { ...d, title, fit: null, mark: null, f: 1, focusTo: 1 };
 
     if (d.kind === 'vector') {
       const src = linework.drawings[d.source];
@@ -299,7 +308,9 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
       }
       for (const [w, arr] of Object.entries(buckets)) {
         if (!arr.length) continue;
-        const line = new LineSegments2(new LineSegmentsGeometry().setPositions(arr), weightMats[w]);
+        const m = weightMats[w].clone();               /* per drawing, so one can dim alone */
+        lineMats.push({ m, w, item });
+        const line = new LineSegments2(new LineSegmentsGeometry().setPositions(arr), m);
         line.renderOrder = 2;
         paperGroup.add(line);
       }
@@ -311,6 +322,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
         color: 0xffffff, transparent: true, depthWrite: false, side: THREE.DoubleSide, toneMapped: false,
       });
       rasterMats.push(mat);
+      item.mat = mat;
       const plane = new THREE.Mesh(new THREE.PlaneGeometry(d.w, h), mat);
       const c = paper((item.rect.u0 + item.rect.u1) / 2, (item.rect.v0 + item.rect.v1) / 2);
       plane.quaternion.copy(Q_HOME);
@@ -689,7 +701,40 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
 
   let lastTarget = views.get('arrival').target;
   let moved = false;              /* the reader has driven the camera since the last view */
+  /* ---------- story focus ---------- */
+  const focusEnabled = new URLSearchParams(location.search).get('focus') !== 'off';
+  const storyOff = () => document.documentElement.getAttribute('data-story') === 'off';
+  const modelFocus = { f: 1, focusTo: 1 };
+  let lit = null;                   /* the ids at full ink, or null: everything */
+  let focusT = 0;
+  function litFor(target) {
+    if (target === 'sheet' || target == null) return null;
+    if (typeof target === 'string') return new Set([target]);
+    if (Array.isArray(target)) return new Set(target.flatMap((t) => [...(litFor(t) || [])]));
+    if (target.snap) return new Set([target.snap, 'model']);      /* a drawing's view, seen on the model */
+    return null;
+  }
+  function setFocus(target) {
+    lit = focusEnabled && !storyOff() ? litFor(target) : null;
+    for (const d of drawings) d.focusTo = !lit || lit.has(d.id) ? 1 : DIM;
+    modelFocus.focusTo = !lit || lit.has('model') ? 1 : DIM;
+    dirty = true; kick();
+  }
+  function focusMoving() {
+    return modelFocus.f !== modelFocus.focusTo || drawings.some((d) => d.f !== d.focusTo);
+  }
+  function stepFocus(now) {
+    /* its own clock, a frame at most: a re-frame mid-fade must not restart it */
+    const k = 1 - Math.exp(-Math.min(0.1, Math.max(0, now - focusT)) / FOCUS_EASE);
+    focusT = now;
+    for (const o of drawings.concat([modelFocus])) {
+      o.f += (o.focusTo - o.f) * (reduceMotion ? 1 : k);
+      if (Math.abs(o.f - o.focusTo) < 0.004) o.f = o.focusTo;
+    }
+  }
+
   function show(target, { animate = !reduceMotion } = {}) {
+    setFocus(target);
     const to = cameraFor(target);
     lastTarget = target;
     moved = false;
@@ -837,7 +882,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   }
 
   attachGestures(stage, {
-    begin() { fly = null; orbitPivot = null; moved = true; onHold(); },
+    begin() { fly = null; orbitPivot = null; moved = true; onHold(); if (lit) setFocus('sheet'); },
     orbit(dx, dy) {
       if (!orbitPivot) orbitPivot = pivot();
       const { right } = camAxes();
@@ -922,8 +967,26 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     }
     const op = 1 - (1 - GHOST_OPACITY) * ghost;
     const zoomK = clamp(cam.s / 16, 0.55, 1.5) * (1 - 0.45 * ghost);
-    for (const [w, m] of Object.entries(weightMats)) { m.linewidth = WEIGHT_PX[w] * zoomK; m.opacity = op; }
-    for (const m of rasterMats) m.opacity = op;
+    if (lit && storyOff()) setFocus('sheet');
+    stepFocus(performance.now() / 1000);
+    for (const { m, w, item } of lineMats) { m.linewidth = WEIGHT_PX[w] * zoomK; m.opacity = op * item.f; }
+    for (const d of drawings) {
+      if (d.mat) d.mat.opacity = op * d.f;
+      const dimmed = d.f < 0.999 ? (0.3 + 0.7 * (d.f - DIM) / (1 - DIM)).toFixed(3) : '';
+      if (d.title) d.title.style.opacity = dimmed;
+      if (d.mark) {
+        const hotNow = hot === d.id;
+        d.mark.lineM.opacity = (hotNow ? MARK_A.hot : MARK_A.rest) * (hotNow ? 1 : d.f);
+        if (d.mark.fillM) d.mark.fillM.opacity = (hotNow ? MARK_FILL.hot : MARK_FILL.rest) * (hotNow ? 1 : d.f);
+        if (d.mark.bubble) d.mark.bubble.style.opacity = hotNow ? '' : dimmed;
+      }
+    }
+    if (model && modelFocus.f !== modelFocus.applied) {
+      /* the model dims by drawing its ink nearer the ground */
+      modelFocus.applied = modelFocus.f;
+      ink.setColors(mixCss(colors.ink, colors.bg, modelFocus.f), colors.bg);
+      if (modelTitle) modelTitle.style.opacity = modelFocus.f < 0.999 ? (0.3 + 0.7 * (modelFocus.f - DIM) / (1 - DIM)).toFixed(3) : '';
+    }
     frameMat.opacity = Math.max(op, 0.5);
     const inkW = lineWidthForStep(clamp(cam.s, 12, 26));
     ink.setLineWidth(inkW);
@@ -995,7 +1058,8 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
       dots.twinkle(now);
       if (lattice && lattice.twinkling && lift > 0.001) { lattice.setTime(now); renderer.render(scene, camera); }
     }
-    if (fly || dots.twinkling) kick();
+    if (focusMoving()) dirty = true;
+    if (fly || dots.twinkling || focusMoving()) kick();
   }
 
   function resize() {
@@ -1037,6 +1101,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
       const out = {
         camera: { q: cam.q.toArray(), T: cam.T.toArray(), s: cam.s, back: back.toArray() },
         flying: !!fly,
+        focus: { lit: lit ? [...lit] : null, model: +modelFocus.f.toFixed(2), drawings: Object.fromEntries(drawings.map((d) => [d.id, +d.f.toFixed(2)])) },
         ghost,
         webgl: true,
         hot,
