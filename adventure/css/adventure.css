@@ -16,7 +16,7 @@
     --ink: #161616;
     --muted: #6e6b62;
     --line: rgba(22, 22, 22, 0.2);
-    --accent: #bb3c28;
+    --accent: #b7a2ff;     /* nebula lavender, site-wide (was #bb3c28; ADR-0007) */
 }
 
 * { box-sizing: border-box; }

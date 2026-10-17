@@ -44,7 +44,7 @@
        whatever lies behind them. */
     --color-primary: #e9ecee;        /* Cool near-white */
     --color-secondary: #a2a9ad;      /* Cool light grey */
-    --color-accent: #c47a5c;         /* Terracotta, the one accent */
+    --color-accent: #b7a2ff;         /* Nebula lavender, the one accent (was terracotta #c47a5c; ADR-0007) */
     --color-bg: #0d0f11;             /* Cool black */
     --color-bg-alt: #14171a;         /* Cool black, one shade up */
     --color-text: #e9ecee;           /* Cool near-white */

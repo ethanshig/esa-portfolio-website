@@ -46,8 +46,9 @@ small step in size and ink (1.3× the radius, about half the ink), not by the no
 The dots are a quiet star field on the black ground: one dot in two carries a faint tint of the
 nebula set (violet, blue, rose, pale gold, a rare ember, each mixed halfway to white), and about
 one in five breathes on a slow 4–11 s cycle. Every star's colour and rhythm come from its paper
-node, so panning never reshuffles the sky; reduced motion holds them still. The sheet's accent is
-nebula lavender `#b7a2ff`, not the site's terracotta.
+node, so panning never reshuffles the sky; reduced motion holds them still. The accent is nebula
+lavender `#b7a2ff` site-wide (2026-10-17), replacing terracotta; on a light ground it deepens to
+`#6b52d6` (5.3:1 on white).
 
 **The model stands on the paper at its origin.** The paper passes through the model's Rhino world
 origin — for three-little-pigs, grade at the wall's far end — snapped to an axon node. Off home,
@@ -76,4 +77,4 @@ drawing or model part it is about. Those views are authored by Ethan; the protot
 `#proposed`. Records need their drawings' provenance (Make2D layer, sheet file) recorded so marks
 can be measured; only three-little-pigs has that today. A model's export needs its Rhino offset kept
 (`glbOffsetRhino`), since the origin is where the model meets the paper. Still open: whether the
-lavender accent and the star field go site-wide.
+star field goes beyond the sheet, onto pages where the lattice is currently a measure, not a drawing.
