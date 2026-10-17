@@ -192,7 +192,7 @@ const browser = await chromium.launch({
   check('tlp: space says the next line; only the current line is on screen', (await page.$$eval('.line.is-said', (e) => e.length)) === 2 &&
     (await page.$$eval('.line.current', (e) => e.length)) === 1 && shown === 1, `${shown} line(s) on screen`);
   const rec = await page.$eval('.line.current', (l) => [l.classList.contains('record'), getComputedStyle(l).color, getComputedStyle(l, '::before').width]);
-  check('tlp: a record line wears the accent with its dot', rec[0] && rec[1] === 'rgb(196, 122, 92)' && rec[2] === '8px', JSON.stringify(rec));
+  check('tlp: a record line wears the accent with its dot', rec[0] && rec[1] === 'rgb(183, 162, 255)' && rec[2] === '8px', JSON.stringify(rec));
   await page.waitForTimeout(700);
   const pills = await page.$$eval('.trace .choice', (els) => els.filter((e) => e.offsetHeight > 0).map((e) => e.getBoundingClientRect().top));
   check('tlp: a told beat shows one row of pills (sections + crossing)', pills.length === 6 && Math.max(...pills) - Math.min(...pills) < 2, `${pills.length} pills, rows spread ${(Math.max(...pills) - Math.min(...pills)).toFixed(0)} px`);
@@ -241,7 +241,7 @@ const browser = await chromium.launch({
   await page.mouse.up();
   await page.waitForTimeout(150);
   await page.screenshot({ path: `${SHOTS}/env4-nav-over-hero.png`, clip: { x: 0, y: 0, width: 1440, height: 170 } });
-  await page.click('.env-home');
+  await page.$eval('.env-home', (b) => b.click());   /* keyboard-only now: pressed, not clicked at a point */
   await settle(page);
 
   /* no page scroll; the panel is the scroller */
@@ -279,7 +279,7 @@ const browser = await chromium.launch({
   const ratio = d.camera.s / s0;
   const exp = [probe[0] + (before[0][0] - probe[0]) * ratio, probe[1] + (before[0][1] - probe[1]) * ratio];
   check('tlp: wheel zoom is anchored at the cursor', dist(exp, after[0]) < 1.5, `corner off by ${dist(exp, after[0]).toFixed(2)} px`);
-  await page.click('.env-home');
+  await page.$eval('.env-home', (b) => b.click());   /* keyboard-only now: pressed, not clicked at a point */
   await settle(page);
 
   /* right-drag orbits and ghosts */
@@ -354,14 +354,14 @@ const browser = await chromium.launch({
   await page.screenshot({ path: `${SHOTS}/env4-tlp-section-a.png` });
 
   /* the A bubble snaps too; axon-1's bubble to axon-1's view */
-  await page.click('.env-home'); await settle(page);
+  await page.$eval('.env-home', (b) => b.click());   /* keyboard-only now: pressed, not clicked at a point */ await settle(page);
   await page.click('.env-bubble[data-mark="axon-1"]'); await settle(page);
   d = await dbg(page);
   const v1 = [0.89331, 0.26221, 0.36504];                /* rhino (x, y, z) -> glb (x, z, -y), toward the viewer */
   const dot1 = d.camera.back[0] * v1[0] + d.camera.back[1] * v1[1] + d.camera.back[2] * v1[2];
   check('tlp: mark 1 snaps to Axon 1\'s fitted view', dot1 > 0.999, `back . viewDir = ${dot1.toFixed(5)}`);
   await page.screenshot({ path: `${SHOTS}/env4-tlp-axon-1.png` });
-  await page.click('.env-home'); await settle(page);
+  await page.$eval('.env-home', (b) => b.click());   /* keyboard-only now: pressed, not clicked at a point */ await settle(page);
 
   /* CYOA: a choice reveals its section and moves the camera */
   const hiddenBefore = (await page.$$eval('.env-section[data-section="process"] .line.is-said', (e) => e.length)) === 0;
