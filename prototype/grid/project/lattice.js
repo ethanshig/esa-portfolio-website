@@ -36,19 +36,12 @@ const MAX_POINTS = 60000;
 const VERT = /* glsl */ `
 attribute vec3 aFlat;
 attribute float aAlpha;
-attribute vec3 aColor;
-attribute vec3 aTw;      /* twinkles (0/1), phase, period (s) */
 uniform float uLift;
 uniform float uSize;
-uniform float uTime;
-uniform float uAmp;
 varying float vAlpha;
-varying vec3 vColor;
 void main() {
   vec3 p = mix(aFlat, position, uLift);
-  float s = 0.5 + 0.5 * sin((uTime / aTw.z + aTw.y) * 6.2831853);
-  vAlpha = aAlpha * mix(1.0, 1.0 - uAmp * 0.5 + uAmp * s * s * s, aTw.x);
-  vColor = aColor;
+  vAlpha = aAlpha;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
   gl_PointSize = uSize;
 }`;
@@ -58,9 +51,7 @@ uniform float uOpacity;
 uniform float uRing;
 uniform float uShape;   /* 0 dot, 2 plus, 3 cross (the 2:1 plan axes) */
 uniform float uStroke;  /* stroke half-width, as a share of the sprite */
-uniform float uStars;   /* 1: each point in its own star colour */
 varying float vAlpha;
-varying vec3 vColor;
 void main() {
   vec2 c = gl_PointCoord * 2.0 - 1.0;
   float r = length(c);
@@ -74,7 +65,7 @@ void main() {
     if (r > 1.0) discard;
     if (uRing > 0.5 && r < 0.55) discard;
   }
-  gl_FragColor = vec4(uStars > 0.5 ? vColor : uColor, uOpacity * vAlpha);
+  gl_FragColor = vec4(uColor, uOpacity * vAlpha);
 }`;
 
 /* these shaders write gl_FragColor straight to the canvas, so the CSS colour goes in as-is:
@@ -84,7 +75,7 @@ const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a
 
 /* origin: world point projecting onto a bold node; backH: the home view's back vector;
    toUV(world) -> [u, v] steps on the paper. box: the model's world-space bounds (Box3). */
-export function buildLattice({ origin, backH, toUV, nodeUV, box, extent, drawingRects, clearDrawings, sheetRect, color, accent = color, stars = null }) {
+export function buildLattice({ origin, backH, toUV, nodeUV, box, extent, drawingRects, clearDrawings, sheetRect, color, accent = color }) {
   if (!['tight', 'sheet', 'ground'].includes(extent)) throw new Error(`lattice: extent must be tight, sheet or ground, got "${extent}"`);
   const st = gridStyle();
   const size = box.getSize(new THREE.Vector3());
@@ -96,8 +87,7 @@ export function buildLattice({ origin, backH, toUV, nodeUV, box, extent, drawing
   const j0 = Math.floor(rel.y / H_UNIT) - 1, j1 = Math.ceil((rel.y + size.y) / H_UNIT) + 1;
 
   const blocked = (u, v) => clearDrawings && drawingRects.some((r) => u >= r.u0 - 1 && u <= r.u1 + 1 && v >= r.v0 - 1 && v <= r.v1 + 1);
-  const pos = [], flat = [], alpha = [], col = [], tw = [];
-  const F = new THREE.Vector3();
+  const pos = [], flat = [], alpha = [];
   const fade = extent === 'tight' ? [0.55 * R, 1.25 * R] : extent === 'ground' ? [0.7 * R, 1.6 * R] : [0.9 * R, 3.2 * R];
   const P = new THREE.Vector3();
   function add(i, j, m) {
@@ -110,12 +100,6 @@ export function buildLattice({ origin, backH, toUV, nodeUV, box, extent, drawing
     pos.push(P.x, P.y, P.z);
     flat.push(P.x - backH.x * d, P.y - backH.y * d, P.z - backH.z * d);
     alpha.push(a);
-    /* the star of the dot this point collapses onto */
-    const [nu, nv] = toUV(F.set(P.x - backH.x * d, P.y - backH.y * d, P.z - backH.z * d)).map(Math.round);
-    const sd = stars ? stars.seed(nu, nv) : { ci: 0, tw: 0, phase: 0, period: 1 };
-    const rgb = stars ? stars.rgb[sd.ci] : [255, 255, 255];
-    col.push(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255);
-    tw.push(sd.tw, sd.phase, sd.period);
   }
   if (extent === 'ground') {
     /* one level: the plane the model stands on (j = 0 is the origin's level), a margin around the footprint */
@@ -145,16 +129,12 @@ export function buildLattice({ origin, backH, toUV, nodeUV, box, extent, drawing
   geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
   geo.setAttribute('aFlat', new THREE.Float32BufferAttribute(flat, 3));
   geo.setAttribute('aAlpha', new THREE.Float32BufferAttribute(alpha, 1));
-  geo.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
-  geo.setAttribute('aTw', new THREE.Float32BufferAttribute(tw, 3));
-  const useStars = !!stars && stars.key !== 'copper' && !st.tint;
   const mat = new THREE.ShaderMaterial({
     vertexShader: VERT, fragmentShader: FRAG, transparent: true, depthWrite: false,
     uniforms: {
       uLift: { value: 0 }, uSize: { value: 4 }, uColor: { value: rawColor(st.tint ? accent : color) },
       uOpacity: { value: 1 }, uRing: { value: 0 },
       uShape: { value: st.shape === 'plus' ? 2 : st.shape === 'cross' ? 3 : 0 }, uStroke: { value: 0.12 },
-      uStars: { value: useStars ? 1 : 0 }, uTime: { value: 0 }, uAmp: { value: stars ? stars.amp : 0 },
     },
   });
   const points = new THREE.Points(geo, mat);
@@ -164,8 +144,6 @@ export function buildLattice({ origin, backH, toUV, nodeUV, box, extent, drawing
   return {
     points, count, pos, flat,
     /* lift: 0..1; stepPx: css px per step; dpr; opacity: the paper's ink strength */
-    twinkling: !!stars && stars.amp > 0,
-    setTime(t) { mat.uniforms.uTime.value = t; },
     update(lift, stepPx, dpr, opacity) {
       mat.uniforms.uLift.value = lift;
       /* the style's mark, at the style's weight; 'lines' has no node mark, so a small quiet dot stands in */
@@ -193,14 +171,11 @@ export function cornerRings(cornersWorld, color) {
   geo.setAttribute('position', new THREE.Float32BufferAttribute(flatPos, 3));
   geo.setAttribute('aFlat', new THREE.Float32BufferAttribute(flatPos, 3));
   geo.setAttribute('aAlpha', new THREE.Float32BufferAttribute(cornersWorld.map(() => 1), 1));
-  geo.setAttribute('aColor', new THREE.Float32BufferAttribute(cornersWorld.flatMap(() => [1, 1, 1]), 3));
-  geo.setAttribute('aTw', new THREE.Float32BufferAttribute(cornersWorld.flatMap(() => [0, 0, 1]), 3));
   const mat = new THREE.ShaderMaterial({
     vertexShader: VERT, fragmentShader: FRAG, transparent: true, depthWrite: false, depthTest: false,
     uniforms: {
       uLift: { value: 1 }, uSize: { value: 11 }, uColor: { value: rawColor(color) },
       uOpacity: { value: 0.95 }, uRing: { value: 1 }, uShape: { value: 0 }, uStroke: { value: 0.12 },
-      uStars: { value: 0 }, uTime: { value: 0 }, uAmp: { value: 0 },
     },
   });
   const pts = new THREE.Points(geo, mat);

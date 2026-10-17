@@ -43,10 +43,9 @@ focus), with Escape. Touch gets one-finger pan, two-finger orbit, pinch zoom.
 
 **The paper supports; it never competes.** The axon dots are told from the cartesian ones by a
 small step in size and ink (1.3× the radius, about half the ink), not by the notebook's bold dot.
-The dots are a quiet star field on the black ground: one dot in two carries a faint tint of the
-nebula set (violet, blue, rose, pale gold, a rare ember, each mixed halfway to white), and about
-one in five breathes on a slow 4–11 s cycle. Every star's colour and rhythm come from its paper
-node, so panning never reshuffles the sky; reduced motion holds them still. The accent is nebula
+The dots are plain ink and hold still. A nebula star field (tinted dots, one in five breathing)
+was tried and removed on 2026-10-17: it held the main thread 37–80% busy while the page sat idle,
+and it was not doing what Ethan wanted. It survives at tag `prototype/grid-variants-r7`. The accent is nebula
 lavender `#b7a2ff` site-wide (2026-10-17), replacing terracotta; on a light ground it deepens to
 `#6b52d6` (5.3:1 on white).
 
@@ -76,6 +75,5 @@ no-WebGL fallback rather than the page. Each section needs a *view* in the conte
 drawing or model part it is about. Those views are authored by Ethan; the prototype's are marked
 `#proposed`. Records need their drawings' provenance (Make2D layer, sheet file) recorded so marks
 can be measured; only three-little-pigs has that today. A model's export needs its Rhino offset kept
-(`glbOffsetRhino`), since the origin is where the model meets the paper. The star field also runs
-behind the index (`js/starfield.js`, 2026-10-17), which retires the September ruling that the
-lattice there is a measure, not a drawing; the index itself is due a substantial rework.
+(`glbOffsetRhino`), since the origin is where the model meets the paper. The index paints no paper:
+there the lattice is a measure, not a drawing. The index itself is due a substantial rework.

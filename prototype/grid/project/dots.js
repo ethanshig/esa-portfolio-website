@@ -16,7 +16,6 @@
    =================================================================== */
 import { isBold } from '../axon/dimetric.js';
 import { gridStyle } from './gridstyle.js';
-import { starField } from './palette.js';
 
 const MAX_DOTS = 160000;
 const MIN_LIGHT_R = 0.45;      /* css px: below this a dot vanishes on 1x screens */
@@ -36,13 +35,8 @@ export class DotField {
     this.dpr = 1;
     this.lastCount = 0;
     this.style = gridStyle();
-    this.stars = null;          /* built on the first draw, once the ink colour is known */
     this.last = null;
   }
-
-  /* redraw the last view at time t (seconds): the stars breathe, nothing else moves */
-  twinkle(t) { if (this.last) this.draw(this.last.map, { ...this.last.opts, time: t }); }
-  get twinkling() { return !!(this.stars && this.stars.amp > 0); }
 
   resize(w, h) {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -57,9 +51,8 @@ export class DotField {
   /* map: { origin: [x, y], a: [ax, ay], b: [bx, by] } in css px.
      fade: 0..1 multiplies all ink (the ghosted paper). ink: CSS colour. */
   draw(map, opts = {}) {
-    const { fade = 1, boldFade = 1, ink = '#888', accent = ink, time = performance.now() / 1000 } = opts;
+    const { fade = 1, boldFade = 1, ink = '#888', accent = ink } = opts;
     this.last = { map, opts };
-    if (!this.stars) this.stars = starField(ink);
     const { ctx, w, h, dpr } = this;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
@@ -93,9 +86,7 @@ export class DotField {
 
     /* the light (cartesian) dots: every dot that is not an axon node */
     ctx.fillStyle = ink;
-    /* stars: twinkle only where a dot is big enough to see it */
-    const t = stepPx >= 5 ? time : 0;
-    if (lightAlpha > 0.002) this.starDots(rLight, lightAlpha, false, t, [u0, u1, v0, v1, ox, oy, ax, ay, bx, by]);
+    if (lightAlpha > 0.002) this.fillDots(rLight, lightAlpha, false, [u0, u1, v0, v1, ox, oy, ax, ay, bx, by]);
     if (boldAlpha <= 0.002) { ctx.globalAlpha = 1; return; }
 
     /* the axon nodes, in the style's mark */
@@ -128,38 +119,23 @@ export class DotField {
         for (const [dx, dy] of d) { ctx.moveTo(x - dx, y - dy); ctx.lineTo(x + dx, y + dy); }
       });
       ctx.stroke();
-    } else if (!st.tint) {
-      this.starDots(rBold, boldAlpha, true, t, [u0, u1, v0, v1, ox, oy, ax, ay, bx, by]);
     } else {
-      const square = rBold < RECT_BELOW_R, side = rBold * 1.7725;
-      this.eachDot(u0, u1, v0, v1, ox, oy, ax, ay, bx, by, true, (x, y) => {
-        if (square) ctx.rect(x - side / 2, y - side / 2, side, side);
-        else { ctx.moveTo(x + rBold, y); ctx.arc(x, y, rBold, 0, Math.PI * 2); }
-      });
-      ctx.fill();
+      this.fillDots(rBold, boldAlpha, true, [u0, u1, v0, v1, ox, oy, ax, ay, bx, by]);
     }
     ctx.globalAlpha = 1;
   }
 
-  /* one layer of dots as stars: bucketed by colour and by brightness (8 levels), one fill per bucket */
-  starDots(r, alpha, bold, t, view) {
-    const { ctx } = this, S = this.stars;
-    const LEVELS = 8, buckets = new Map();
+  /* one layer of dots in the current fill: one path, one fill */
+  fillDots(r, alpha, bold, view) {
+    const { ctx } = this;
     const square = r < RECT_BELOW_R, side = r * 1.7725;          /* square of equal area */
-    this.eachDot(...view, bold, (x, y, u, v) => {
-      const [ci, b] = S.star(u, v, t);
-      const key = ci * LEVELS + Math.min(LEVELS - 1, Math.round(b * (LEVELS - 1) / 1.3));
-      let path = buckets.get(key);
-      if (!path) { path = new Path2D(); buckets.set(key, path); }
-      if (square) path.rect(x - side / 2, y - side / 2, side, side);
-      else { path.moveTo(x + r, y); path.arc(x, y, r, 0, Math.PI * 2); }
+    ctx.globalAlpha = alpha;
+    ctx.beginPath();
+    this.eachDot(...view, bold, (x, y) => {
+      if (square) ctx.rect(x - side / 2, y - side / 2, side, side);
+      else { ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, Math.PI * 2); }
     });
-    for (const [key, path] of buckets) {
-      const ci = Math.floor(key / LEVELS), lv = key % LEVELS;
-      ctx.globalAlpha = Math.min(1, alpha * (lv * 1.3) / (LEVELS - 1));
-      ctx.fillStyle = S.css[ci];
-      ctx.fill(path);
-    }
+    ctx.fill();
   }
 
   eachDot(u0, u1, v0, v1, ox, oy, ax, ay, bx, by, bold, fn) {

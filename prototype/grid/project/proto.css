@@ -18,7 +18,3 @@
 @media (max-width: 900px) { .proto-bar { top: 56px; gap: 6px; font-size: 11px; border-radius: 18px; } }
 .proto-break { flex-basis: 100%; height: 0; }
 
-/* PROTOTYPE palettes (palette.js): the accent per ?palette=; the stars are in palette.js */
-html[data-palette="nebula"] { --color-accent: #b7a2ff; }
-html[data-palette="deep"] { --color-accent: #8fb0ff; }
-html[data-palette="starlight"] { --color-accent: #e6d6a0; }
