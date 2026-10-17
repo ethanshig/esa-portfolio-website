@@ -147,7 +147,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   function render() {
     const [ox, oy] = toScreen(0, 0);
     planeEl.style.transform = `translate(${ox}px, ${oy}px) scale(${cam.s / BASE})`;
-    dots.draw({ origin: [ox, oy], a: [cam.s, 0], b: [0, cam.s] }, { ink: cssToken('--color-primary', '#888') });
+    dots.draw({ origin: [ox, oy], a: [cam.s, 0], b: [0, cam.s] }, { ink: cssToken('--color-primary', '#888'), accent: cssToken('--color-accent', '#c47a5c') });
     const size = clamp(cam.s * 0.8, 11, 17);
     overlay.style.setProperty('--env-title-size', size + 'px');
     for (const d of drawings) {

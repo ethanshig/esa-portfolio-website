@@ -26,7 +26,8 @@
               under  the lattice passes over the drawings
    =================================================================== */
 import * as THREE from 'three';
-import { isBold, BOLD_R_PER_PITCH } from '../axon/dimetric.js';
+import { isBold } from '../axon/dimetric.js';
+import { gridStyle } from './gridstyle.js';
 
 export const L_UNIT = 2 * Math.SQRT2;
 export const H_UNIT = 2 / Math.cos(Math.PI / 6);
@@ -48,12 +49,22 @@ const FRAG = /* glsl */ `
 uniform vec3 uColor;
 uniform float uOpacity;
 uniform float uRing;
+uniform float uShape;   /* 0 dot, 2 plus, 3 cross (the 2:1 plan axes) */
+uniform float uStroke;  /* stroke half-width, as a share of the sprite */
 varying float vAlpha;
 void main() {
   vec2 c = gl_PointCoord * 2.0 - 1.0;
   float r = length(c);
-  if (r > 1.0) discard;
-  if (uRing > 0.5 && r < 0.55) discard;
+  if (uShape > 2.5) {
+    vec2 d1 = normalize(vec2(2.0, -1.0)), d2 = normalize(vec2(2.0, 1.0));
+    float e1 = abs(c.x * d1.y - c.y * d1.x), e2 = abs(c.x * d2.y - c.y * d2.x);
+    if (r > 1.0 || min(e1, e2) > uStroke) discard;
+  } else if (uShape > 1.5) {
+    if (max(abs(c.x), abs(c.y)) > 1.0 || min(abs(c.x), abs(c.y)) > uStroke) discard;
+  } else {
+    if (r > 1.0) discard;
+    if (uRing > 0.5 && r < 0.55) discard;
+  }
   gl_FragColor = vec4(uColor, uOpacity * vAlpha);
 }`;
 
@@ -61,8 +72,9 @@ const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a
 
 /* origin: world point projecting onto a bold node; backH: the home view's back vector;
    toUV(world) -> [u, v] steps on the paper. box: the model's world-space bounds (Box3). */
-export function buildLattice({ origin, backH, toUV, nodeUV, box, extent, drawingRects, clearDrawings, sheetRect, color }) {
-  if (extent !== 'tight' && extent !== 'sheet') throw new Error(`lattice: extent must be tight or sheet, got "${extent}"`);
+export function buildLattice({ origin, backH, toUV, nodeUV, box, extent, drawingRects, clearDrawings, sheetRect, color, accent = color }) {
+  if (!['tight', 'sheet', 'ground'].includes(extent)) throw new Error(`lattice: extent must be tight, sheet or ground, got "${extent}"`);
+  const st = gridStyle();
   const size = box.getSize(new THREE.Vector3());
   const center = box.getCenter(new THREE.Vector3());
   const R = 0.5 * size.length();
@@ -73,7 +85,7 @@ export function buildLattice({ origin, backH, toUV, nodeUV, box, extent, drawing
 
   const blocked = (u, v) => clearDrawings && drawingRects.some((r) => u >= r.u0 - 1 && u <= r.u1 + 1 && v >= r.v0 - 1 && v <= r.v1 + 1);
   const pos = [], flat = [], alpha = [];
-  const fade = extent === 'tight' ? [0.55 * R, 1.25 * R] : [0.9 * R, 3.2 * R];
+  const fade = extent === 'tight' ? [0.55 * R, 1.25 * R] : extent === 'ground' ? [0.7 * R, 1.6 * R] : [0.9 * R, 3.2 * R];
   const P = new THREE.Vector3();
   function add(i, j, m) {
     P.set(origin.x + i * L_UNIT, origin.y + j * H_UNIT, origin.z + m * L_UNIT);
@@ -86,7 +98,10 @@ export function buildLattice({ origin, backH, toUV, nodeUV, box, extent, drawing
     flat.push(P.x - backH.x * d, P.y - backH.y * d, P.z - backH.z * d);
     alpha.push(a);
   }
-  if (extent === 'tight') {
+  if (extent === 'ground') {
+    /* one level: the plane the model stands on (j = 0 is the origin's level), a margin around the footprint */
+    for (let i = i0 - 2; i <= i1 + 2; i++) for (let m = m0 - 2; m <= m1 + 2; m++) add(i, 0, m);
+  } else if (extent === 'tight') {
     for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) for (let m = m0; m <= m1; m++) add(i, j, m);
   } else {
     /* every bold node of the sheet, one point per level: node (c, r) relative to the origin's
@@ -114,8 +129,9 @@ export function buildLattice({ origin, backH, toUV, nodeUV, box, extent, drawing
   const mat = new THREE.ShaderMaterial({
     vertexShader: VERT, fragmentShader: FRAG, transparent: true, depthWrite: false,
     uniforms: {
-      uLift: { value: 0 }, uSize: { value: 4 }, uColor: { value: new THREE.Color(color) },
+      uLift: { value: 0 }, uSize: { value: 4 }, uColor: { value: new THREE.Color(st.tint ? accent : color) },
       uOpacity: { value: 1 }, uRing: { value: 0 },
+      uShape: { value: st.shape === 'plus' ? 2 : st.shape === 'cross' ? 3 : 0 }, uStroke: { value: 0.12 },
     },
   });
   const points = new THREE.Points(geo, mat);
@@ -127,9 +143,12 @@ export function buildLattice({ origin, backH, toUV, nodeUV, box, extent, drawing
     /* lift: 0..1; stepPx: css px per step; dpr; opacity: the paper's ink strength */
     update(lift, stepPx, dpr, opacity) {
       mat.uniforms.uLift.value = lift;
-      const r = Math.max(BOLD_R_PER_PITCH * stepPx, 0.8);
+      /* the style's mark, at the style's weight; 'lines' has no node mark, so a small quiet dot stands in */
+      const marked = st.shape === 'plus' || st.shape === 'cross';
+      const r = marked ? Math.max(st.arm * stepPx, 2) : Math.max((st.rBold || st.rLight) * stepPx, 0.8);
       mat.uniforms.uSize.value = 2 * r * dpr;
-      mat.uniforms.uOpacity.value = opacity * lift;
+      mat.uniforms.uStroke.value = marked ? Math.min(0.45, 0.6 / r) : 0.12;
+      mat.uniforms.uOpacity.value = opacity * lift * (st.shape === 'lines' ? 0.6 : st.aBold);
       points.visible = lift > 0.001;
     },
     pointAt(k, lift) {
@@ -153,7 +172,7 @@ export function cornerRings(cornersWorld, color) {
     vertexShader: VERT, fragmentShader: FRAG, transparent: true, depthWrite: false, depthTest: false,
     uniforms: {
       uLift: { value: 1 }, uSize: { value: 11 }, uColor: { value: new THREE.Color(color) },
-      uOpacity: { value: 0.95 }, uRing: { value: 1 },
+      uOpacity: { value: 0.95 }, uRing: { value: 1 }, uShape: { value: 0 }, uStroke: { value: 0.12 },
     },
   });
   const pts = new THREE.Points(geo, mat);

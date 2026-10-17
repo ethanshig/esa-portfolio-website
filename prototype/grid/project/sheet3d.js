@@ -44,10 +44,19 @@ import { buildLattice, cornerRings } from './lattice.js';
 
 /* The paper in 3D (prototype, Ethan's option A): the three open decisions as URL params.
    Defaults are P1, the coordinator's recommendation. */
-const OPTIONS = { extent: ['tight', 'sheet'], drawings: ['clear', 'under'], verticals: ['lattice', 'all'] };
+const OPTIONS = {
+  extent: ['tight', 'sheet'], drawings: ['clear', 'under'], verticals: ['lattice', 'all'],
+  /* where the model meets the paper (prototype round 3):
+     float   wholly in front of the paper, touching nothing (round 2)
+     origin  the paper passes through the model's Rhino origin, which sits on a bold node
+     ground  origin, plus the plane the model stands on: the lattice lifts as that one level */
+  seat: ['float', 'origin', 'ground'],
+  /* what marks the origin: nothing, a datum (ring + one-unit ticks), or Rhino's red/green axis lines */
+  axes: ['none', 'datum', 'rhino'],
+};
 function readOptions() {
   const q = new URLSearchParams(location.search);
-  const out = { extent: 'tight', drawings: 'clear', verticals: 'lattice' };
+  const out = { extent: 'tight', drawings: 'clear', verticals: 'lattice', seat: 'ground', axes: 'datum' };
   for (const [key, allowed] of Object.entries(OPTIONS)) {
     const v = q.get(key);
     if (v !== null && allowed.includes(v)) out[key] = v;
@@ -358,17 +367,31 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     const node = D.nearestBold(backCorner[0] + du, backCorner[1] + dv);
     if (node) { du = node[0] - backCorner[0]; dv = node[1] - backCorner[1]; }
     const diag = box.getSize(new THREE.Vector3()).length() * k;
-    group.position.copy(paper(du, dv)).addScaledVector(B_H, diag + 2);   /* wholly in front of the paper */
+    /* Rhino's world origin, in glb (glb = rhino (x - ox, z - oz, -(y - oy))) */
+    const oGlb = new THREE.Vector3(-offset[0], -offset[2], offset[1]);
+    let originLocal = new THREE.Vector3(box.min.x, box.min.y, box.min.z).multiply(kv);
+    let seatNode = node;
+    if (opts.seat === 'float') {
+      group.position.copy(paper(du, dv)).addScaledVector(B_H, diag + 2);   /* wholly in front of the paper */
+    } else {
+      /* the paper passes through the origin, and the origin sits on a bold node */
+      originLocal = oGlb.clone().multiply(kv);
+      const o = toPaperUV(originLocal);
+      seatNode = D.nearestBold(o[0] + du, o[1] + dv) || [Math.round(o[0] + du), Math.round(o[1] + dv)];
+      du = seatNode[0] - o[0]; dv = seatNode[1] - o[1];
+      group.position.copy(paper(du, dv)).addScaledVector(B_H, -originLocal.dot(B_H));
+    }
     scene.add(group);
     group.updateMatrixWorld(true);
 
     const center = box.getCenter(new THREE.Vector3());
     model = {
-      group, box, node,
+      group, box, node: seatNode,
       center: group.localToWorld(center.clone()),
       paperRect: { u0: pu0 + du, v0: pv0 + dv, u1: pu1 + du, v1: pv1 + dv },
       cornersWorld: corners.map((c) => c.clone().add(group.position)),
-      originWorld: new THREE.Vector3(box.min.x, box.min.y, box.min.z).multiply(kv).add(group.position),
+      originWorld: originLocal.clone().add(group.position),
+      unit: new THREE.Vector3(5 * k, 5 * k * vs, 5 * k),        /* five feet along each axis, in world */
     };
   } catch (err) {
     console.warn('[sheet3d] the model did not load; the sheet shows drawings only', err);
@@ -494,7 +517,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   }
 
   /* ---------- the lattice: the bold dots, lifted (lattice.js) ---------- */
-  let lattice = null, rings = null;
+  let lattice = null, rings = null, seatRing = null;
   if (model) {
     const wbox = new THREE.Box3().setFromPoints(model.cornersWorld);
     const rects = drawings.map((d) => ({ u0: d.rect.u0, v0: d.rect.v0, u1: d.rect.u1, v1: d.rect.v1 + TITLE_ROOM }));
@@ -505,7 +528,8 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     };
     lattice = buildLattice({
       origin: model.originWorld, backH: B_H, toUV: toPaperUV, nodeUV: model.node, box: wbox,
-      extent: opts.extent, drawingRects: rects, clearDrawings: opts.drawings === 'clear', sheetRect, color: colors.ink,
+      extent: opts.seat === 'ground' ? 'ground' : opts.extent, drawingRects: rects,
+      clearDrawings: opts.drawings === 'clear', sheetRect, color: colors.ink, accent: colors.accent,
     });
     scene.add(lattice.points);
     /* the top edges of the model, ringed: where they land at home is the verticals decision */
@@ -514,6 +538,43 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     scene.add(rings.points);
     model.tops = tops;
   }
+  /* the ground line, and the origin's marks (prototype round 3: seat, axes) */
+  const seatMats = [];
+  function seatLine(points, color, width, opacity, depthTest = true) {
+    const m = lineMat(color, width, { opacity, depthTest });
+    m.userData.base = opacity;
+    seatMats.push(m);
+    const l = new LineSegments2(new LineSegmentsGeometry().setPositions(points.flatMap((p) => [p.x, p.y, p.z])), m);
+    l.renderOrder = 5;
+    scene.add(l);
+    return l;
+  }
+  function buildSeat(wbox) {
+    const O = model.originWorld, u = model.unit;
+    const reach = wbox.getSize(new THREE.Vector3()).length() * 0.6;
+    /* the ground line spans the model's own paper rect, not the sheet */
+    const gu = [model.paperRect.u0 - 1, model.paperRect.u1 + 1].map((u) => u - model.node[0]);
+    if (opts.seat === 'ground') {
+      /* where the ground meets the paper: a horizontal line in both planes, through the origin */
+      seatLine([O.clone().addScaledVector(R_H, gu[0]), O.clone().addScaledVector(R_H, gu[1])], colors.ink, 1, 0.35);
+    }
+    const X = new THREE.Vector3(1, 0, 0), Yr = new THREE.Vector3(0, 0, -1), Z = new THREE.Vector3(0, 1, 0);
+    if (opts.axes === 'datum') {
+      for (const [d, len] of [[X, u.x], [Yr, u.z], [Z, u.y]]) seatLine([O, O.clone().addScaledVector(d, len)], colors.accent, 1.6, 0.95, false);
+    } else if (opts.axes === 'rhino') {
+      /* Rhino's grid axes: X red, Y green, through the origin across the ground; Z a short blue.
+         Drawn over the model: the X axis lies at grade, in the ground slab's top face */
+      seatLine([O.clone().addScaledVector(X, -reach), O.clone().addScaledVector(X, reach)], '#c8524c', 1.2, 0.8, false);
+      seatLine([O.clone().addScaledVector(Yr, -reach), O.clone().addScaledVector(Yr, reach)], '#58a85a', 1.2, 0.8, false);
+      seatLine([O, O.clone().addScaledVector(Z, u.y)], '#5a78d0', 1.2, 0.9, false);
+    }
+    if (opts.axes !== 'none') {
+      const ring = cornerRings([O], colors.accent);
+      scene.add(ring.points);
+      seatRing = ring;
+    }
+  }
+  if (model) buildSeat(new THREE.Box3().setFromPoints(model.cornersWorld));
   const paperInk = parseFloat(getComputedStyle(stage).getPropertyValue('--env-paper')) || 0.34;
 
   /* ===================================================================
@@ -803,6 +864,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     lift = smooth(GHOST_FROM, LIFT_TO, angle);
     if (lattice) lattice.update(lift, cam.s, renderer.getPixelRatio(), paperInk);
     if (rings) rings.setSize(11 * renderer.getPixelRatio());
+    if (seatRing) seatRing.setSize(13 * renderer.getPixelRatio());
     const op = 1 - (1 - GHOST_OPACITY) * ghost;
     const zoomK = clamp(cam.s / 16, 0.55, 1.5) * (1 - 0.45 * ghost);
     for (const [w, m] of Object.entries(weightMats)) { m.linewidth = WEIGHT_PX[w] * zoomK; m.opacity = op; }
@@ -820,7 +882,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     const o = project(new THREE.Vector3());
     const a = [R_H.dot(right) * cam.s, -R_H.dot(up) * cam.s];
     const b = [-U_H.dot(right) * cam.s, U_H.dot(up) * cam.s];
-    dots.draw({ origin: o, a, b }, { ink: colors.ink, fade: 1 - 0.7 * ghost, boldFade: lattice ? 1 - lift : 1 });
+    dots.draw({ origin: o, a, b }, { ink: colors.ink, accent: colors.accent, fade: 1 - 0.7 * ghost, boldFade: lattice ? 1 - lift : 1 });
 
     overlay.style.setProperty('--env-title-size', clamp(cam.s * 0.8, 11, 17) + 'px');
     for (const d of drawings) {

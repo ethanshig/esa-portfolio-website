@@ -14,7 +14,8 @@
    the bold ones; a view that would need more than MAX_DOTS dots draws the
    bold lattice only, and past that draws nothing (an edge-on paper).
    =================================================================== */
-import { isBold, LIGHT_R_PER_PITCH, BOLD_R_PER_PITCH, LIGHT_INK, BOLD_INK } from '../axon/dimetric.js';
+import { isBold } from '../axon/dimetric.js';
+import { gridStyle } from './gridstyle.js';
 
 const MAX_DOTS = 160000;
 const MIN_LIGHT_R = 0.45;      /* css px: below this a dot vanishes on 1x screens */
@@ -33,6 +34,7 @@ export class DotField {
     this.h = 0;
     this.dpr = 1;
     this.lastCount = 0;
+    this.style = gridStyle();
   }
 
   resize(w, h) {
@@ -47,7 +49,7 @@ export class DotField {
 
   /* map: { origin: [x, y], a: [ax, ay], b: [bx, by] } in css px.
      fade: 0..1 multiplies all ink (the ghosted paper). ink: CSS colour. */
-  draw(map, { fade = 1, boldFade = 1, ink = '#888' } = {}) {
+  draw(map, { fade = 1, boldFade = 1, ink = '#888', accent = ink } = {}) {
     const { ctx, w, h, dpr } = this;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
@@ -71,39 +73,81 @@ export class DotField {
     const v1 = Math.ceil(Math.max(...cs.map((c) => c[1]))) + 1;
     const total = (u1 - u0 + 1) * (v1 - v0 + 1);
 
-    const rLight = Math.max(LIGHT_R_PER_PITCH * stepPx, MIN_LIGHT_R);
-    const rBold = Math.max(BOLD_R_PER_PITCH * stepPx, MIN_LIGHT_R * (BOLD_R_PER_PITCH / LIGHT_R_PER_PITCH));
-    let lightAlpha = (LIGHT_INK / BOLD_INK) * clamp01((stepPx - 3) / 5) * fade;
-    let boldAlpha = clamp01((stepPx - 1.2) / 3) * fade * boldFade;    /* bold dots lift into the lattice */
+    const st = this.style;
+    const rLight = Math.max(st.rLight * stepPx, MIN_LIGHT_R);
+    const rBold = Math.max(st.rBold * stepPx, MIN_LIGHT_R);
+    let lightAlpha = st.aLight * clamp01((stepPx - 3) / 5) * fade;
+    let boldAlpha = st.aBold * clamp01((stepPx - 1.2) / 3) * fade * boldFade;    /* bold dots lift into the lattice */
     if (total > MAX_DOTS) lightAlpha = 0;
     if (total / 4 > MAX_DOTS) boldAlpha = 0;
 
+    /* the light (cartesian) dots: every dot that is not an axon node */
     ctx.fillStyle = ink;
-    const layers = [
-      { bold: false, r: rLight, alpha: lightAlpha },
-      { bold: true, r: rBold, alpha: boldAlpha },
-    ];
-    for (const L of layers) {
-      if (L.alpha <= 0.002) continue;
-      ctx.globalAlpha = L.alpha;
-      const square = L.r < RECT_BELOW_R;
-      const side = L.r * 1.7725;              /* square of equal area: sqrt(pi) * r */
+    if (lightAlpha > 0.002) {
+      ctx.globalAlpha = lightAlpha;
+      const square = rLight < RECT_BELOW_R, side = rLight * 1.7725;   /* square of equal area */
       ctx.beginPath();
-      for (let u = u0; u <= u1; u++) {
-        /* the bold rule needs even u; skip whole columns that cannot match */
-        if (L.bold && (u & 1)) continue;
-        const cx = ox + u * ax, cy = oy + u * ay;
-        for (let v = v0; v <= v1; v++) {
-          if (isBold(u, v) !== L.bold) continue;
-          const x = cx + v * bx, y = cy + v * by;
-          if (x < -4 || y < -4 || x > w + 4 || y > h + 4) continue;
-          if (square) ctx.rect(x - side / 2, y - side / 2, side, side);
-          else { ctx.moveTo(x + L.r, y); ctx.arc(x, y, L.r, 0, Math.PI * 2); }
+      this.eachDot(u0, u1, v0, v1, ox, oy, ax, ay, bx, by, false, (x, y) => {
+        if (square) ctx.rect(x - side / 2, y - side / 2, side, side);
+        else { ctx.moveTo(x + rLight, y); ctx.arc(x, y, rLight, 0, Math.PI * 2); }
+      });
+      ctx.fill();
+    }
+    if (boldAlpha <= 0.002) { ctx.globalAlpha = 1; return; }
+
+    /* the axon nodes, in the style's mark */
+    ctx.globalAlpha = boldAlpha;
+    const col = st.tint ? accent : ink;
+    ctx.fillStyle = col; ctx.strokeStyle = col;
+    ctx.lineWidth = Math.max(0.6, Math.min(1.2, stepPx * 0.05));
+    ctx.beginPath();
+    if (st.shape === 'lines') {
+      /* hairlines along the two plan axes through every axon node: u - 2v = 4n and u + 2v = 4n */
+      const P = (u, v) => [ox + u * ax + v * bx, oy + u * ay + v * by];
+      for (const sg of [1, -1]) {
+        const lo = Math.floor(Math.min(u0 - 2 * sg * v0, u0 - 2 * sg * v1, u1 - 2 * sg * v0, u1 - 2 * sg * v1) / 4);
+        const hi = Math.ceil(Math.max(u0 - 2 * sg * v0, u0 - 2 * sg * v1, u1 - 2 * sg * v0, u1 - 2 * sg * v1) / 4);
+        for (let n = lo; n <= hi; n++) {
+          /* u = 4n + 2 sg v: walk v across the view */
+          const a = P(4 * n + 2 * sg * v0, v0), b = P(4 * n + 2 * sg * v1, v1);
+          ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
           this.lastCount++;
         }
       }
+      ctx.stroke();
+    } else if (st.shape === 'plus' || st.shape === 'cross') {
+      /* plus: arms along the sheet's u and v; cross: along the two 2:1 plan axes, (2, 1) and (2, -1) */
+      const arm = st.arm;
+      const arms = st.shape === 'plus' ? [[arm, 0], [0, arm]]
+        : [[arm * 2 / Math.sqrt(5), arm / Math.sqrt(5)], [arm * 2 / Math.sqrt(5), -arm / Math.sqrt(5)]];
+      const d = arms.map(([du, dv]) => [du * ax + dv * bx, du * ay + dv * by]);
+      this.eachDot(u0, u1, v0, v1, ox, oy, ax, ay, bx, by, true, (x, y) => {
+        for (const [dx, dy] of d) { ctx.moveTo(x - dx, y - dy); ctx.lineTo(x + dx, y + dy); }
+      });
+      ctx.stroke();
+    } else {
+      const square = rBold < RECT_BELOW_R, side = rBold * 1.7725;
+      this.eachDot(u0, u1, v0, v1, ox, oy, ax, ay, bx, by, true, (x, y) => {
+        if (square) ctx.rect(x - side / 2, y - side / 2, side, side);
+        else { ctx.moveTo(x + rBold, y); ctx.arc(x, y, rBold, 0, Math.PI * 2); }
+      });
       ctx.fill();
     }
     ctx.globalAlpha = 1;
+  }
+
+  eachDot(u0, u1, v0, v1, ox, oy, ax, ay, bx, by, bold, fn) {
+    const { w, h } = this;
+    for (let u = u0; u <= u1; u++) {
+      if (bold && (u & 1)) continue;                     /* the bold rule needs even u */
+      const cx = ox + u * ax, cy = oy + u * ay;
+      for (let v = v0; v <= v1; v++) {
+        if (isBold(u, v) !== bold) continue;
+        const x = cx + v * bx, y = cy + v * by;
+        if (x < -8 || y < -8 || x > w + 8 || y > h + 8) continue;
+        fn(x, y);
+        this.lastCount++;
+      }
+    }
   }
 }

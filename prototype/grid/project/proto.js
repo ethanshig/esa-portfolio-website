@@ -8,7 +8,8 @@ const PRESETS = {
   P3: { extent: 'sheet', drawings: 'under', verticals: 'lattice' },
   P4: { extent: 'sheet', drawings: 'clear', verticals: 'all' },
 };
-const DEFAULTS = PRESETS.P1;
+const DEFAULTS = { ...PRESETS.P1, grid: 'quiet', seat: 'ground', axes: 'datum' };
+const CYCLE_KEYS = { g: 'grid', o: 'seat', x: 'axes' };
 const ORDER = Object.keys(PRESETS);
 
 const bar = document.querySelector('.proto-bar');
@@ -21,6 +22,11 @@ if (bar) {
     cur[key] = v !== null && allowed.includes(v) ? v : DEFAULTS[key];
   }
   const presetOf = (o) => ORDER.find((p) => Object.entries(PRESETS[p]).every(([k, v]) => o[k] === v)) || null;
+  const cycle = (key, d) => {
+    const vals = [...bar.querySelectorAll(`[data-param="${key}"] [data-value]`)].map((b) => b.dataset.value);
+    if (!vals.length) return;
+    go({ ...cur, [key]: vals[(vals.indexOf(cur[key]) + d + vals.length) % vals.length] });
+  };
   for (const b of bar.querySelectorAll('[data-param] [data-value]')) {
     b.setAttribute('aria-pressed', String(cur[b.closest('[data-param]').dataset.param] === b.dataset.value));
   }
@@ -34,13 +40,13 @@ if (bar) {
   };
   const step = (d) => {
     const i = active ? ORDER.indexOf(active) : -1;
-    go(PRESETS[ORDER[(i + d + ORDER.length) % ORDER.length]]);
+    go({ ...cur, ...PRESETS[ORDER[(i + d + ORDER.length) % ORDER.length]] });
   };
   bar.addEventListener('click', (e) => {
     const v = e.target.closest('[data-value]');
     if (v) { go({ ...cur, [v.closest('[data-param]').dataset.param]: v.dataset.value }); return; }
     const p = e.target.closest('[data-preset]');
-    if (p) { go(PRESETS[p.dataset.preset]); return; }
+    if (p) { go({ ...cur, ...PRESETS[p.dataset.preset] }); return; }
     const s = e.target.closest('[data-step]');
     if (s) step(Number(s.dataset.step));
   });
@@ -48,5 +54,6 @@ if (bar) {
     if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable]')) return;
     if (e.key === '[') { e.preventDefault(); step(-1); }
     else if (e.key === ']') { e.preventDefault(); step(1); }
+    else if (CYCLE_KEYS[e.key.toLowerCase()] && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); cycle(CYCLE_KEYS[e.key.toLowerCase()], e.shiftKey ? -1 : 1); }
   });
 }
