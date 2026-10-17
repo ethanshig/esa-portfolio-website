@@ -568,7 +568,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
       for (const [d, m] of [[X, u.x], [Yr, u.z], [Z, u.y]]) {
         const t = model.cornersWorld.map((c) => c.clone().sub(O).dot(d));
         seatLine([O.clone().addScaledVector(d, Math.min(0, ...t) - m), O.clone().addScaledVector(d, Math.max(0, ...t) + m)],
-          colors.accent, 2, 0.9, false);
+          colors.accent, 1.1, 0.45, false);      /* round 6: subtle, a construction line, not a mark */
       }
     } else if (opts.axes === 'infinite') {
       for (const [d, len] of [[X, u.x], [Yr, u.z], [Z, u.y]]) seatLine([O, O.clone().addScaledVector(d, len)], colors.accent, 1.6, 0.95, false);
@@ -589,6 +589,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     }
     if (opts.axes !== 'none') {
       const ring = cornerRings([O], colors.accent);
+      if (opts.axes === 'datum') ring.points.material.uniforms.uOpacity.value = 0.6;
       scene.add(ring.points);
       seatRing = ring;
     }
@@ -883,7 +884,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     lift = smooth(GHOST_FROM, LIFT_TO, angle);
     if (lattice) { lattice.update(lift, cam.s, renderer.getPixelRatio(), paperInk); lattice.setTime(performance.now() / 1000); }
     if (rings) rings.setSize(11 * renderer.getPixelRatio());
-    if (seatRing) seatRing.setSize((opts.axes === 'datum' ? 20 : 13) * renderer.getPixelRatio());
+    if (seatRing) seatRing.setSize((opts.axes === 'datum' ? 15 : 13) * renderer.getPixelRatio());
     for (const a of axisLines) {
       /* long enough to cross the whole view from wherever the origin is; capped so the far end
          stays inside the camera's depth range (an axis pointing at the camera is short on screen anyway) */
