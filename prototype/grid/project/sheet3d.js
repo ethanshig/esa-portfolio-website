@@ -784,6 +784,16 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     }
     return null;
   }
+  /* is the model under a screen point: a ray against its faces (the ink's hulls, slightly proud of
+     the faces, make the target a hair larger than the linework, which is what a hand wants) */
+  const modelMeshes = [];
+  if (model) model.group.traverse((o) => { if (o.isMesh && !o.isLineSegments2 && !o.isLine2) modelMeshes.push(o); });   /* faces only: fat lines are meshes too */
+  const raycaster = new THREE.Raycaster();
+  function modelAt(x, y) {
+    if (!modelMeshes.length) return false;
+    raycaster.ray.copy(screenRay(x, y));
+    return raycaster.intersectObjects(modelMeshes, false).length > 0;
+  }
   function drawingAt(x, y) {
     const X = paperHit(x, y);
     if (!X) return null;
@@ -845,6 +855,13 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     pick(x, y) {
       const m = markAt(x, y);
       if (m) { onHold(); activate(m, 'mark'); return; }
+      /* off home, a click on the model keeps the 3D view; a click anywhere else returns to the
+         superimposed view (Ethan, round 7: the empty sheet is the way home, not a button) */
+      if (ghost > 0.01) {
+        if (modelAt(x, y)) return;
+        home(); onFocus(focusOf(views.get('arrival').target));
+        return;
+      }
       const d = drawingAt(x, y);
       if (d) { onHold(); activate(d, 'body'); }
     },
