@@ -562,7 +562,15 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
       seatLine([O.clone().addScaledVector(R_H, gu[0]), O.clone().addScaledVector(R_H, gu[1])], colors.ink, 1, 0.35);
     }
     const X = new THREE.Vector3(1, 0, 0), Yr = new THREE.Vector3(0, 0, -1), Z = new THREE.Vector3(0, 1, 0);
-    if (opts.axes === 'datum' || opts.axes === 'infinite') {
+    if (opts.axes === 'datum') {
+      /* each axis through the origin spans the model's whole extent along it, and one lattice unit
+         (5 ft) past the box at both ends (Ethan, round 5: larger, past the model's extents) */
+      for (const [d, m] of [[X, u.x], [Yr, u.z], [Z, u.y]]) {
+        const t = model.cornersWorld.map((c) => c.clone().sub(O).dot(d));
+        seatLine([O.clone().addScaledVector(d, Math.min(0, ...t) - m), O.clone().addScaledVector(d, Math.max(0, ...t) + m)],
+          colors.accent, 2, 0.9, false);
+      }
+    } else if (opts.axes === 'infinite') {
       for (const [d, len] of [[X, u.x], [Yr, u.z], [Z, u.y]]) seatLine([O, O.clone().addScaledVector(d, len)], colors.accent, 1.6, 0.95, false);
     }
     if (opts.axes === 'infinite') {
@@ -875,7 +883,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     lift = smooth(GHOST_FROM, LIFT_TO, angle);
     if (lattice) { lattice.update(lift, cam.s, renderer.getPixelRatio(), paperInk); lattice.setTime(performance.now() / 1000); }
     if (rings) rings.setSize(11 * renderer.getPixelRatio());
-    if (seatRing) seatRing.setSize(13 * renderer.getPixelRatio());
+    if (seatRing) seatRing.setSize((opts.axes === 'datum' ? 20 : 13) * renderer.getPixelRatio());
     for (const a of axisLines) {
       /* long enough to cross the whole view from wherever the origin is; capped so the far end
          stays inside the camera's depth range (an axis pointing at the camera is short on screen anyway) */
