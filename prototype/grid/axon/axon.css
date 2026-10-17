@@ -215,3 +215,28 @@ html[data-theme="light"].ls-on .nav-link.active { color: var(--color-primary); }
     .ax-card-link:hover .ax-sheet img.ax-next,
     .ax-card-link:focus-visible .ax-sheet img.ax-next { transition: none; }
 }
+
+/* ---------- the nav floats over the paper (index map, 2026-10-17) ----------
+   The drawing sheet's treatment (project/env.css): no ground, the mark and links inverted by
+   difference over whatever passes under them. The blend sits on .navbar itself, its own
+   stacking context. */
+html.ls-on body.ax-page .navbar {
+    background: transparent;
+    mix-blend-mode: difference;
+    pointer-events: none;
+}
+html.ls-on body.ax-page .navbar a,
+html.ls-on body.ax-page .navbar button,
+html.ls-on body.ax-page .navbar .hamburger { pointer-events: auto; }
+/* white, at full strength: a grey inside a difference blend inverts to mud */
+html.ls-on body.ax-page .nav-link,
+html.ls-on body.ax-page .nav-link:hover,
+html.ls-on body.ax-page .nav-link.active { color: #fff; opacity: 0.9; }
+html.ls-on body.ax-page .nav-link:hover { opacity: 1; }
+html.ls-on body.ax-page .story-toggle { color: #fff; }
+html.ls-on body.ax-page .hamburger span { background-color: #fff; }
+/* the phone menu needs a real ground: drop the blend while it is open */
+html.ls-on body.ax-page .navbar:has(.nav-menu.active) { mix-blend-mode: normal; background: var(--color-bg); }
+html.ls-on body.ax-page .navbar:has(.nav-menu.active) .nav-link,
+html.ls-on body.ax-page .navbar:has(.nav-menu.active) .story-toggle { color: var(--color-primary); }
+html.ls-on body.ax-page .navbar:has(.nav-menu.active) .hamburger span { background-color: var(--color-primary); }
