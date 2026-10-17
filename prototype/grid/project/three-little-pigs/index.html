@@ -19,6 +19,7 @@
          and turns the CYOA gate on. It writes no text. If env.js never runs, the gate lifts
          after 8 s and the panel becomes the whole Document. -->
     <script>(function(){var r=document.documentElement;try{var p=new URLSearchParams(location.search);var q=p.get('story');var v=(q==='off'||q==='on')?q:localStorage.getItem('esa-story');if(v==='off'||v==='on')r.setAttribute('data-story',v);var t=p.get('theme');if(t==='light'||t==='dark')r.setAttribute('data-theme',t);}catch(e){}r.classList.add('env-js');setTimeout(function(){if(!r.classList.contains('env-live')){r.classList.remove('env-js');r.classList.add('env-static','env-nosheet');}},8000);}())</script>
+    <script>/* PROTOTYPE: ?palette= (proto.css, palette.js) */(function(){var v=new URLSearchParams(location.search).get('palette');document.documentElement.setAttribute('data-palette',['copper','nebula','deep','starlight'].indexOf(v)>=0?v:'nebula');}())</script>
     <script type="importmap">
     {
         "imports": {
@@ -223,6 +224,8 @@
             <span class="proto-break"></span>
             <span class="proto-group" data-param="grid"><span>grid (g)</span><button type="button" data-value="now">now</button><button type="button" data-value="quiet">quiet</button><button type="button" data-value="plus">plus</button><button type="button" data-value="cross">cross</button><button type="button" data-value="tint">tint</button><button type="button" data-value="lines">lines</button></span>
             <span class="proto-group" data-param="seat"><span>seat (o)</span><button type="button" data-value="float">float</button><button type="button" data-value="origin">origin</button><button type="button" data-value="ground">ground</button></span>
+            <span class="proto-group" data-param="palette"><span>palette (p)</span><button type="button" data-value="copper">copper</button><button type="button" data-value="nebula">nebula</button><button type="button" data-value="deep">deep</button><button type="button" data-value="starlight">starlight</button></span>
+            <span class="proto-group" data-param="twinkle"><span>twinkle (t)</span><button type="button" data-value="off">off</button><button type="button" data-value="soft">soft</button><button type="button" data-value="more">more</button></span>
             <span class="proto-group" data-param="axes"><span>axes (x)</span><button type="button" data-value="none">none</button><button type="button" data-value="datum">datum</button><button type="button" data-value="rhino">rhino</button></span>
         </div>
     </main>

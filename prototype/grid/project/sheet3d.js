@@ -41,6 +41,7 @@ import { DotField } from './dots.js';
 import { attachGestures } from './gestures.js';
 import { NoSheetError } from './errors.js';
 import { buildLattice, cornerRings } from './lattice.js';
+import { starField } from './palette.js';
 
 /* The paper in 3D (prototype, Ethan's option A): the three open decisions as URL params.
    Defaults are P1, the coordinator's recommendation. */
@@ -56,7 +57,7 @@ const OPTIONS = {
 };
 function readOptions() {
   const q = new URLSearchParams(location.search);
-  const out = { extent: 'tight', drawings: 'clear', verticals: 'lattice', seat: 'ground', axes: 'datum' };
+  const out = { extent: 'tight', drawings: 'clear', verticals: 'lattice', seat: 'ground', axes: 'datum' };   /* Ethan, round 3: ground + datum */
   for (const [key, allowed] of Object.entries(OPTIONS)) {
     const v = q.get(key);
     if (v !== null && allowed.includes(v)) out[key] = v;
@@ -530,6 +531,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
       origin: model.originWorld, backH: B_H, toUV: toPaperUV, nodeUV: model.node, box: wbox,
       extent: opts.seat === 'ground' ? 'ground' : opts.extent, drawingRects: rects,
       clearDrawings: opts.drawings === 'clear', sheetRect, color: colors.ink, accent: colors.accent,
+      stars: starField(colors.ink),
     });
     scene.add(lattice.points);
     /* the top edges of the model, ringed: where they land at home is the verticals decision */
@@ -862,7 +864,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     const angle = 2 * Math.acos(dot);
     ghost = smooth(GHOST_FROM, GHOST_TO, angle);
     lift = smooth(GHOST_FROM, LIFT_TO, angle);
-    if (lattice) lattice.update(lift, cam.s, renderer.getPixelRatio(), paperInk);
+    if (lattice) { lattice.update(lift, cam.s, renderer.getPixelRatio(), paperInk); lattice.setTime(performance.now() / 1000); }
     if (rings) rings.setSize(11 * renderer.getPixelRatio());
     if (seatRing) seatRing.setSize(13 * renderer.getPixelRatio());
     const op = 1 - (1 - GHOST_OPACITY) * ghost;
@@ -925,13 +927,22 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     };
   }
 
+  let lastTwinkle = 0;
+  const TWINKLE_DT = 1 / 20;          /* stars breathe at 20 fps: slow enough, and cheap */
   function kick() { if (!raf) raf = requestAnimationFrame(tick); }
   function tick() {
     raf = 0;
     if (!ready) return;               /* the first frame is drawn at the end of createSheet */
-    stepFly(performance.now() / 1000);
-    if (dirty) { dirty = false; render(); }
-    if (fly) kick();
+    const now = performance.now() / 1000;
+    stepFly(now);
+    if (dirty) { dirty = false; render(); lastTwinkle = now; }
+    else if (now - lastTwinkle >= TWINKLE_DT) {
+      /* a star frame: the paper redraws; the GL only while the lattice is lifted */
+      lastTwinkle = now;
+      dots.twinkle(now);
+      if (lattice && lattice.twinkling && lift > 0.001) { lattice.setTime(now); renderer.render(scene, camera); }
+    }
+    if (fly || dots.twinkling) kick();
   }
 
   function resize() {

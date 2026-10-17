@@ -168,10 +168,13 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   function kick() { if (!raf) raf = requestAnimationFrame(tick); }
   function tick() {
     raf = 0;
-    stepFly(performance.now() / 1000);
-    if (dirty) { dirty = false; render(); }
-    if (fly) kick();
+    const now = performance.now() / 1000;
+    stepFly(now);
+    if (dirty) { dirty = false; render(); lastTwinkle = now; }
+    else if (now - lastTwinkle >= 1 / 20) { lastTwinkle = now; dots.twinkle(now); }   /* the stars breathe */
+    if (fly || dots.twinkling) kick();
   }
+  let lastTwinkle = 0;
 
   function resize() {
     const r = stage.getBoundingClientRect();
