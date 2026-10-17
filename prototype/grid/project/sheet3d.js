@@ -78,7 +78,11 @@ const GHOST_FROM = 0.012, GHOST_TO = 0.08;   /* radians off the home orientation
 const GHOST_OPACITY = 0.15;
 const TITLE_GAP = 0.6;              /* steps between a drawing and its title */
 const TITLE_ROOM = 2.4;             /* steps reserved under a drawing for its title when framing */
-const MARK_MARGIN_FT = 0.5;         /* the cut rectangle stands this far proud of the end face */
+const MARK_MARGIN_FT = 0.5;
+/* section / view marks: quiet at rest, full on hover (round 6) */
+const MARK_W = { rest: 1.0, hot: 1.8 };
+const MARK_A = { rest: 0.55, hot: 1 };
+const MARK_FILL = { rest: 0.05, hot: 0.18 };         /* the cut rectangle stands this far proud of the end face */
 
 /* line weights, css px at a 16 px step; scaled with zoom inside [0.55, 1.5] */
 const WEIGHT_PX = { heavy: 2.1, medium: 1.25, light: 0.65 };
@@ -404,16 +408,21 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   const marks = [];
   const bubbleFor = (id) => overlay.querySelector(`.env-bubble[data-mark="${id}"]`);
 
-  function arrow(group, from, to, mat, headMat) {
+  function arrow(group, from, to, mat) {
     const g = new LineSegmentsGeometry().setPositions([from.x, from.y, from.z, to.x, to.y, to.z]);
     const shaft = new LineSegments2(g, mat);
     shaft.renderOrder = 4;
     group.add(shaft);
-    const dir = to.clone().sub(from);
-    const len = 0.9;
-    const head = new THREE.Mesh(new THREE.ConeGeometry(0.32, len, 16), headMat);
-    head.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
-    head.position.copy(to).addScaledVector(dir.normalize(), -len / 2);
+    /* an open, drafted arrowhead: two short strokes back from the tip, in the plane that faces
+       the home view (Ethan, round 6: no cone tips) */
+    const dir = to.clone().sub(from).normalize();
+    let side = new THREE.Vector3().crossVectors(dir, B_H);
+    if (side.lengthSq() < 1e-4) side = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(0, 1, 0));
+    side.normalize();
+    const len = 1.1, spread = Math.tan(Math.PI / 7);
+    const back = to.clone().addScaledVector(dir, -len);
+    const l = back.clone().addScaledVector(side, len * spread), r = back.clone().addScaledVector(side, -len * spread);
+    const head = new LineSegments2(new LineSegmentsGeometry().setPositions([l.x, l.y, l.z, to.x, to.y, to.z, to.x, to.y, to.z, r.x, r.y, r.z]), mat);
     head.renderOrder = 4;
     group.add(head);
   }
@@ -430,10 +439,9 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
         if (bubble) bubble.hidden = true;
         continue;
       }
-      const lineM = lineMat(colors.accent, 1.6);
-      const headM = new THREE.MeshBasicMaterial({ color: colors.accent, transparent: true, depthWrite: false });
+      const lineM = lineMat(colors.accent, MARK_W.rest, { opacity: MARK_A.rest });    /* round 6: subtle until hovered */
       const markGroup = new THREE.Group();
-      const mark = { id: d.id, kind: d.markKind, group: markGroup, lineM, headM, bubble };
+      const mark = { id: d.id, kind: d.markKind, group: markGroup, lineM, bubble };
 
       if (d.markKind === 'section') {
         const back = d.fit.back;                 /* glb, unit, toward the section's viewer */
@@ -480,7 +488,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
         outline.renderOrder = 4;
         markGroup.add(outline);
         const fillM = new THREE.MeshBasicMaterial({
-          color: colors.accent, transparent: true, opacity: 0.14, depthWrite: false, side: THREE.DoubleSide,
+          color: colors.accent, transparent: true, opacity: MARK_FILL.rest, depthWrite: false, side: THREE.DoubleSide,
         });
         const fill = new THREE.Mesh(new THREE.PlaneGeometry(gz1 - gz0, gy1 - gy0), fillM);
         fill.rotation.y = Math.PI / 2;                     /* plane normal along x */
@@ -489,7 +497,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
         markGroup.add(fill);
         /* the view arrow: from outside the face toward it, at the top of the cut */
         const ya = gy1 + 1.4, za = (gz0 + gz1) / 2;
-        arrow(markGroup, V([x + sgn * 3.4, ya, za]), V([x + sgn * 0.5, ya, za]), lineM, headM);
+        arrow(markGroup, V([x + sgn * 3.4, ya, za]), V([x + sgn * 0.5, ya, za]), lineM);
         Object.assign(mark, {
           fillM,
           rect: { x, gy0, gy1, gz0, gz1 },
@@ -506,7 +514,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
         const E = V([xEnd, box.min.y + 0.62 * (box.max.y - box.min.y) + off, (box.min.z + box.max.z) / 2]);
         const head = E.clone().addScaledVector(back, 2.4);
         const tail = E.clone().addScaledVector(back, 8.5);
-        arrow(markGroup, tail, head, lineM, headM);
+        arrow(markGroup, tail, head, lineM);
         Object.assign(mark, { from: tail, to: head, anchor: E.clone().addScaledVector(back, 9.6) });
       }
       group.add(markGroup);
@@ -796,9 +804,9 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
       d.frame.visible = on;
       if (d.title) d.title.classList.toggle('is-hot', on);
       if (d.mark) {
-        d.mark.lineM.linewidth = on ? 2.6 : 1.6;
-        d.mark.headM.opacity = 1;
-        if (d.mark.fillM) d.mark.fillM.opacity = on ? 0.32 : 0.14;
+        d.mark.lineM.linewidth = on ? MARK_W.hot : MARK_W.rest;
+        d.mark.lineM.opacity = on ? MARK_A.hot : MARK_A.rest;
+        if (d.mark.fillM) d.mark.fillM.opacity = on ? MARK_FILL.hot : MARK_FILL.rest;
         if (d.mark.bubble) d.mark.bubble.classList.toggle('is-hot', on);
       }
     };
