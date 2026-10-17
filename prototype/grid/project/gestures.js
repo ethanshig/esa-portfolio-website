@@ -8,7 +8,7 @@
      shift + right-drag    pan(dx, dy)
      ctrl + right-drag     zoom(factor, x, y)   (vertical drag, about the press point)
      middle-drag           pan(dx, dy)
-     left-drag             pan(dx, dy)          (trackpads have no right-drag)
+     left-drag             nothing              (Rhino: a selection window; the view never moves)
      left-click / tap      pick(x, y)           (no movement past SLOP)
      wheel / trackpad pinch zoom(factor, x, y)  (to the cursor)
      touch, one finger     pan
@@ -96,9 +96,9 @@ export function attachGestures(el, h) {
         if (e.shiftKey) h.pan(dx, dy);
         else if (e.ctrlKey || e.metaKey) h.zoom(Math.exp(-dy * CTRL_DRAG_K), mouse.x0, mouse.y0);
         else h.orbit(dx, dy);
-      } else {
-        h.pan(dx, dy);                                      /* left or middle */
-      }
+      } else if (mouse.button === 1) {
+        h.pan(dx, dy);                                      /* middle */
+      }                                                     /* left-drag: Rhino's selection window, no view change */
       return;
     }
     if (!pointers.has(e.pointerId) || !touch) return;
