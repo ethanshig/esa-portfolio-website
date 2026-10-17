@@ -53,7 +53,7 @@ export function starField(ink) {
   const key = document.documentElement.dataset.palette in SETS ? document.documentElement.dataset.palette : 'nebula';
   const set = SETS[key];
   const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const tw = q.get('twinkle') in TWINKLE ? q.get('twinkle') : 'soft';
+  const tw = q.get('twinkle') in TWINKLE ? q.get('twinkle') : 'more';   /* Ethan, round 4 */
   const amp = reduce ? 0 : TWINKLE[tw];
 
   const inkRgb = hexRgb(/^#[0-9a-f]{6}$/i.test(ink) ? ink : '#e9ecee');

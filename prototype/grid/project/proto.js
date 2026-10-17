@@ -8,7 +8,7 @@ const PRESETS = {
   P3: { extent: 'sheet', drawings: 'under', verticals: 'lattice' },
   P4: { extent: 'sheet', drawings: 'clear', verticals: 'all' },
 };
-const DEFAULTS = { ...PRESETS.P1, grid: 'quiet', seat: 'ground', axes: 'datum', palette: 'nebula', twinkle: 'soft' };
+const DEFAULTS = { ...PRESETS.P1, grid: 'quiet', seat: 'ground', axes: 'datum', palette: 'nebula', twinkle: 'more' };
 const CYCLE_KEYS = { g: 'grid', o: 'seat', x: 'axes', p: 'palette', t: 'twinkle' };
 const ORDER = Object.keys(PRESETS);
 

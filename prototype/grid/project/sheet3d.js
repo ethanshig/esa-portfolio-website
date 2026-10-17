@@ -52,8 +52,9 @@ const OPTIONS = {
      origin  the paper passes through the model's Rhino origin, which sits on a bold node
      ground  origin, plus the plane the model stands on: the lattice lifts as that one level */
   seat: ['float', 'origin', 'ground'],
-  /* what marks the origin: nothing, a datum (ring + one-unit ticks), or Rhino's red/green axis lines */
-  axes: ['none', 'datum', 'rhino'],
+  /* what marks the origin: nothing, a datum (ring + one-unit ticks), the datum with its three axes
+     running on to the edge of the view in all six directions, or Rhino's red/green axis lines */
+  axes: ['none', 'datum', 'infinite', 'rhino'],
 };
 function readOptions() {
   const q = new URLSearchParams(location.search);
@@ -519,6 +520,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
 
   /* ---------- the lattice: the bold dots, lifted (lattice.js) ---------- */
   let lattice = null, rings = null, seatRing = null;
+  const axisLines = [];
   if (model) {
     const wbox = new THREE.Box3().setFromPoints(model.cornersWorld);
     const rects = drawings.map((d) => ({ u0: d.rect.u0, v0: d.rect.v0, u1: d.rect.u1, v1: d.rect.v1 + TITLE_ROOM }));
@@ -534,11 +536,10 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
       stars: starField(colors.ink),
     });
     scene.add(lattice.points);
-    /* the top edges of the model, ringed: where they land at home is the verticals decision */
-    const tops = model.cornersWorld.filter((c, i) => i % 4 >= 2);      /* corners with y = max */
-    rings = cornerRings(tops, colors.accent);
-    scene.add(rings.points);
-    model.tops = tops;
+    /* the bounding box's top corners: where they land at home is the verticals decision. Measured
+       (latticeDebug) but no longer ringed: they are corners of the box, not of the wall, so on
+       screen they floated in empty paper (Ethan, round 3) */
+    model.tops = model.cornersWorld.filter((c, i) => i % 4 >= 2);      /* corners with y = max */
   }
   /* the ground line, and the origin's marks (prototype round 3: seat, axes) */
   const seatMats = [];
@@ -561,8 +562,16 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
       seatLine([O.clone().addScaledVector(R_H, gu[0]), O.clone().addScaledVector(R_H, gu[1])], colors.ink, 1, 0.35);
     }
     const X = new THREE.Vector3(1, 0, 0), Yr = new THREE.Vector3(0, 0, -1), Z = new THREE.Vector3(0, 1, 0);
-    if (opts.axes === 'datum') {
+    if (opts.axes === 'datum' || opts.axes === 'infinite') {
       for (const [d, len] of [[X, u.x], [Yr, u.z], [Z, u.y]]) seatLine([O, O.clone().addScaledVector(d, len)], colors.accent, 1.6, 0.95, false);
+    }
+    if (opts.axes === 'infinite') {
+      /* each axis a unit segment through the origin, scaled every frame to run past the view's edge */
+      for (const d of [X, Yr, Z]) {
+        const l = seatLine([d.clone().negate(), d], colors.accent, 1, 0.38);
+        l.position.copy(O);
+        axisLines.push({ line: l, dir: d });
+      }
     } else if (opts.axes === 'rhino') {
       /* Rhino's grid axes: X red, Y green, through the origin across the ground; Z a short blue.
          Drawn over the model: the X axis lies at grade, in the ground slab's top face */
@@ -867,6 +876,16 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     if (lattice) { lattice.update(lift, cam.s, renderer.getPixelRatio(), paperInk); lattice.setTime(performance.now() / 1000); }
     if (rings) rings.setSize(11 * renderer.getPixelRatio());
     if (seatRing) seatRing.setSize(13 * renderer.getPixelRatio());
+    for (const a of axisLines) {
+      /* long enough to cross the whole view from wherever the origin is; capped so the far end
+         stays inside the camera's depth range (an axis pointing at the camera is short on screen anyway) */
+      const O = a.line.position;
+      const across = (Math.hypot(W, H) / cam.s) + O.distanceTo(cam.T);
+      const depth = Math.abs(a.dir.dot(back)), slack = 0.9 * DIST - Math.abs(O.clone().sub(cam.T).dot(back));
+      const len = depth > 1e-6 ? Math.min(across, slack / depth) : across;
+      a.line.scale.setScalar(Math.max(len, 0.001));
+      a.line.updateMatrixWorld();
+    }
     const op = 1 - (1 - GHOST_OPACITY) * ghost;
     const zoomK = clamp(cam.s / 16, 0.55, 1.5) * (1 - 0.45 * ghost);
     for (const [w, m] of Object.entries(weightMats)) { m.linewidth = WEIGHT_PX[w] * zoomK; m.opacity = op; }
