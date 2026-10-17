@@ -76,5 +76,6 @@ no-WebGL fallback rather than the page. Each section needs a *view* in the conte
 drawing or model part it is about. Those views are authored by Ethan; the prototype's are marked
 `#proposed`. Records need their drawings' provenance (Make2D layer, sheet file) recorded so marks
 can be measured; only three-little-pigs has that today. A model's export needs its Rhino offset kept
-(`glbOffsetRhino`), since the origin is where the model meets the paper. Still open: whether the
-star field goes beyond the sheet, onto pages where the lattice is currently a measure, not a drawing.
+(`glbOffsetRhino`), since the origin is where the model meets the paper. The star field also runs
+behind the index (`js/starfield.js`, 2026-10-17), which retires the September ruling that the
+lattice there is a measure, not a drawing; the index itself is due a substantial rework.
