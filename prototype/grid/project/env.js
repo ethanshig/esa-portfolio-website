@@ -140,7 +140,8 @@ function createCaption({ onChoose, onLook }) {
   for (const el of page.querySelectorAll(':scope > .env-section[data-section]')) {
     const id = el.dataset.section;
     if (!SECTIONS.includes(id)) throw new Error(`env: unknown section "${id}"`);
-    const lines = [...el.querySelectorAll('.line')];
+    /* the reader's echo line opens a section, unless the prototype says the reader stays silent */
+    const lines = [...el.querySelectorAll('.line')].filter((l) => !(l.classList.contains('env-echo') && root.classList.contains('you-none')));
     if (!lines.length) throw new Error(`env: section "${id}" has no lines`);
     sections.set(id, { el, lines, title: el.querySelector('.eyebrow') });
   }

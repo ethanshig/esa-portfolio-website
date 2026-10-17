@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="../../../../css/line-system.css">
     <link rel="stylesheet" href="../../../../css/story.css">
     <link rel="stylesheet" href="../env.css">
+    <script>/* PROTOTYPE round 9: how the reader's choices speak, ?you=none|label|said */(function(){var v=new URLSearchParams(location.search).get('you');document.documentElement.classList.add('you-'+(['none','label','said'].indexOf(v)>=0?v:'said'));}())</script>
     <!-- PROTOTYPE (ADR-0007): the project page as a drawing sheet. Prose, Narration and
          Crossings are copied from projects/three-little-pigs.html (generated from the
          approved record); nothing here is authored. -->
@@ -144,26 +145,31 @@
                     <p class="line narration-line" data-scene="champaign-1" data-mode="meet">The wolf is going to need a better plan.</p>
                     <p class="line narration-line" data-scene="champaign-1" data-mode="with">The wolf is going to need a better plan.</p>
                 </div>
-                    <section class="project-section env-section" data-section="story">
+                    <section class="project-section env-section" data-section="story" data-voice="ethan">
                     <h2 class="project-section-title eyebrow">The story</h2>
+                    <p class="line env-echo" data-proposed><span class="as-label">The story</span><span class="as-said">Why build with all three?</span></p>
                     <p class="project-text line">Ever wonder why the three little pigs didn't just work together? Me too.</p>
                     <p class="project-text line">This wall uses all three pigs' materials: straw bale insulation, stick framing, and a brick veneer. It combines what each pig got right. Its traditional stick framing fits the way contractors already build, and its straw bale insulation reaches R-52. That means healthy, thermally comfortable rooms and big energy savings.</p>
                     <p class="project-text line">The project explores natural materials and what their properties can do. The point is that a natural material only spreads if it plugs into construction methods people already use.</p>
                 </section>
                     <section class="project-section env-section" data-section="whatIDid">
                     <h2 class="project-section-title eyebrow">What I did</h2>
+                    <p class="line env-echo" data-proposed><span class="as-label">What I did</span><span class="as-said">What was your part in it?</span></p>
                     <ul class="project-list"><li class="line">Researched the materials and designed the full assembly, from foundation to finish</li><li class="line">Drew the annotated axonometric and section in Rhino and composited them in Photoshop</li></ul>
                 </section>
                     <section class="project-section env-section" data-section="process">
                     <h2 class="project-section-title eyebrow">Process</h2>
+                    <p class="line env-echo" data-proposed><span class="as-label">Process</span><span class="as-said">How does the wall work?</span></p>
                     <ul class="project-list"><li class="line">Layers include a masonry water table, a stick frame and straw bale insulation (worksheet row 4)</li><li class="line">The drawing documents the insulation math: straw bales at 36 × 18 × 14 in and R-1.4 per inch, giving R-52 through the wall and R-40 behind the pony wall</li><li class="line">Designed for Champaign, Illinois (climate zone 5), with platform framing and either brick veneer or horizontal board siding</li><li class="line">Below grade: crushed foam glass under the slab (R-8) and extruded polystyrene at the foundation (R-10)</li></ul>
                 </section>
                     <section class="project-section env-section" data-section="outcome">
                     <h2 class="project-section-title eyebrow">Outcome</h2>
+                    <p class="line env-echo" data-proposed><span class="as-label">Outcome</span><span class="as-said">What came out of it?</span></p>
                     <ul class="project-list"><li class="line">Annotated axonometric and section drawings, 8.5 × 11 in</li><li class="line">Straw-bale insulation value of R-52 (as documented)</li></ul>
                 </section>
-                    <section class="project-section env-section" data-section="reflection">
+                    <section class="project-section env-section" data-section="reflection" data-voice="ethan">
                     <h2 class="project-section-title eyebrow">Reflection</h2>
+                    <p class="line env-echo" data-proposed><span class="as-label">Reflection</span><span class="as-said">What did it mean to you?</span></p>
                     <p class="project-text line">I want my work to bring joy and to be fun. Nobody thinks of play when they think of wall sections. But choosing straw bales as insulation reminded me of the children's story and made me smile, so I decided to build with all three pigs' materials.</p>
                 </section>
                     <section class="project-gallery env-drawings">
@@ -183,11 +189,11 @@
                 <div class="controls">
                     <button type="button" class="continue">Continue <kbd>space</kbd></button>
                     <div class="choices">
-                        <button type="button" class="choice env-choice" data-choose="story">The story <span class="mark" aria-hidden="true">→</span></button>
-                        <button type="button" class="choice env-choice" data-choose="whatIDid">What I did <span class="mark" aria-hidden="true">→</span></button>
-                        <button type="button" class="choice env-choice" data-choose="process">Process <span class="mark" aria-hidden="true">→</span></button>
-                        <button type="button" class="choice env-choice" data-choose="outcome">Outcome <span class="mark" aria-hidden="true">→</span></button>
-                        <button type="button" class="choice env-choice" data-choose="reflection">Reflection <span class="mark" aria-hidden="true">→</span></button>
+                        <button type="button" class="choice env-choice" data-choose="story"><span class="as-label">The story</span><span class="as-said" data-proposed>Why build with all three?</span> <span class="mark" aria-hidden="true">→</span></button>
+                        <button type="button" class="choice env-choice" data-choose="whatIDid"><span class="as-label">What I did</span><span class="as-said" data-proposed>What was your part in it?</span> <span class="mark" aria-hidden="true">→</span></button>
+                        <button type="button" class="choice env-choice" data-choose="process"><span class="as-label">Process</span><span class="as-said" data-proposed>How does the wall work?</span> <span class="mark" aria-hidden="true">→</span></button>
+                        <button type="button" class="choice env-choice" data-choose="outcome"><span class="as-label">Outcome</span><span class="as-said" data-proposed>What came out of it?</span> <span class="mark" aria-hidden="true">→</span></button>
+                        <button type="button" class="choice env-choice" data-choose="reflection"><span class="as-label">Reflection</span><span class="as-said" data-proposed>What did it mean to you?</span> <span class="mark" aria-hidden="true">→</span></button>
                         <nav class="crossings" aria-labelledby="crossings-heading">
                     <h2 class="project-section-title crossing-plain crossings-head" id="crossings-heading">Related work</h2>
                     <a href="../../../../projects/mylo-to-go.html" class="crossing choice">
