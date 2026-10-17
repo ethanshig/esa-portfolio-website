@@ -156,7 +156,8 @@ body.look .looking { opacity: 1; }
 .line.you { color: var(--muted); }
 .line.enter { animation: rise 600ms ease both; }
 .line.thinking { color: var(--muted); opacity: 1; animation: breathe 1.1s ease-in-out infinite alternate; }
-.line .thumb { float: none; display: inline-block; width: 22px; height: 22px; vertical-align: -5px; margin: 0 0 0 9px; border-radius: 6px; background: var(--line) center / cover no-repeat; box-shadow: 0 0 0 1px var(--line); transition: box-shadow 200ms ease; }
+/* the thumb leads its line, so its gap is on the right, wide enough for the 3.5px 'showing' ring */
+.line .thumb { float: none; display: inline-block; width: 22px; height: 22px; vertical-align: -5px; margin: 0 12px 0 0; border-radius: 6px; background: var(--line) center / cover no-repeat; box-shadow: 0 0 0 1px var(--line); transition: box-shadow 200ms ease; }
 .line.showing .thumb { box-shadow: 0 0 0 2px var(--ground), 0 0 0 3.5px var(--ink); }
 .place-mark { margin: 26px 0 2px; }
 .place-mark:first-child { margin-top: 0; }
