@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" class="env-page" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="robots" content="noindex">
+    <title>esa | Index (heroic layout prototype)</title>
+    <link rel="icon" href="../../../images/favicon.svg">
+    <link rel="stylesheet" href="../../../css/style.css">
+    <link rel="stylesheet" href="../../../css/line-system.css">
+    <link rel="stylesheet" href="../project/env.css">
+    <link rel="stylesheet" href="index-sheet.css">
+    <!-- PROTOTYPE (index map #8, ticket "Heroic hero layout"). Throwaway.
+         Three layouts of the index as a pannable flat sheet (sheet2d.js, unchanged controls),
+         switchable with ?variant=a|b|c, the bottom bar, or the arrow keys:
+           a  Lead hero:   one hero fills the first view; the rest follow in one strip, the next peeking in
+           b  Scaled field: every hero uncropped at three scales on the bold lattice; the two largest lead
+           c  Drawing set:  every hero isolated in its own equal sheet, a 4 x 3 set; the first view is the whole set
+         Seven pieces have no hero yet: their frames are placeholders at a guessed aspect, marked as such. -->
+</head>
+<body class="ix-page">
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../../../index.html" class="logo">esa</a>
+            <ul class="nav-menu">
+                <li><a href="./" class="nav-link active">Projects</a></li>
+                <li><a href="../../../about.html" class="nav-link">About</a></li>
+                <li><a href="../../../resume.html" class="nav-link">Résumé</a></li>
+                <li><a href="../../../contact.html" class="nav-link">Contact</a></li>
+            </ul>
+            <div class="hamburger"><span></span><span></span><span></span></div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="env-stage" role="region" aria-label="Projects, on the sheet" tabindex="-1">
+            <canvas class="env-dots" aria-hidden="true"></canvas>
+            <div class="env-plane" aria-hidden="true"></div>
+            <div class="env-overlay">
+                <button type="button" class="env-title" data-drawing="rap">Radical Accessibility Project <span class="ix-meta">· hero to come</span></button>
+                <button type="button" class="env-title" data-drawing="instruments">Drawing Instruments <span class="ix-meta">· hero to come</span></button>
+                <button type="button" class="env-title" data-drawing="ratio">RATIO <span class="ix-meta">· hero to come</span></button>
+                <button type="button" class="env-title" data-drawing="blind-tools">Tools for a Blind Architecture Student <span class="ix-meta">· hero to come</span></button>
+                <button type="button" class="env-title" data-drawing="uss-lead">USS Lead <span class="ix-meta">· ARCH 273 · 2025</span></button>
+                <button type="button" class="env-title" data-drawing="beavers-burden">Beaver’s Burden <span class="ix-meta">· ARCH 172 · 2025</span></button>
+                <button type="button" class="env-title" data-drawing="kingfisher">Kingfisher Composting <span class="ix-meta">· hero to come</span></button>
+                <button type="button" class="env-title" data-drawing="artd451">ArtD 451 <span class="ix-meta">· hero to come</span></button>
+                <button type="button" class="env-title" data-drawing="circuito">Mi Circuito Solar <span class="ix-meta">· hero to come</span></button>
+                <button type="button" class="env-title" data-drawing="three-little-pigs">3 Little Pigs Wall Assembly <span class="ix-meta">· FAA 330 · 2025</span></button>
+                <button type="button" class="env-title" data-drawing="mylo">Mylo To-Go <span class="ix-meta">· ARTD 326 · 2024</span></button>
+            </div>
+            <p class="ix-hint" hidden>Right-drag to pan · wheel to zoom</p>
+        </div>
+    </main>
+
+    <!-- PROTOTYPE switcher: not part of the design -->
+    <div class="ix-proto" hidden>
+        <button type="button" data-step="-1" aria-label="Previous variant">←</button>
+        <span class="ix-proto-label"><b data-label></b> <span data-name></span></span>
+        <button type="button" data-step="1" aria-label="Next variant">→</button>
+        <span class="ix-proto-state" data-state></span>
+        <span hidden>
+            <span data-variant-name="a">Lead hero</span>
+            <span data-variant-name="b">Scaled field</span>
+            <span data-variant-name="c">Drawing set</span>
+        </span>
+    </div>
+
+    <script src="../../../js/line-system.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', function () { if (window.LineSystem) LineSystem.init(); });</script>
+    <script type="module" src="index-sheet.js"></script>
+</body>
+</html>
