@@ -5,6 +5,7 @@
    Heroes are never cropped: every rect keeps its image's aspect. */
 import { createSheet } from '../project/sheet2d.js';
 import { createPairModel } from './pairmodel.js';
+import { layoutPlates, attachPlates } from './plates.js';
 
 /* order is arbitrary for the prototype (order is still fog on the map); real heroes are spread out */
 const PIECES = [
@@ -117,12 +118,17 @@ function layoutD(W, H) {
   return { drawings, arrival: { camera: PAIRS[0].camera } };
 }
 
-const VARIANTS = { d: layoutD, a: layoutA, b: layoutB, c: layoutC };
+/* ---------- E, F: a field of Plates (plates.js). e = letter grid (default), f = square grid ---------- */
+let PLATE_LAYOUT = null;
+const layoutPlateVariant = (v) => (W, H) => { PLATE_LAYOUT = layoutPlates(v, W, H); return { drawings: PLATE_LAYOUT.drawings, arrival: PLATE_LAYOUT.arrival }; };
+
+const VARIANTS = { e: layoutPlateVariant('e'), f: layoutPlateVariant('f'), d: layoutD, a: layoutA, b: layoutB, c: layoutC };
 const KEYS = Object.keys(VARIANTS);
 
 /* ---------- boot ---------- */
 const q = new URLSearchParams(location.search);
-const variant = KEYS.includes(q.get('variant')) ? q.get('variant') : 'd';
+const variant = KEYS.includes(q.get('variant')) ? q.get('variant') : 'e';
+if (variant === 'e' || variant === 'f') document.documentElement.classList.add('ix-plates', 'ix-plates-' + variant);
 const W = window.innerWidth, H = window.innerHeight;
 const { drawings, arrival } = VARIANTS[variant](W, H);
 const byId = new Map(HEROES.map((p) => [p.id, p]));
@@ -134,10 +140,21 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
 const sheet = await createSheet({
   stage, data, views, reduceMotion,
   freeRegion: () => ({ left: 0, right: window.innerWidth, top: NAV_H, bottom: window.innerHeight }),
-  onFocus(id) { const p = byId.get(id.replace(/-z$/, '')); if (p && p.href) location.href = p.href; },
+  onFocus(id) {
+    if (PLATE_LAYOUT) { const p = PLATE_LAYOUT.plates.find((x) => x.id === id); if (p && p.href) location.href = p.href; return; }
+    const p = byId.get(id.replace(/-z$/, '')); if (p && p.href) location.href = p.href;
+  },
 });
 document.documentElement.classList.add('env-live');
 window.addEventListener('resize', () => sheet.resize());
+
+/* ---------- E, F: placeholders, dotted outlines, the dimetric arrows, model stills ---------- */
+let plates = null;
+if (PLATE_LAYOUT) {
+  plates = attachPlates({ sheet, stage, layout: PLATE_LAYOUT, reduceMotion });
+  const pub = () => { window.__plates = plates.state(); requestAnimationFrame(pub); };
+  pub();
+}
 
 /* ---------- D: the live model and the arrows ---------- */
 if (variant === 'd') {
@@ -221,6 +238,12 @@ if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
       const inX = x1 > 0 && x0 < window.innerWidth, inY = y1 > NAV_H && y0 < window.innerHeight;
       if (inX && inY) { if (x0 >= 0 && x1 <= window.innerWidth && y0 >= NAV_H && y1 <= window.innerHeight) full++; else part++; }
       if (inX && inY) biggest = Math.max(biggest, (y1 - y0) / window.innerHeight);
+    }
+    if (plates) {
+      const st = plates.state();
+      stateEl.textContent = `${st.plates} plates · ${st.records} records · seed ${st.seed} · edge sim ${st.meanEdgeSim.toFixed(2)} · on ${st.current} (${st.currentIndex + 1}/${st.records})`;
+      window.__ix = { variant, camera };
+      return;
     }
     stateEl.textContent = `${data.drawings.filter((x) => !x.id.endsWith('-z')).length} heroes · in view ${full} whole + ${part} cut · largest ${Math.round(biggest * 100)}% of height · ${camera.s.toFixed(1)} px/step`;
     window.__ix = { variant, full, part, biggest, camera };

@@ -20,8 +20,12 @@
     </script>
     <!-- PROTOTYPE (index map #8, ticket "Heroic hero layout"). Throwaway.
          Three layouts of the index as a pannable flat sheet (sheet2d.js, unchanged controls),
-         switchable with ?variant=d|a|b|c, the bottom bar, or the [ and ] keys:
-           d  Pair (default): KGDVS - each hero is its photo, full-bleed in the left half (never cropped:
+         switchable with ?variant=e|f|d|a|b|c, the bottom bar, or the [ and ] keys:
+           e  Letter grid (default): a field of Plates (plates.js, plates-data.js), every cell 8.5 x 11,
+              11x17 Plates take two; grown outward from the seed by Facet similarity; active Records
+              dotted; 2:1 dimetric arrows on the paper step Record to Record
+           f  Square grid: the same field on square cells
+           d  Pair: KGDVS - each hero is its photo, full-bleed in the left half (never cropped:
               the overflow is on the paper), beside its model on the paper, plan at rest, lifting to
               dimetric on hover; arrow buttons and the arrow keys step pair to pair
            a  Lead hero:   one hero fills the first view; the rest follow in one strip, the next peeking in
@@ -47,6 +51,7 @@
         <div class="env-stage" role="region" aria-label="Projects, on the sheet" tabindex="-1">
             <canvas class="env-dots" aria-hidden="true"></canvas>
             <div class="env-plane" aria-hidden="true"></div>
+            <svg class="ix-plates-svg" aria-hidden="true"></svg>
             <div class="env-overlay">
                 <button type="button" class="env-title" data-drawing="rap">Radical Accessibility Project <span class="ix-meta">· hero to come</span></button>
                 <button type="button" class="env-title" data-drawing="instruments">Drawing Instruments <span class="ix-meta">· hero to come</span></button>
@@ -70,9 +75,42 @@
                 <button type="button" class="env-title ix-zone-title" data-drawing="circuito-z" tabindex="-1" aria-hidden="true"></button>
                 <button type="button" class="env-title ix-zone-title" data-drawing="three-little-pigs-z" tabindex="-1" aria-hidden="true"></button>
                 <button type="button" class="env-title ix-zone-title" data-drawing="mylo-z" tabindex="-1" aria-hidden="true"></button>
+                <!-- E, F: one title per Plate (the Record's), shown on hover. Placeholders are spans: never clickable -->
+                <button type="button" class="env-title ix-plate-title" data-drawing="uss-atlas">USS Lead <span class="ix-meta">· ARCH 273 · 2025</span></button>
+                <button type="button" class="env-title ix-plate-title" data-drawing="uss-board">USS Lead <span class="ix-meta">· ARCH 273 · 2025</span></button>
+                <button type="button" class="env-title ix-plate-title" data-drawing="uss-gable">USS Lead <span class="ix-meta">· ARCH 273 · 2025</span></button>
+                <button type="button" class="env-title ix-plate-title" data-drawing="uss-model">USS Lead <span class="ix-meta">· ARCH 273 · 2025</span></button>
+                <button type="button" class="env-title ix-plate-title" data-drawing="bb-catamaraft">Beaver’s Burden <span class="ix-meta">· ARCH 172 · 2025</span></button>
+                <button type="button" class="env-title ix-plate-title" data-drawing="bb-crawling">Beaver’s Burden <span class="ix-meta">· ARCH 172 · 2025</span></button>
+                <button type="button" class="env-title ix-plate-title" data-drawing="bb-landscape">Beaver’s Burden <span class="ix-meta">· ARCH 172 · 2025</span></button>
+                <button type="button" class="env-title ix-plate-title" data-drawing="bb-standing">Beaver’s Burden <span class="ix-meta">· ARCH 172 · 2025</span></button>
+                <button type="button" class="env-title ix-plate-title" data-drawing="bb-model">Beaver’s Burden <span class="ix-meta">· ARCH 172 · 2025</span></button>
+                <button type="button" class="env-title ix-plate-title" data-drawing="mylo-logo">Mylo To-Go <span class="ix-meta">· ARTD 326 · 2024</span></button>
+                <button type="button" class="env-title ix-plate-title" data-drawing="mylo-picnic">Mylo To-Go <span class="ix-meta">· ARTD 326 · 2024</span></button>
+                <button type="button" class="env-title ix-plate-title" data-drawing="mylo-poster">Mylo To-Go <span class="ix-meta">· ARTD 326 · 2024</span></button>
+                <button type="button" class="env-title ix-plate-title" data-drawing="mylo-model">Mylo To-Go <span class="ix-meta">· ARTD 326 · 2024</span></button>
+                <button type="button" class="env-title ix-plate-title" data-drawing="tlp-axon">3 Little Pigs Wall Assembly <span class="ix-meta">· FAA 330 · 2025</span></button>
+                <button type="button" class="env-title ix-plate-title" data-drawing="tlp-section">3 Little Pigs Wall Assembly <span class="ix-meta">· FAA 330 · 2025</span></button>
+                <button type="button" class="env-title ix-plate-title" data-drawing="tlp-model">3 Little Pigs Wall Assembly <span class="ix-meta">· FAA 330 · 2025</span></button>
+                <span class="env-title ix-plate-title" data-plate="rap-1">Radical Accessibility Project <span class="ix-meta">· plate to come</span></span>
+                <span class="env-title ix-plate-title" data-plate="rap-2">Radical Accessibility Project <span class="ix-meta">· plate to come</span></span>
+                <span class="env-title ix-plate-title" data-plate="rap-3">Radical Accessibility Project <span class="ix-meta">· plate to come</span></span>
+                <span class="env-title ix-plate-title" data-plate="instruments-1">Drawing Instruments <span class="ix-meta">· plate to come</span></span>
+                <span class="env-title ix-plate-title" data-plate="instruments-2">Drawing Instruments <span class="ix-meta">· plate to come</span></span>
+                <span class="env-title ix-plate-title" data-plate="ratio-1">RATIO <span class="ix-meta">· plate to come</span></span>
+                <span class="env-title ix-plate-title" data-plate="ratio-2">RATIO <span class="ix-meta">· plate to come</span></span>
+                <span class="env-title ix-plate-title" data-plate="blind-tools-1">Tools for a Blind Architecture Student <span class="ix-meta">· plate to come</span></span>
+                <span class="env-title ix-plate-title" data-plate="blind-tools-2">Tools for a Blind Architecture Student <span class="ix-meta">· plate to come</span></span>
+                <span class="env-title ix-plate-title" data-plate="kingfisher-1">Kingfisher Composting <span class="ix-meta">· plate to come</span></span>
+                <span class="env-title ix-plate-title" data-plate="kingfisher-2">Kingfisher Composting <span class="ix-meta">· plate to come</span></span>
+                <span class="env-title ix-plate-title" data-plate="artd451-1">ArtD 451 <span class="ix-meta">· plate to come</span></span>
+                <span class="env-title ix-plate-title" data-plate="circuito-1">Mi Circuito Solar <span class="ix-meta">· plate to come</span></span>
             </div>
             <button type="button" class="ix-arrow" data-dir="-1" aria-label="Previous project" hidden>‹</button>
             <button type="button" class="ix-arrow" data-dir="1" aria-label="Next project" hidden>›</button>
+            <!-- E, F: 2:1 dimetric arrows drawn on the paper beside the current Record's hero Plate (JS draws the shape) -->
+            <button type="button" class="ix-axarrow" data-dir="-1" aria-label="Previous project" hidden><svg aria-hidden="true"></svg></button>
+            <button type="button" class="ix-axarrow" data-dir="1" aria-label="Next project" hidden><svg aria-hidden="true"></svg></button>
             <p class="ix-hint" hidden>Right-drag to pan · wheel to zoom</p>
         </div>
     </main>
@@ -84,6 +122,8 @@
         <button type="button" data-step="1" aria-label="Next variant">→</button>
         <span class="ix-proto-state" data-state></span>
         <span hidden>
+            <span data-variant-name="e">Letter grid</span>
+            <span data-variant-name="f">Square grid</span>
             <span data-variant-name="d">Pair</span>
             <span data-variant-name="a">Lead hero</span>
             <span data-variant-name="b">Scaled field</span>

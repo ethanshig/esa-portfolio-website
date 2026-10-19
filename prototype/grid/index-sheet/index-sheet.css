@@ -69,3 +69,48 @@
 .ix-arrow[data-dir="-1"] { left: 16px; }
 .ix-arrow[data-dir="1"] { right: 16px; }
 .ix-arrow:hover, .ix-arrow:focus-visible { border-color: var(--color-accent); color: var(--color-accent); }
+
+/* E, F: a field of Plates. Images cover their cell; only the Plate titles show, and only on hover */
+html.ix-plates .env-plane-img { object-fit: cover; background: var(--color-bg-alt); }
+html.ix-plates .env-title:not(.ix-plate-title) { display: none; }
+html:not(.ix-plates) .ix-plate-title,
+html:not(.ix-plates) .ix-plates-svg,
+html:not(.ix-plates) .ix-axarrow { display: none; }
+html.ix-plates .ix-plate-title {
+    opacity: 0;
+    pointer-events: none;
+    padding: 1px 4px;
+    margin-left: -4px;
+    background: var(--color-bg);
+    color: var(--color-primary);
+    /* sheet2d sets transform to just under the Plate; this lifts the title inside its bottom-left corner */
+    translate: 8px calc(-100% - 12px);
+    transition: opacity 0.12s ease;
+}
+html.ix-plates .ix-plate-title.is-hot,
+html.ix-plates .ix-plate-title:focus-visible { opacity: 1; pointer-events: auto; }
+html.ix-plates span.ix-plate-title { cursor: default; }
+
+/* placeholders (dashed, "plate to come") and ongoing work (dotted, one step out in the gutter) */
+.ix-plates-svg { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
+.ix-ph { fill: var(--color-bg-alt); stroke: #3a3f47; stroke-width: 1.5; stroke-dasharray: 9 7; }
+.ix-active { fill: none; stroke: var(--color-primary); stroke-width: 2; stroke-linecap: round; opacity: 0.75; }
+
+/* the dimetric arrows: hidden-line ink on the paper, faces in the page colour */
+.ix-axarrow {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 4;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    pointer-events: auto;
+}
+.ix-axarrow[hidden] { display: none; }
+.ix-axarrow svg { display: block; overflow: visible; }
+.ix-axarrow polygon { fill: var(--color-bg); stroke: var(--color-primary); stroke-width: 1.4; stroke-linejoin: round; }
+.ix-axarrow:hover polygon, .ix-axarrow:focus-visible polygon { stroke: var(--color-accent); }
+.ix-axarrow:focus-visible { outline: none; }
