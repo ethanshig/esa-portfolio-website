@@ -4,20 +4,21 @@
    where the heroes lie on the paper (in dot steps) and what the first view frames.
    Heroes are never cropped: every rect keeps its image's aspect. */
 import { createSheet } from '../project/sheet2d.js';
+import { createPairModel } from './pairmodel.js';
 
 /* order is arbitrary for the prototype (order is still fog on the map); real heroes are spread out */
 const PIECES = [
-  { id: 'uss-lead', src: '../../../images/tour/a273-gable.jpg', px: [2000, 1545], href: '../../../projects/uss-lead-revival.html' },
+  { id: 'uss-lead', model: 'uss-lead-revival', src: '../../../images/tour/a273-gable.jpg', px: [2000, 1545], href: '../../../projects/uss-lead-revival.html' },
   { id: 'rap', aspect: 16 / 10 },
-  { id: 'beavers-burden', src: '../../../images/tour/bb-catamaraft.jpg', px: [1600, 1067], href: '../../../projects/beavers-burden.html' },
+  { id: 'beavers-burden', model: 'beavers-burden', src: '../../../images/tour/bb-catamaraft.jpg', px: [1600, 1067], href: '../../../projects/beavers-burden.html' },
   { id: 'instruments', aspect: 4 / 5 },
   { id: 'ratio', aspect: 16 / 9 },
-  { id: 'three-little-pigs', src: '../../../images/tour/tlp-axon.jpg', px: [1600, 1035], href: '../project/three-little-pigs/' },
+  { id: 'three-little-pigs', model: 'three-little-pigs', src: '../../../images/tour/tlp-axon.jpg', px: [1600, 1035], href: '../project/three-little-pigs/' },
   { id: 'blind-tools', aspect: 3 / 2 },
   { id: 'kingfisher', aspect: 1 },
   { id: 'artd451', aspect: 2 / 3 },
   { id: 'circuito', aspect: 3 / 2 },
-  { id: 'mylo', src: '../../../images/tour/mylo-picnic.jpg', px: [1600, 1067], href: '../../../projects/mylo-to-go.html' },
+  { id: 'mylo', model: 'mylo-to-go', src: '../../../images/tour/mylo-picnic.jpg', px: [1600, 1067], href: '../../../projects/mylo-to-go.html' },
 ];
 
 /* a placeholder frame at a guessed aspect, so the layouts are judged at the real count of 11 */
@@ -81,16 +82,51 @@ function layoutC(W, H) {
   return { drawings, arrival: 'sheet' };
 }
 
-const VARIANTS = { a: layoutA, b: layoutB, c: layoutC };
+/* ---------- D: pair (KGDVS). Each hero is a photo and its model (or key drawing), side by side.
+   A pair's view: the photo cover-fits the left half with its right edge on the screen's centre line,
+   so whatever overflows runs off-screen onto the paper (never cropped: pan to it). The right half is
+   paper; the model stands in its middle 60%. Arrows step pair to pair; panning stays free. ---------- */
+const PH = 40;                      /* photo height, steps */
+const PAIR_GAP = 16;
+const blank = (w, h) => 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"/>`);
+function zoneArt(w, h) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">` +
+    `<rect x="4" y="4" width="${w - 8}" height="${h - 8}" fill="none" stroke="#3a3f47" stroke-width="3" stroke-dasharray="14 12"/>` +
+    `<text x="50%" y="50%" fill="#5d636c" font-family="monospace" font-size="30" text-anchor="middle" dominant-baseline="middle">model or key drawing to come</text></svg>`;
+  return 'data:image/svg+xml,' + encodeURIComponent(svg);
+}
+let PAIRS = [];
+function layoutD(W, H) {
+  const order = [...HEROES].sort((a, b) => (b.model ? 1 : 0) - (a.model ? 1 : 0));   /* real pieces first */
+  const drawings = [];
+  PAIRS = [];
+  let u = 0;
+  for (const p of order) {
+    const pw = PH * aspectOf(p);
+    const s = Math.max((W / 2) / pw, H / PH);                 /* cover the left half */
+    const seam = u + pw, half = (W / 2) / s, vis = H / s;
+    drawings.push({ id: p.id, at: [u, 0], w: pw });
+    const zone = { u0: seam + 0.2 * half, u1: seam + 0.8 * half, v0: PH / 2 - 0.3 * vis, v1: PH / 2 + 0.3 * vis };
+    const zw = zone.u1 - zone.u0, zh = zone.v1 - zone.v0;
+    const zid = p.id + '-z';
+    if (p.model) drawings.push({ id: zid, at: [zone.u0, zone.v0], w: zw, src: blank(400, Math.round(400 * zh / zw)), px: [400, Math.round(400 * zh / zw)] });
+    else drawings.push({ id: zid, at: [zone.u0, zone.v0], w: zw, src: zoneArt(800, Math.round(800 * zh / zw)), px: [800, Math.round(800 * zh / zw)] });
+    PAIRS.push({ id: p.id, model: p.model, zone, camera: { T: [seam, PH / 2], s } });
+    u = seam + half + PAIR_GAP;
+  }
+  return { drawings, arrival: { camera: PAIRS[0].camera } };
+}
+
+const VARIANTS = { d: layoutD, a: layoutA, b: layoutB, c: layoutC };
 const KEYS = Object.keys(VARIANTS);
 
 /* ---------- boot ---------- */
 const q = new URLSearchParams(location.search);
-const variant = KEYS.includes(q.get('variant')) ? q.get('variant') : 'a';
+const variant = KEYS.includes(q.get('variant')) ? q.get('variant') : 'd';
 const W = window.innerWidth, H = window.innerHeight;
 const { drawings, arrival } = VARIANTS[variant](W, H);
 const byId = new Map(HEROES.map((p) => [p.id, p]));
-const data = { drawings: drawings.map((d) => ({ ...d, src: byId.get(d.id).src, px: byId.get(d.id).px })) };
+const data = { drawings: drawings.map((d) => (d.src ? d : { ...d, src: byId.get(d.id).src, px: byId.get(d.id).px })) };
 const views = new Map([['arrival', { section: 'arrival', target: arrival }]]);
 const stage = document.querySelector('.env-stage');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -98,10 +134,51 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
 const sheet = await createSheet({
   stage, data, views, reduceMotion,
   freeRegion: () => ({ left: 0, right: window.innerWidth, top: NAV_H, bottom: window.innerHeight }),
-  onFocus(id) { const p = byId.get(id); if (p && p.href) location.href = p.href; },
+  onFocus(id) { const p = byId.get(id.replace(/-z$/, '')); if (p && p.href) location.href = p.href; },
 });
 document.documentElement.classList.add('env-live');
 window.addEventListener('resize', () => sheet.resize());
+
+/* ---------- D: the live model and the arrows ---------- */
+if (variant === 'd') {
+  document.documentElement.classList.add('ix-pairs');
+  const pm = createPairModel(stage, stage.querySelector('.env-overlay'));
+  const prev = document.querySelector('.ix-arrow[data-dir="-1"]'), next = document.querySelector('.ix-arrow[data-dir="1"]');
+  prev.hidden = next.hidden = false;
+  const nearest = (cam) => {
+    let best = 0, bd = Infinity;
+    PAIRS.forEach((p, i) => { const d = Math.abs(p.camera.T[0] - cam.T[0]); if (d < bd) { bd = d; best = i; } });
+    return best;
+  };
+  const step = (dir) => {
+    const i = nearest(sheet.debug().camera);
+    const j = (i + dir + PAIRS.length) % PAIRS.length;
+    sheet.show({ camera: PAIRS[j].camera });
+  };
+  for (const b of [prev, next]) b.addEventListener('click', () => step(Number(b.dataset.dir)));
+  document.addEventListener('keydown', (e) => {
+    if (e.target.closest && e.target.closest('input, textarea, [contenteditable]')) return;
+    if (e.key === 'ArrowLeft') step(-1); else if (e.key === 'ArrowRight') step(1);
+  });
+  let over = false;
+  stage.addEventListener('pointermove', (e) => {
+    const cam = sheet.debug().camera, p = PAIRS[nearest(cam)];
+    const u = cam.T[0] + (e.clientX - window.innerWidth / 2) / cam.s, v = cam.T[1] + (e.clientY - window.innerHeight / 2) / cam.s;
+    over = !!p.model && u >= p.zone.u0 && u <= p.zone.u1 && v >= p.zone.v0 && v <= p.zone.v1;
+    pm.setLift(over);
+  });
+  stage.addEventListener('pointerleave', () => pm.setLift(false));
+  const tick = () => {
+    const cam = sheet.debug().camera, p = PAIRS[nearest(cam)];
+    if (pm.current !== (p.model || null)) pm.show(p.model || null);
+    const z = p.zone;
+    const x0 = window.innerWidth / 2 + (z.u0 - cam.T[0]) * cam.s, y0 = window.innerHeight / 2 + (z.v0 - cam.T[1]) * cam.s;
+    pm.frame(p.model ? { x: x0, y: y0, w: (z.u1 - z.u0) * cam.s, h: (z.v1 - z.v0) * cam.s } : null, cam.s);
+    window.__pair = { i: nearest(cam), id: p.id, model: pm.current, over };
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
 
 /* ---------- the left-drag hint: once per session, only after a left-drag that moved nothing ---------- */
 const hint = document.querySelector('.ix-hint');
@@ -130,7 +207,7 @@ if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
   bar.addEventListener('click', (e) => { const b = e.target.closest('[data-step]'); if (b) go(Number(b.dataset.step)); });
   document.addEventListener('keydown', (e) => {
     if (e.target.closest && e.target.closest('input, textarea, [contenteditable]')) return;
-    if (e.key === 'ArrowLeft') go(-1); else if (e.key === 'ArrowRight') go(1);
+    if (e.key === '[') go(-1); else if (e.key === ']') go(1);
   });
   const stateEl = bar.querySelector('[data-state]');
   const report = () => {
@@ -138,14 +215,14 @@ if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
     const toX = (u) => window.innerWidth / 2 + (u - camera.T[0]) * camera.s;
     const toY = (v) => window.innerHeight / 2 + (v - camera.T[1]) * camera.s;
     let full = 0, part = 0, biggest = 0;
-    for (const d of data.drawings) {
+    for (const d of data.drawings.filter((x) => !x.id.endsWith('-z'))) {
       const h = d.w * d.px[1] / d.px[0];
       const x0 = toX(d.at[0]), x1 = toX(d.at[0] + d.w), y0 = toY(d.at[1]), y1 = toY(d.at[1] + h);
       const inX = x1 > 0 && x0 < window.innerWidth, inY = y1 > NAV_H && y0 < window.innerHeight;
       if (inX && inY) { if (x0 >= 0 && x1 <= window.innerWidth && y0 >= NAV_H && y1 <= window.innerHeight) full++; else part++; }
       if (inX && inY) biggest = Math.max(biggest, (y1 - y0) / window.innerHeight);
     }
-    stateEl.textContent = `${data.drawings.length} heroes · in view ${full} whole + ${part} cut · largest ${Math.round(biggest * 100)}% of height · ${camera.s.toFixed(1)} px/step`;
+    stateEl.textContent = `${data.drawings.filter((x) => !x.id.endsWith('-z')).length} heroes · in view ${full} whole + ${part} cut · largest ${Math.round(biggest * 100)}% of height · ${camera.s.toFixed(1)} px/step`;
     window.__ix = { variant, full, part, biggest, camera };
   };
   setInterval(report, 400); report();

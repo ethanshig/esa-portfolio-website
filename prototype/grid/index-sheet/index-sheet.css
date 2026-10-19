@@ -44,3 +44,28 @@
 .ix-proto button { border: 0; background: #111; color: #f5e663; border-radius: 999px; width: 28px; height: 28px; cursor: pointer; font: inherit; }
 .ix-proto-state { opacity: 0.7; }
 @media (max-width: 600px) { .ix-proto-state { display: none; } }
+
+/* D: the live model's canvas sits between the plane and the titles; it never takes the pointer */
+.ix-gl { position: absolute; inset: 0; pointer-events: none; }
+.ix-zone-title { display: none; }
+
+/* D: arrows that step from one pair to the next (panning stays free) */
+.ix-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    width: 44px;
+    height: 44px;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 35%, transparent);
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+    color: var(--color-primary);
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    pointer-events: auto;
+}
+.ix-arrow[data-dir="-1"] { left: 16px; }
+.ix-arrow[data-dir="1"] { right: 16px; }
+.ix-arrow:hover, .ix-arrow:focus-visible { border-color: var(--color-accent); color: var(--color-accent); }

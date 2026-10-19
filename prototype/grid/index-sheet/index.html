@@ -10,9 +10,20 @@
     <link rel="stylesheet" href="../../../css/line-system.css">
     <link rel="stylesheet" href="../project/env.css">
     <link rel="stylesheet" href="index-sheet.css">
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+        }
+    }
+    </script>
     <!-- PROTOTYPE (index map #8, ticket "Heroic hero layout"). Throwaway.
          Three layouts of the index as a pannable flat sheet (sheet2d.js, unchanged controls),
-         switchable with ?variant=a|b|c, the bottom bar, or the arrow keys:
+         switchable with ?variant=d|a|b|c, the bottom bar, or the [ and ] keys:
+           d  Pair (default): KGDVS - each hero is its photo, full-bleed in the left half (never cropped:
+              the overflow is on the paper), beside its model on the paper, plan at rest, lifting to
+              dimetric on hover; arrow buttons and the arrow keys step pair to pair
            a  Lead hero:   one hero fills the first view; the rest follow in one strip, the next peeking in
            b  Scaled field: every hero uncropped at three scales on the bold lattice; the two largest lead
            c  Drawing set:  every hero isolated in its own equal sheet, a 4 x 3 set; the first view is the whole set
@@ -48,7 +59,20 @@
                 <button type="button" class="env-title" data-drawing="circuito">Mi Circuito Solar <span class="ix-meta">· hero to come</span></button>
                 <button type="button" class="env-title" data-drawing="three-little-pigs">3 Little Pigs Wall Assembly <span class="ix-meta">· FAA 330 · 2025</span></button>
                 <button type="button" class="env-title" data-drawing="mylo">Mylo To-Go <span class="ix-meta">· ARTD 326 · 2024</span></button>
+                <button type="button" class="env-title ix-zone-title" data-drawing="rap-z" tabindex="-1" aria-hidden="true"></button>
+                <button type="button" class="env-title ix-zone-title" data-drawing="instruments-z" tabindex="-1" aria-hidden="true"></button>
+                <button type="button" class="env-title ix-zone-title" data-drawing="ratio-z" tabindex="-1" aria-hidden="true"></button>
+                <button type="button" class="env-title ix-zone-title" data-drawing="blind-tools-z" tabindex="-1" aria-hidden="true"></button>
+                <button type="button" class="env-title ix-zone-title" data-drawing="uss-lead-z" tabindex="-1" aria-hidden="true"></button>
+                <button type="button" class="env-title ix-zone-title" data-drawing="beavers-burden-z" tabindex="-1" aria-hidden="true"></button>
+                <button type="button" class="env-title ix-zone-title" data-drawing="kingfisher-z" tabindex="-1" aria-hidden="true"></button>
+                <button type="button" class="env-title ix-zone-title" data-drawing="artd451-z" tabindex="-1" aria-hidden="true"></button>
+                <button type="button" class="env-title ix-zone-title" data-drawing="circuito-z" tabindex="-1" aria-hidden="true"></button>
+                <button type="button" class="env-title ix-zone-title" data-drawing="three-little-pigs-z" tabindex="-1" aria-hidden="true"></button>
+                <button type="button" class="env-title ix-zone-title" data-drawing="mylo-z" tabindex="-1" aria-hidden="true"></button>
             </div>
+            <button type="button" class="ix-arrow" data-dir="-1" aria-label="Previous project" hidden>‹</button>
+            <button type="button" class="ix-arrow" data-dir="1" aria-label="Next project" hidden>›</button>
             <p class="ix-hint" hidden>Right-drag to pan · wheel to zoom</p>
         </div>
     </main>
@@ -60,6 +84,7 @@
         <button type="button" data-step="1" aria-label="Next variant">→</button>
         <span class="ix-proto-state" data-state></span>
         <span hidden>
+            <span data-variant-name="d">Pair</span>
             <span data-variant-name="a">Lead hero</span>
             <span data-variant-name="b">Scaled field</span>
             <span data-variant-name="c">Drawing set</span>
