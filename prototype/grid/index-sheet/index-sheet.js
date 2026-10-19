@@ -127,7 +127,7 @@ const KEYS = Object.keys(VARIANTS);
 
 /* ---------- boot ---------- */
 const q = new URLSearchParams(location.search);
-const variant = KEYS.includes(q.get('variant')) ? q.get('variant') : 'e';
+const variant = KEYS.includes(q.get('variant')) ? q.get('variant') : 'f';
 if (variant === 'e' || variant === 'f') document.documentElement.classList.add('ix-plates', 'ix-plates-' + variant);
 const W = window.innerWidth, H = window.innerHeight;
 const { drawings, arrival } = VARIANTS[variant](W, H);
@@ -225,6 +225,9 @@ if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
   document.addEventListener('keydown', (e) => {
     if (e.target.closest && e.target.closest('input, textarea, [contenteditable]')) return;
     if (e.key === '[') go(-1); else if (e.key === ']') go(1);
+  });
+  bar.querySelector('[data-theme-toggle]').addEventListener('click', () => {
+    q.set('theme', document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'); location.search = q.toString();
   });
   const stateEl = bar.querySelector('[data-state]');
   const report = () => {

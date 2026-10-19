@@ -121,18 +121,19 @@ export function layoutPlates(variant, W, H) {
   /* sheet2d gets the real Plates only: placeholders are drawn by the overlay and never picked */
   const drawings = G.plates.filter((p) => !p.placeholder).map((p) => ({
     id: p.id, at: [p.rect.u0, p.rect.v0], w: p.wSteps, px: px(p),
-    src: p.src || svgData(...px(p), `<rect width="100%" height="100%" fill="#14171a"/>`),
+    src: p.src || svgData(...px(p), `<rect width="100%" height="100%" fill="${getComputedStyle(document.documentElement).getPropertyValue('--color-bg-alt').trim() || '#14171a'}"/>`),
   }));
   const frame = (p) => frameAround(p, g, W, H);
   return { variant, g, ...G, records, drawings, frame, arrival: { camera: frame(G.plates[G.seed]) } };
 }
 
-/* a camera that frames a Plate and the cells round it (one pitch each side), the nav allowed for */
+/* a camera on a Plate that shows at most 3 cells across and 2 down (Ethan, 2026-10-18): the larger of
+   the two fits wins, so neither count is exceeded. Centred on the Plate's column; its row starts just
+   under the nav, so the Plate shows whole and whatever room is left shows the row below. */
 function frameAround(p, g, W, H) {
-  const u0 = p.rect.u0 - g.pw, u1 = p.rect.u1 + g.pw, v0 = p.rect.v0 - g.ph, v1 = p.rect.v1 + g.ph;
   const fw = W, fh = H - NAV_H;
-  const s = Math.min(fw / (u1 - u0), fh / (v1 - v0));
-  return { T: [(u0 + u1) / 2, (v0 + v1) / 2 - (NAV_H / 2) / s], s };
+  const s = Math.max(fw / (3 * g.pw), fh / (2 * g.ph));
+  return { T: [(p.rect.u0 + p.rect.u1) / 2, p.rect.v0 - GUTTER / 2 + (H / 2 - NAV_H) / s], s };
 }
 
 /* ---------- 2:1 dimetric arrow, in dot steps from its tail node ----------
@@ -141,10 +142,12 @@ function frameAround(p, g, W, H) {
    x = a + b, z = b - a, so on screen it is (4a, 2b): every vertex is a bold node. It is
    extruded 2 steps up (the paper's "verticals 2 steps"), which keeps the top face on bold nodes too. */
 const ARROW = [[0, -1], [2, -1], [2, -2], [4, 0], [2, 2], [2, 1], [0, 1]];
-const LIFT = 2;
-function arrowFaces(dir) {
-  const base = ARROW.map(([a, b]) => [4 * a * dir, 2 * b]);
-  const top = base.map(([u, v]) => [u, v - LIFT]);
+const ARROW_K = 0.75 / 4;          /* scaled to 3 steps long, so it sits inside the 4-step gutter between two squares */
+const LIFT = 1.2;                  /* steps of extrusion when hovered; 0 at rest (a flat, 2D arrow) */
+const T_ARROW = 0.25;              /* s */
+function arrowFaces(dir, lift = LIFT) {
+  const base = ARROW.map(([a, b]) => [4 * a * dir * ARROW_K, 2 * b * ARROW_K]);
+  const top = base.map(([u, v]) => [u, v - lift]);
   let area = 0;
   for (let i = 0; i < base.length; i++) { const [x0, y0] = base[i], [x1, y1] = base[(i + 1) % base.length]; area += x0 * y1 - x1 * y0; }
   const sides = [];
@@ -193,12 +196,19 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
     const dir = Number(b.dataset.dir);
     const s = b.querySelector('svg');
     const f = arrowFaces(dir);
-    for (const pts of [...f.sides, f.top]) {
-      const poly = document.createElementNS(NS, 'polygon');
-      poly.dataset.pts = JSON.stringify(pts);
-      s.appendChild(poly);
-    }
-    arrowSvg.set(b, { dir, s, polys: [...s.querySelectorAll('polygon')], all: [...f.sides.flat(), ...f.top] });
+    for (let i = 0; i < f.sides.length + 1; i++) s.appendChild(document.createElementNS(NS, 'polygon'));
+    const a = { dir, s, polys: [...s.querySelectorAll('polygon')], all: [...f.sides.flat(), ...f.top], lift: { from: 0, to: 0, t0: 0 } };
+    const aim = (to) => { const now = performance.now() / 1000; a.lift = { from: liftOf(a, now), to, t0: now }; };
+    b.addEventListener('pointerenter', () => aim(1));
+    b.addEventListener('pointerleave', () => aim(0));
+    b.addEventListener('focus', () => aim(1));
+    b.addEventListener('blur', () => aim(0));
+    arrowSvg.set(b, a);
+  }
+  function liftOf(a, now) {
+    if (reduceMotion) return a.lift.to;
+    const u = Math.min(1, Math.max(0, (now - a.lift.t0) / T_ARROW));
+    return a.lift.from + (a.lift.to - a.lift.from) * (0.5 - 0.5 * Math.cos(Math.PI * u));
   }
 
   const W = () => window.innerWidth, H = () => window.innerHeight;
@@ -272,11 +282,18 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
     /* arrows beside the current Record's hero: tail one gutter out, at the hero's mid row */
     const hero = L.records[cur].hero;
     const midV = hero.rect.v0 + Math.round((hero.rect.v1 - hero.rect.v0) / 4) * 2;   /* even row: a bold node */
-    const ak = k + '|' + cur;
+    const nowS = performance.now() / 1000;
+    const lifts = [...arrowSvg.values()].map((a) => liftOf(a, nowS).toFixed(3)).join(',');
+    const ak = k + '|' + cur + '|' + lifts;
     if (ak !== draw.ak) {
       draw.ak = ak;
       for (const [b, a] of arrowSvg) {
-        const tail = a.dir > 0 ? [hero.rect.u1 + GUTTER, midV] : [hero.rect.u0 - GUTTER, midV];
+        /* centred in the gutter beside the hero */
+        const inset = (GUTTER - 4 * 4 * ARROW_K) / 2;
+        const tail = a.dir > 0 ? [hero.rect.u1 + inset, midV] : [hero.rect.u0 - inset, midV];
+        const f = arrowFaces(a.dir, LIFT * liftOf(a, nowS));
+        const faces = [...f.sides, f.top];
+        a.polys.forEach((poly, i) => { poly.dataset.pts = JSON.stringify(faces[i]); poly.classList.toggle('is-side', i < f.sides.length); });
         const s = camera.s;
         const us = a.all.map(([u]) => u), vs = a.all.map(([, v]) => v);
         const pad = 2;
