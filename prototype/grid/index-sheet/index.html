@@ -10,8 +10,8 @@
     <link rel="stylesheet" href="../../../css/line-system.css">
     <link rel="stylesheet" href="../project/env.css">
     <link rel="stylesheet" href="index-sheet.css">
-    <!-- before paint: ?theme=light|dark (the index's black on white option) -->
-    <script>(function(){try{var t=new URLSearchParams(location.search).get('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}}())</script>
+    <!-- before paint: ?theme=light|dark, else the reader's last choice on the toggle -->
+    <script>(function(){var t=null;try{t=new URLSearchParams(location.search).get('theme');if(t!=='light'&&t!=='dark')t=localStorage.getItem('esa-index-theme');}catch(e){}if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}())</script>
     <script type="importmap">
     {
         "imports": {
@@ -114,6 +114,8 @@
             <button type="button" class="ix-axarrow" data-dir="-1" aria-label="Previous project" hidden><svg aria-hidden="true"></svg></button>
             <button type="button" class="ix-axarrow" data-dir="1" aria-label="Next project" hidden><svg aria-hidden="true"></svg></button>
             <p class="ix-hint" hidden>Right-drag to pan · wheel to zoom</p>
+            <!-- light or dark: undecided (Ethan, 2026-10-20), so the reader chooses; the choice is remembered -->
+            <button type="button" class="ix-theme" data-theme-toggle aria-pressed="false"><span class="is-dark">Dark</span> / <span class="is-light">Light</span></button>
         </div>
     </main>
 
@@ -122,7 +124,6 @@
         <button type="button" data-step="-1" aria-label="Previous variant">←</button>
         <span class="ix-proto-label"><b data-label></b> <span data-name></span></span>
         <button type="button" data-step="1" aria-label="Next variant">→</button>
-        <button type="button" class="ix-proto-theme" data-theme-toggle><span class="is-dark">dark</span><span class="is-light">light</span></button>
         <span class="ix-proto-state" data-state></span>
         <span hidden>
             <span data-variant-name="e">Letter grid</span>

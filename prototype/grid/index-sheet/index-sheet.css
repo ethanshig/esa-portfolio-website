@@ -115,11 +115,26 @@ html.ix-plates span.ix-plate-title { cursor: default; }
 .ix-axarrow:hover polygon, .ix-axarrow:focus-visible polygon { stroke: var(--color-accent); }
 .ix-axarrow:focus-visible { outline: none; }
 
-/* the arrow lies flat (one face, the top) at rest; its sides only have area once it lifts */
-.ix-axarrow polygon.is-side { fill: var(--color-bg-alt); }
+/* the arrow lies flat at rest as three hairlines; each only has area once it lifts into a fin */
 
 /* black on white: pure white, so work drawn on white sits flush with the paper */
 html[data-theme="light"] body.ix-page { --color-bg: #ffffff; --color-bg-alt: #ffffff; --color-primary: #111111; --color-text: #111111; }
-.ix-proto-theme { width: auto !important; padding: 0 10px; }
-html:not([data-theme="light"]) .ix-proto-theme .is-light,
-html[data-theme="light"] .ix-proto-theme .is-dark { display: none; }
+/* the theme toggle: one quiet line in the corner; the current theme reads full strength */
+.ix-theme {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    z-index: 6;
+    padding: 4px 8px;
+    border: 0;
+    background: var(--color-bg);
+    color: var(--color-text-light);
+    font: inherit;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+}
+.ix-theme span { opacity: 0.45; }
+html:not([data-theme="light"]) .ix-theme .is-dark,
+html[data-theme="light"] .ix-theme .is-light { opacity: 1; color: var(--color-primary); }
+.ix-theme:hover, .ix-theme:focus-visible { outline: 1px solid color-mix(in srgb, var(--color-primary) 40%, transparent); outline-offset: 2px; }

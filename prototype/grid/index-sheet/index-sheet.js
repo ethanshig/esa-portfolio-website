@@ -140,6 +140,7 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
 const sheet = await createSheet({
   stage, data, views, reduceMotion,
   freeRegion: () => ({ left: 0, right: window.innerWidth, top: NAV_H, bottom: window.innerHeight }),
+  limits: (W, H) => (PLATE_LAYOUT ? PLATE_LAYOUT.limits(W, H) : null),
   onFocus(id) {
     if (PLATE_LAYOUT) { const p = PLATE_LAYOUT.plates.find((x) => x.id === id); if (p && p.href) location.href = p.href; return; }
     const p = byId.get(id.replace(/-z$/, '')); if (p && p.href) location.href = p.href;
@@ -214,6 +215,20 @@ stage.addEventListener('pointermove', (e) => {
 }, true);
 window.addEventListener('pointerup', () => { press = null; }, true);
 
+/* ---------- light or dark: switched in place, remembered ---------- */
+const themeBtn = document.querySelector('[data-theme-toggle]');
+const themeNow = () => (document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark');
+themeBtn.setAttribute('aria-pressed', String(themeNow() === 'light'));
+themeBtn.addEventListener('click', () => {
+  const t = themeNow() === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', t);
+  themeBtn.setAttribute('aria-pressed', String(t === 'light'));
+  try { localStorage.setItem('esa-index-theme', t); } catch (e) { /* private window: the choice lasts this page only */ }
+  if (q.has('theme')) { q.delete('theme'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '')); }
+  sheet.resize();                                   /* the paper's dots read the page colours on redraw */
+  if (plates) plates.retheme();
+});
+
 /* ---------- PROTOTYPE switcher + state (localhost only) ---------- */
 const bar = document.querySelector('.ix-proto');
 if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
@@ -225,9 +240,6 @@ if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
   document.addEventListener('keydown', (e) => {
     if (e.target.closest && e.target.closest('input, textarea, [contenteditable]')) return;
     if (e.key === '[') go(-1); else if (e.key === ']') go(1);
-  });
-  bar.querySelector('[data-theme-toggle]').addEventListener('click', () => {
-    q.set('theme', document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'); location.search = q.toString();
   });
   const stateEl = bar.querySelector('[data-state]');
   const report = () => {

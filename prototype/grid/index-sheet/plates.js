@@ -124,7 +124,20 @@ export function layoutPlates(variant, W, H) {
     src: p.src || svgData(...px(p), `<rect width="100%" height="100%" fill="${getComputedStyle(document.documentElement).getPropertyValue('--color-bg-alt').trim() || '#14171a'}"/>`),
   }));
   const frame = (p) => frameAround(p, g, W, H);
-  return { variant, g, ...G, records, drawings, frame, arrival: { camera: frame(G.plates[G.seed]) } };
+  const field = {
+    u0: Math.min(...G.plates.map((p) => p.rect.u0)), v0: Math.min(...G.plates.map((p) => p.rect.v0)),
+    u1: Math.max(...G.plates.map((p) => p.rect.u1)), v1: Math.max(...G.plates.map((p) => p.rect.v1)),
+  };
+  return { variant, g, ...G, records, drawings, frame, limits: (W1, H1) => limitsFor(g, field, W1, H1), arrival: { camera: frame(G.plates[G.seed]) } };
+}
+
+/* how far the index lets a reader go (Ethan, 2026-10-20: zoomed far out the work looks small and
+   insignificant). Out: at most 6 cells across and 4 down, twice the arrival's 3 by 2. In: one cell at
+   most twice the height under the nav. Pan: the view stops half a cell past the field's edge. */
+const MOST_ACROSS = 6, MOST_DOWN = 4, MOST_IN = 2;
+function limitsFor(g, field, W, H) {
+  const fh = H - NAV_H;
+  return { sMin: Math.max(W / (MOST_ACROSS * g.pw), fh / (MOST_DOWN * g.ph)), sMax: MOST_IN * fh / g.ph, bounds: field, margin: g.pw / 2 };
 }
 
 /* a camera on a Plate that shows at most 3 cells across and 2 down (Ethan, 2026-10-18): the larger of
@@ -137,30 +150,22 @@ function frameAround(p, g, W, H) {
 }
 
 /* ---------- the arrow, built on the paper's dots ----------
-   Flat at rest: a 2D arrow whose every corner is a dot node (whole steps), 2 steps long and 4 wide, so
-   it sits in the 4-step gutter with one clear step on either end: its tail one step off the hero, its
-   tip one step short of the neighbouring cell. Hovered, it extrudes straight up the page by exactly one step, so the raised face lands
-   on dot nodes too; only the sides that face the reader are drawn. */
-const ARROW = [[0, -1], [1, -1], [1, -2], [2, 0], [1, 2], [1, 1], [0, 1]];   /* pointing +u, tail at the origin */
+   An open drafting arrow: three hairlines, a shaft and a 90-degree head, every end on a dot node. It is
+   2 steps long, so it sits in the 4-step gutter with one clear step on either end. Hovered, each line
+   rises straight up the page by exactly one step into a thin fin, landing on nodes too. The fins never
+   meet as a true solid would, and Ethan keeps that: the form half-emerges from 2D and reads slightly
+   wrong (2026-10-20). */
+const LINES = [[[0, 0], [2, 0]], [[1, -1], [2, 0]], [[1, 1], [2, 0]]];   /* pointing +u, tail at the origin */
 const LIFT = 1;                    /* steps */
 const T_ARROW = 0.25;              /* s */
 const TURN = {                     /* whole-step rotations keep every corner on a node */
   right: ([a, b]) => [a, b], left: ([a, b]) => [-a, b], down: ([a, b]) => [-b, a], up: ([a, b]) => [b, -a],
 };
 function arrowFaces(way, lift) {
-  const base = ARROW.map(TURN[way]);
-  const top = base.map(([u, v]) => [u, v - lift]);
-  let area = 0;
-  for (let i = 0; i < base.length; i++) { const [x0, y0] = base[i], [x1, y1] = base[(i + 1) % base.length]; area += x0 * y1 - x1 * y0; }
-  const sides = [];
-  for (let i = 0; i < base.length; i++) {
-    const j = (i + 1) % base.length;
-    const [x0, y0] = base[i], [x1, y1] = base[j];
-    const ny = area > 0 ? -(x1 - x0) : (x1 - x0);        /* outward normal's v: > 0 faces down-page, toward the reader */
-    if (ny > 1e-9) sides.push({ pts: [base[i], base[j], top[j], top[i]], depth: (y0 + y1) / 2 });
-  }
-  sides.sort((x, y) => x.depth - y.depth);
-  return { sides: sides.map((f) => f.pts), top, base };
+  const up = ([u, v]) => [u, v - lift];
+  const lines = LINES.map((l) => l.map(TURN[way]));
+  const faces = lines.map(([p, q]) => [p, q, up(q), up(p)]);       /* at rest, the hairline itself */
+  return { faces, pts: [...lines.flat(), ...lines.flat().map(up)] };
 }
 /* which side of the hero faces another Plate: the dominant axis between their centres */
 function wayTo(from, to) {
@@ -206,7 +211,7 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
     b.hidden = false;
     const dir = Number(b.dataset.dir);
     const s = b.querySelector('svg');
-    for (let i = 0; i < 8; i++) s.appendChild(document.createElementNS(NS, 'polygon'));   /* top + up to 7 sides */
+    for (let i = 0; i < LINES.length; i++) s.appendChild(document.createElementNS(NS, 'polygon'));   /* one fin per line */
     const a = { dir, s, polys: [...s.querySelectorAll('polygon')], way: 'right', target: 0, lift: { from: 0, to: 0, t0: 0 } };
     const aim = (to) => { const now = performance.now() / 1000; a.lift = { from: liftOf(a, now), to, t0: now }; };
     b.addEventListener('pointerenter', () => aim(1));
@@ -231,7 +236,10 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
     return best;
   }
   /* an arrow goes where it points: to the Record it was aimed at when drawn */
-  function go(a) { sheet.show({ camera: L.frame(L.records[a.target].hero, L.g, W(), H()) }, { animate: !reduceMotion }); }
+  /* it stays the current Record until the reader moves the view: at the field's edge the pan limit
+     shifts the frame, which could leave a neighbour's hero nearer the centre */
+  let pinned = null;                                  /* { i, key }: key is the camera it came to rest at */
+  function go(a) { pinned = { i: a.target, key: null }; sheet.show({ camera: L.frame(L.records[a.target].hero, L.g, W(), H()) }, { animate: !reduceMotion }); }
   for (const b of btns) b.addEventListener('click', (e) => { e.stopPropagation(); go(arrowSvg.get(b)); });
   const KEY_WAY = { ArrowRight: 'right', ArrowLeft: 'left', ArrowUp: 'up', ArrowDown: 'down' };
   document.addEventListener('keydown', (e) => {
@@ -266,7 +274,9 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
   function draw() {
     const { camera } = sheet.debug();
     const k = `${camera.T[0].toFixed(3)}|${camera.T[1].toFixed(3)}|${camera.s.toFixed(4)}|${W()}|${H()}`;
-    cur = currentIndex();
+    if (pinned && sheet.debug().flying) cur = pinned.i;
+    else if (pinned && (pinned.key === null || pinned.key === k)) { pinned.key = k; cur = pinned.i; }
+    else { pinned = null; cur = currentIndex(); }
     if (k !== lastKey) {
       lastKey = k;
       const s = camera.s;
@@ -304,9 +314,8 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
       for (const [b, a] of arrowSvg) {
         const tail = tailFor(hero.rect, a.way, shared ? (a.dir > 0 ? 4 : -4) : 0);   /* two on one side: four nodes apart */
         const f = arrowFaces(a.way, LIFT * liftOf(a, nowS));
-        const faces = [...f.sides, f.top];
-        const full = arrowFaces(a.way, LIFT);                                        /* the box holds the full lift */
-        const all = [...full.base, ...full.top];
+        const faces = f.faces;
+        const all = arrowFaces(a.way, LIFT).pts;                                     /* the box holds the full lift */
         const s = camera.s, pad = 2;
         const minU = Math.min(...all.map(([u]) => u)), maxU = Math.max(...all.map(([u]) => u));
         const minV = Math.min(...all.map(([, v]) => v)), maxV = Math.max(...all.map(([, v]) => v));
@@ -319,7 +328,6 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
         a.polys.forEach((poly, i) => {
           const pts = faces[i];
           poly.style.display = pts ? '' : 'none';
-          poly.classList.toggle('is-side', i < f.sides.length);
           if (pts) poly.setAttribute('points', pts.map(([u, v]) => `${((u - minU) * s).toFixed(2)},${((v - minV) * s).toFixed(2)}`).join(' '));
         });
         b.dataset.tail = tail.join(',');
@@ -336,18 +344,29 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
   const real = L.plates.filter((p) => !p.placeholder);
   const modelPlates = real.filter((p) => p.model);
   const stills = { done: false, count: 0 };
-  renderStills(modelPlates.map((p) => ({ model: p.model, w: p.wSteps * PX_PER_STEP, h: p.hSteps * PX_PER_STEP })), {
-    ink: css('--color-primary', '#e9ecee'), paper: css('--color-bg-alt', '#14171a'), plate: css('--color-bg-alt', '#14171a'),
-  }).then((map) => {
-    for (const p of modelPlates) {
-      const url = map.get(p.model);
-      const img = imgs[real.indexOf(p)];
-      if (url && img) { img.src = url; stills.count++; }
-    }
-    stills.done = true;
-  });
+  let paintRun = 0;
+  function paint() {
+    const run = ++paintRun;
+    const bg = css('--color-bg-alt', '#14171a');
+    for (const p of real) if (!p.src && !p.model) imgs[real.indexOf(p)].src = svgData(p.wSteps * PX_PER_STEP, p.hSteps * PX_PER_STEP, `<rect width="100%" height="100%" fill="${bg}"/>`);
+    stills.done = false; stills.count = 0;
+    return renderStills(modelPlates.map((p) => ({ model: p.model, w: p.wSteps * PX_PER_STEP, h: p.hSteps * PX_PER_STEP })), {
+      ink: css('--color-primary', '#e9ecee'), paper: bg, plate: bg,
+    }).then((map) => {
+      if (run !== paintRun) return;                          /* a newer theme won */
+      for (const p of modelPlates) {
+        const url = map.get(p.model);
+        const img = imgs[real.indexOf(p)];
+        if (url && img) { img.src = url; stills.count++; }
+      }
+      stills.done = true;
+    });
+  }
+  paint();
 
   return {
+    /* the theme changed: the stills and plain cells are baked in page colours, so they repaint */
+    retheme: paint,
     state() {
       const r = L.records[cur];
       return {

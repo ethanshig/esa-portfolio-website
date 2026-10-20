@@ -11,6 +11,11 @@
    view has nothing to orbit), wheel and ctrl+right-drag zoom to the
    cursor, left-click picks. Touch: one-finger pan, two-finger pan and
    pinch; the twist is ignored.
+
+   Optional limits(W, H) -> { sMin, sMax, bounds: { u0, v0, u1, v1 }, margin }
+   narrows the zoom and keeps the free region's edges no more than margin
+   steps past bounds (centred on bounds when the view is the wider), for
+   every move: wheel, drag and flight targets alike.
    =================================================================== */
 import { DotField } from './dots.js';
 import { attachGestures } from './gestures.js';
@@ -43,7 +48,7 @@ function validate(data) {
   if (data.hero && !ids.has(data.hero)) throw new Error(`sheet2d: hero "${data.hero}" is not a drawing`);
 }
 
-export async function createSheet({ stage, data, views, reduceMotion, freeRegion, onFocus = () => {}, onHold = () => {} }) {
+export async function createSheet({ stage, data, views, reduceMotion, freeRegion, limits = null, onFocus = () => {}, onHold = () => {} }) {
   validate(data);
   const dotsCanvas = stage.querySelector('canvas.env-dots');
   const planeEl = stage.querySelector('.env-plane');
@@ -88,6 +93,24 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   let raf = 0;
   let hot = null;
 
+  /* the page's own limits, inside the engine's */
+  function lim() {
+    const l = limits ? limits(W, H) : null;
+    return { sMin: Math.max(S_MIN, (l && l.sMin) || 0), sMax: Math.min(S_MAX, (l && l.sMax) || Infinity), bounds: l && l.bounds, margin: (l && l.margin) || 0 };
+  }
+  function hold(c) {
+    const { sMin, sMax, bounds: b, margin: m } = lim();
+    const s = clamp(c.s, sMin, sMax);
+    if (!b) return { T: c.T.slice(0, 2), s };
+    const f = freeRegion();
+    /* T + (edge - centre) / s is where each free edge falls on the paper */
+    const axis = (t, lo, hi, e0, e1, mid) => {
+      const tMin = lo - m - (e0 - mid) / s, tMax = hi + m - (e1 - mid) / s;
+      return tMin > tMax ? (tMin + tMax) / 2 : clamp(t, tMin, tMax);
+    };
+    return { T: [axis(c.T[0], b.u0, b.u1, f.left, f.right, W / 2), axis(c.T[1], b.v0, b.v1, f.top, f.bottom, H / 2)], s };
+  }
+
   function rectsFor(target) {
     const ids = target === 'sheet' ? drawings.map((d) => d.id) : Array.isArray(target) ? target : [target];
     const out = [];
@@ -102,7 +125,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   function frameFor(target) {
     if (target && typeof target === 'object' && !Array.isArray(target)) {
       if (target.camera && Array.isArray(target.camera.T) && target.camera.s > 0) {
-        return { T: target.camera.T.slice(0, 2), s: clamp(target.camera.s, S_MIN, S_MAX) };
+        return hold(target.camera);
       }
       throw new Error('sheet2d: an object view target needs { camera: { T: [u, v], s } } (a flat sheet has no snap views)');
     }
@@ -113,7 +136,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     const fw = Math.max(40, free.right - free.left), fh = Math.max(40, free.bottom - free.top);
     const s = clamp(Math.min((fw - 2 * PAD_PX) / (u1 - u0), (fh - 2 * PAD_PX) / (v1 - v0)), S_MIN, S_MAX);
     const fcx = (free.left + free.right) / 2, fcy = (free.top + free.bottom) / 2;
-    return { T: [(u0 + u1) / 2 - (fcx - W / 2) / s, (v0 + v1) / 2 - (fcy - H / 2) / s], s };
+    return hold({ T: [(u0 + u1) / 2 - (fcx - W / 2) / s, (v0 + v1) / 2 - (fcy - H / 2) / s], s });
   }
 
   function setCam(c) { cam.T = c.T.slice(); cam.s = c.s; dirty = true; kick(); }
@@ -178,6 +201,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     const r = stage.getBoundingClientRect();
     W = r.width; H = r.height;
     dots.resize(W, H);
+    if (limits) setCam(hold(cam));
     dirty = true;
     kick();
   }
@@ -201,13 +225,14 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   }
 
   function zoomAt(f, x, y) {
-    const s1 = clamp(cam.s * f, S_MIN, S_MAX);
+    const { sMin, sMax } = lim();
+    const s1 = clamp(cam.s * f, sMin, sMax);
     const [u, v] = toPaper(x, y);
-    cam.T = [u - (x - W / 2) / s1, v - (y - H / 2) / s1];
-    cam.s = s1;
+    const c = hold({ T: [u - (x - W / 2) / s1, v - (y - H / 2) / s1], s: s1 });
+    cam.T = c.T; cam.s = c.s;
     dirty = true; kick();
   }
-  function panBy(dx, dy) { cam.T[0] -= dx / cam.s; cam.T[1] -= dy / cam.s; dirty = true; kick(); }
+  function panBy(dx, dy) { cam.T = hold({ T: [cam.T[0] - dx / cam.s, cam.T[1] - dy / cam.s], s: cam.s }).T; dirty = true; kick(); }
 
   attachGestures(stage, {
     begin() { fly = null; moved = true; onHold(); },
