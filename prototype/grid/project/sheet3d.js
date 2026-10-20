@@ -221,11 +221,13 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   renderer.setClearColor(0x000000, 0);
   glHost.appendChild(renderer.domElement);
 
-  const colors = {
+  /* the page's colours, re-read when the theme turns (retheme); everything drawn in them is listed there */
+  const readColors = () => ({
     ink: cssToken('--color-primary', '#e9ecee'),
     bg: cssToken('--color-bg', '#0d0f11'),
     accent: cssToken('--color-accent', '#c47a5c'),
-  };
+  });
+  const colors = readColors();
 
   const dots = new DotField(dotsCanvas);
   const scene = new THREE.Scene();
@@ -339,6 +341,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
         /* a blank sheet in the page colour, outlined, rather than nothing */
         console.warn(`[sheet3d] ${d.id}: image failed to load (${d.src})`, err);
         mat.color.set(colors.bg);
+        item.broken = true;                            /* retheme keeps it in the page colour */
         const edge = rectOutline(item.rect, weightMats.light);
         edge.visible = true;
         paperGroup.add(edge);
@@ -561,9 +564,12 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   }
   /* the ground line, and the origin's marks (prototype round 3: seat, axes) */
   const seatMats = [];
-  function seatLine(points, color, width, opacity, depthTest = true) {
-    const m = lineMat(color, width, { opacity, depthTest });
+  /* tone: 'ink' or 'accent' (repainted by retheme), or a fixed CSS colour (the rhino axes) */
+  function seatLine(points, tone, width, opacity, depthTest = true) {
+    const role = tone === 'ink' || tone === 'accent' ? tone : null;
+    const m = lineMat(role ? colors[role] : tone, width, { opacity, depthTest });
     m.userData.base = opacity;
+    m.userData.role = role;
     seatMats.push(m);
     const l = new LineSegments2(new LineSegmentsGeometry().setPositions(points.flatMap((p) => [p.x, p.y, p.z])), m);
     l.renderOrder = 5;
@@ -577,7 +583,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     const gu = [model.paperRect.u0 - 1, model.paperRect.u1 + 1].map((u) => u - model.node[0]);
     if (opts.seat === 'ground') {
       /* where the ground meets the paper: a horizontal line in both planes, through the origin */
-      seatLine([O.clone().addScaledVector(R_H, gu[0]), O.clone().addScaledVector(R_H, gu[1])], colors.ink, 1, 0.35);
+      seatLine([O.clone().addScaledVector(R_H, gu[0]), O.clone().addScaledVector(R_H, gu[1])], 'ink', 1, 0.35);
     }
     const X = new THREE.Vector3(1, 0, 0), Yr = new THREE.Vector3(0, 0, -1), Z = new THREE.Vector3(0, 1, 0);
     if (opts.axes === 'datum') {
@@ -586,15 +592,15 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
       for (const [d, m] of [[X, u.x], [Yr, u.z], [Z, u.y]]) {
         const t = model.cornersWorld.map((c) => c.clone().sub(O).dot(d));
         seatLine([O.clone().addScaledVector(d, Math.min(0, ...t) - m), O.clone().addScaledVector(d, Math.max(0, ...t) + m)],
-          colors.accent, 1.1, 0.45, false);      /* round 6: subtle, a construction line, not a mark */
+          'accent', 1.1, 0.45, false);      /* round 6: subtle, a construction line, not a mark */
       }
     } else if (opts.axes === 'infinite') {
-      for (const [d, len] of [[X, u.x], [Yr, u.z], [Z, u.y]]) seatLine([O, O.clone().addScaledVector(d, len)], colors.accent, 1.6, 0.95, false);
+      for (const [d, len] of [[X, u.x], [Yr, u.z], [Z, u.y]]) seatLine([O, O.clone().addScaledVector(d, len)], 'accent', 1.6, 0.95, false);
     }
     if (opts.axes === 'infinite') {
       /* each axis a unit segment through the origin, scaled every frame to run past the view's edge */
       for (const d of [X, Yr, Z]) {
-        const l = seatLine([d.clone().negate(), d], colors.accent, 1, 0.38);
+        const l = seatLine([d.clone().negate(), d], 'accent', 1, 0.38);
         l.position.copy(O);
         axisLines.push({ line: l, dir: d });
       }
@@ -1052,6 +1058,26 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     if (fly || focusMoving()) kick();
   }
 
+  /* the theme turned: re-read the page's colours and repaint everything drawn in them, in place */
+  function retheme() {
+    Object.assign(colors, readColors());
+    for (const m of Object.values(weightMats)) m.color.set(colors.ink);   /* also the failed images' edges */
+    for (const { m } of lineMats) m.color.set(colors.ink);
+    frameMat.color.set(colors.accent);
+    for (const m of marks) {
+      m.lineM.color.set(colors.accent);
+      if (m.fillM) m.fillM.color.set(colors.accent);
+    }
+    for (const m of seatMats) if (m.userData.role) m.color.set(colors[m.userData.role]);
+    if (lattice) lattice.setColors(colors.ink, colors.accent);
+    if (seatRing) seatRing.setColor(colors.accent);
+    for (const d of drawings) if (d.broken) d.mat.color.set(colors.bg);
+    ink.setColors(colors.ink, colors.bg);
+    modelFocus.applied = NaN;          /* the model's dim is mixed from the ink: render mixes it again */
+    dirty = true;                      /* the dots read colors on every draw */
+    kick();
+  }
+
   function resize() {
     const r = stage.getBoundingClientRect();
     W = r.width; H = r.height;
@@ -1078,6 +1104,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     home,
     snapTo,
     resize,
+    retheme,
     /* re-frame the last view for a new free region, unless the reader has moved the camera */
     refit({ force = false, animate = !reduceMotion } = {}) { if (force || !moved) show(lastTarget, { animate }); },
     zoomBy(f) {
@@ -1107,6 +1134,21 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
           screen: [project(paper(d.rect.u0, d.rect.v0)), project(paper(d.rect.u1, d.rect.v1))],
         })),
         options: opts,
+        /* the colours the materials actually hold, against the page's tokens (theme verification) */
+        colors: { ...colors },
+        materials: {
+          weight: weightMats.light.color.getHexString(),
+          line: lineMats.length ? lineMats[0].m.color.getHexString() : null,
+          frame: frameMat.color.getHexString(),
+          markLine: marks.length ? marks[0].lineM.color.getHexString() : null,
+          markFill: marks.filter((m) => m.fillM).map((m) => m.fillM.color.getHexString())[0] || null,
+          seat: seatMats.map((m) => ({ role: m.userData.role, hex: m.color.getHexString() })),
+          lattice: lattice ? lattice.colorHex() : null,
+          ring: seatRing ? seatRing.colorHex() : null,
+          modelLine: ink.line.color.getHexString(),
+          modelFace: ink.face.color.getHexString(),
+          broken: drawings.filter((d) => d.broken).map((d) => d.mat.color.getHexString()),
+        },
         lift,
         lattice: lattice ? latticeDebug() : null,
         marks: marks.map((m) => ({

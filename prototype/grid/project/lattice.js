@@ -154,6 +154,9 @@ export function buildLattice({ origin, backH, toUV, nodeUV, box, extent, drawing
       mat.uniforms.uOpacity.value = opacity * lift * (st.shape === 'lines' ? 0.6 : st.aBold);
       points.visible = lift > 0.001;
     },
+    /* the theme changed: the style's tint decides ink or accent, as at build */
+    setColors(ink, accentNow = ink) { mat.uniforms.uColor.value.copy(rawColor(st.tint ? accentNow : ink)); },
+    colorHex: () => mat.uniforms.uColor.value.getHexString(THREE.LinearSRGBColorSpace),   /* verification */
     pointAt(k, lift) {
       return new THREE.Vector3(
         flat[3 * k] + (pos[3 * k] - flat[3 * k]) * lift,
@@ -181,5 +184,10 @@ export function cornerRings(cornersWorld, color) {
   const pts = new THREE.Points(geo, mat);
   pts.frustumCulled = false;
   pts.renderOrder = 6;
-  return { points: pts, setSize(px) { mat.uniforms.uSize.value = px; } };
+  return {
+    points: pts,
+    setSize(px) { mat.uniforms.uSize.value = px; },
+    setColor(css) { mat.uniforms.uColor.value.copy(rawColor(css)); },
+    colorHex: () => mat.uniforms.uColor.value.getHexString(THREE.LinearSRGBColorSpace),   /* verification */
+  };
 }

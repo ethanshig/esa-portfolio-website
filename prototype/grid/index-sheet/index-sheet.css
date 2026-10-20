@@ -119,15 +119,4 @@ html.ix-plates span.ix-plate-title { cursor: default; }
 
 /* black on white: pure white, so work drawn on white sits flush with the paper */
 html[data-theme="light"] body.ix-page { --color-bg: #ffffff; --color-bg-alt: #ffffff; --color-primary: #111111; --color-text: #111111; }
-/* the theme toggle: the nav's last item, one cell split on its middle line. The ink sits on the left on
-   dark paper and slides to the right on light, so the cell always shows which paper is down. */
-.ix-theme { display: inline-flex; align-items: center; padding: 0; border: 0; background: none; cursor: pointer; color: inherit; font: inherit; }
-.ix-theme svg { width: 14px; height: 14px; display: block; overflow: visible; }
-.ix-theme svg rect, .ix-theme svg line { stroke: currentColor; stroke-width: 1.2; vector-effect: non-scaling-stroke; }
-.ix-theme-cell { fill: none; }
-.ix-theme-ink { fill: currentColor; transition: transform 0.25s ease; }
-html[data-theme="light"] .ix-theme-ink { transform: translateX(7.25px); }
-.ix-theme:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
-@media (prefers-reduced-motion: reduce) { .ix-theme-ink { transition: none; } }
-/* the view transitions are driven from JS; the browser's default crossfade is off */
-::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+/* the theme toggle's cell and the negative flip are shared with the project pages: ../project/env.css */

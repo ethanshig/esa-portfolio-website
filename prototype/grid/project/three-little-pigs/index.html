@@ -15,10 +15,10 @@
     <!-- PROTOTYPE (ADR-0007): the project page as a drawing sheet. Prose, Narration and
          Crossings are copied from projects/three-little-pigs.html (generated from the
          approved record); nothing here is authored. -->
-    <!-- Attribute-only, before paint: applies ?story= / the stored preference and ?theme=,
+    <!-- Attribute-only, before paint: applies ?story= / the stored preference and ?theme= / the stored esa-theme,
          and turns the CYOA gate on. It writes no text. If env.js never runs, the gate lifts
          after 8 s and the panel becomes the whole Document. -->
-    <script>(function(){var r=document.documentElement;try{var p=new URLSearchParams(location.search);var q=p.get('story');var v=(q==='off'||q==='on')?q:localStorage.getItem('esa-story');if(v==='off'||v==='on')r.setAttribute('data-story',v);var t=p.get('theme');if(t==='light'||t==='dark')r.setAttribute('data-theme',t);}catch(e){}r.classList.add('env-js');setTimeout(function(){if(!r.classList.contains('env-live')){r.classList.remove('env-js');r.classList.add('env-static','env-nosheet');}},8000);}())</script>
+    <script>(function(){var r=document.documentElement;try{var p=new URLSearchParams(location.search);var q=p.get('story');var v=(q==='off'||q==='on')?q:localStorage.getItem('esa-story');if(v==='off'||v==='on')r.setAttribute('data-story',v);var t=p.get('theme');if(t!=='light'&&t!=='dark')t=localStorage.getItem('esa-theme');if(t==='light'||t==='dark')r.setAttribute('data-theme',t);}catch(e){}r.classList.add('env-js');setTimeout(function(){if(!r.classList.contains('env-live')){r.classList.remove('env-js');r.classList.add('env-static','env-nosheet');}},8000);}())</script>
     <script type="importmap">
     {
         "imports": {
@@ -73,6 +73,8 @@
                 <li><a href="../../../../contact.html" class="nav-link">Contact</a></li>
                 <li><button type="button" class="nav-link story-link" id="story-link">Your story</button></li>
                 <li><button type="button" class="story-toggle" aria-pressed="true"><span class="is-on">Story on</span><span class="is-off">Story off</span></button></li>
+                <!-- light or dark: one cell, half inked, the ink on the side of the current paper (../../theme.js) -->
+                <li><button type="button" class="nav-link env-theme" data-theme-toggle aria-pressed="false" aria-label="Light paper"><svg viewBox="0 0 16 16" aria-hidden="true"><rect class="env-theme-cell" x="0.75" y="0.75" width="14.5" height="14.5"/><rect class="env-theme-ink" x="0.75" y="0.75" width="7.25" height="14.5"/><line x1="8" y1="0.75" x2="8" y2="15.25"/></svg></button></li>
             </ul>
             <div class="hamburger"><span></span><span></span><span></span></div>
         </div>

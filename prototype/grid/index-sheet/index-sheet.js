@@ -6,6 +6,7 @@
 import { createSheet } from '../project/sheet2d.js';
 import { createPairModel } from './pairmodel.js';
 import { layoutPlates, attachPlates } from './plates.js';
+import { attachThemeSwitch } from '../theme.js';
 
 /* order is arbitrary for the prototype (order is still fog on the map); real heroes are spread out */
 const PIECES = [
@@ -215,35 +216,15 @@ stage.addEventListener('pointermove', (e) => {
 }, true);
 window.addEventListener('pointerup', () => { press = null; }, true);
 
-/* ---------- light or dark: the nav's half-inked cell; remembered site-wide ----------
-   The page turns like a print to its negative (Ethan, 2026-10-20): the old view inverts and fades as the
-   new one comes up through it. The camera stays still; reduced motion swaps in one frame. */
-const themeBtn = document.querySelector('[data-theme-toggle]');
-const themeNow = () => (document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark');
-const labelTheme = () => {
-  themeBtn.setAttribute('aria-pressed', String(themeNow() === 'light'));
-  themeBtn.setAttribute('aria-label', themeNow() === 'light' ? 'Dark paper' : 'Light paper');
-};
-labelTheme();
-async function applyTheme(t) {
-  document.documentElement.setAttribute('data-theme', t);
-  labelTheme();
-  try { localStorage.setItem('esa-theme', t); } catch (e) { /* private window: the choice lasts this page only */ }
-  if (q.has('theme')) { q.delete('theme'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '')); }
-  sheet.resize();                                   /* the paper's dots read the page colours on redraw */
-  const stillsDone = plates ? plates.retheme() : null;
-  /* the new view waits briefly for its stills; the dots redraw in the frame the browser captures (no
-     waiting on a frame here: rendering is paused inside a view transition's update) */
-  await Promise.race([stillsDone, new Promise((r) => setTimeout(r, 300))]);
-}
-themeBtn.addEventListener('click', async () => {
-  const t = themeNow() === 'light' ? 'dark' : 'light';
-  if (reduceMotion || !document.startViewTransition) { applyTheme(t); return; }
-  const vt = document.startViewTransition(() => applyTheme(t));
-  await vt.ready;
-  const root = document.documentElement;
-  root.animate([{ filter: 'invert(0)', opacity: 1 }, { filter: 'invert(1)', opacity: 0 }], { duration: 420, easing: 'ease-in', pseudoElement: '::view-transition-old(root)', fill: 'both' });
-  root.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, easing: 'ease-out', pseudoElement: '::view-transition-new(root)', fill: 'both' });
+/* ---------- light or dark: the nav's half-inked cell, the negative flip (../theme.js) ---------- */
+attachThemeSwitch({
+  button: document.querySelector('[data-theme-toggle]'),
+  reduceMotion,
+  onChange() {
+    q.delete('theme');                                /* theme.js strips the URL; the variant switcher rebuilds it from q */
+    sheet.resize();                                   /* the paper's dots read the page colours on redraw */
+    return plates ? plates.retheme() : null;          /* the stills and plain cells are baked in page colours */
+  },
 });
 
 /* ---------- PROTOTYPE switcher + state (localhost only) ---------- */

@@ -273,6 +273,8 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     show,
     home,
     resize() { resize(); },
+    /* the theme changed: the dots read the page colours on every render */
+    retheme() { dirty = true; kick(); },
     refit({ force = false, animate = !reduceMotion } = {}) { if (force || !moved) show(lastTarget, { animate }); },
     zoomBy(f) {
       const free = freeRegion();

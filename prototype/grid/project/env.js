@@ -23,10 +23,12 @@
    for long prose at the foot; its answers are caption lines too.
    Story off: the readback surface, held open, holds the whole Document.
 
-   URL switches: ?story=on|off  ?theme=dark|light (head script)
+   URL switches: ?story=on|off  ?theme=dark|light (head script; else the
+                 reader's last choice on the nav's cell, ../theme.js)
                  ?webgl=off     force the no-WebGL fallback (verification)
    =================================================================== */
 import { NoSheetError } from './errors.js';
+import { attachThemeSwitch } from '../theme.js';
 
 const STORY_KEY = 'esa-story';
 const SECTIONS = ['story', 'whatIDid', 'process', 'outcome', 'reflection'];
@@ -323,6 +325,11 @@ const caption = createCaption({
 });
 initStoryToggle(() => {});
 initHamburger();
+/* light or dark: the sheet repaints what it drew in page colours; with no sheet (failed, static,
+   still loading) the attribute alone re-colours the Document */
+const themeBtn = document.querySelector('[data-theme-toggle]');
+if (themeBtn) attachThemeSwitch({ button: themeBtn, reduceMotion, onChange: () => (sheet ? sheet.retheme() : undefined) });
+else console.warn('[env] no [data-theme-toggle] in the nav; the paper stays as loaded');
 
 /* Where the sheet may frame: the template's clearArea. The screen, less the nav and less
    the caption at the foot, measured only at rest (one line and one row of pills), so
@@ -366,11 +373,13 @@ async function boot() {
     const mod = sheetData.kind === '3d' ? await import('./sheet3d.js') : await import('./sheet2d.js');
     root.classList.add('env-sheet-on');
     looking.show(focusOf(views.get('arrival').target));
+    const themeAtBuild = root.getAttribute('data-theme');      /* the sheet reads its colours as it builds */
     sheet = await mod.createSheet({
       stage, data: sheetData, views, reduceMotion, freeRegion,
       onFocus: (id) => looking.show(id),
       onHold: () => caption.setLook(true),          /* taking hold of the drawing is looking */
     });
+    if (root.getAttribute('data-theme') !== themeAtBuild) sheet.retheme();   /* turned while it loaded */
     if (pendingSection) showView(views.get(pendingSection).target);
   } catch (err) {
     root.classList.remove('env-sheet-on');
