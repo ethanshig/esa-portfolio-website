@@ -136,17 +136,19 @@ function frameAround(p, g, W, H) {
   return { T: [(p.rect.u0 + p.rect.u1) / 2, p.rect.v0 - GUTTER / 2 + (H / 2 - NAV_H) / s], s };
 }
 
-/* ---------- 2:1 dimetric arrow, in dot steps from its tail node ----------
-   The arrow lies flat on the paper along the plan diagonal x - z, which projects to screen-horizontal
-   (dimetric.js: x -> (2, 1), z -> (-2, 1)). In (a along, b across) plan units a point is
-   x = a + b, z = b - a, so on screen it is (4a, 2b): every vertex is a bold node. It is
-   extruded 2 steps up (the paper's "verticals 2 steps"), which keeps the top face on bold nodes too. */
-const ARROW = [[0, -1], [2, -1], [2, -2], [4, 0], [2, 2], [2, 1], [0, 1]];
-const ARROW_K = 0.75 / 4;          /* scaled to 3 steps long, so it sits inside the 4-step gutter between two squares */
-const LIFT = 1.2;                  /* steps of extrusion when hovered; 0 at rest (a flat, 2D arrow) */
+/* ---------- the arrow, built on the paper's dots ----------
+   Flat at rest: a 2D arrow whose every corner is a dot node (whole steps), 2 steps long and 4 wide, so
+   it sits in the 4-step gutter with one clear step on either end: its tail one step off the hero, its
+   tip one step short of the neighbouring cell. Hovered, it extrudes straight up the page by exactly one step, so the raised face lands
+   on dot nodes too; only the sides that face the reader are drawn. */
+const ARROW = [[0, -1], [1, -1], [1, -2], [2, 0], [1, 2], [1, 1], [0, 1]];   /* pointing +u, tail at the origin */
+const LIFT = 1;                    /* steps */
 const T_ARROW = 0.25;              /* s */
-function arrowFaces(dir, lift = LIFT) {
-  const base = ARROW.map(([a, b]) => [4 * a * dir * ARROW_K, 2 * b * ARROW_K]);
+const TURN = {                     /* whole-step rotations keep every corner on a node */
+  right: ([a, b]) => [a, b], left: ([a, b]) => [-a, b], down: ([a, b]) => [-b, a], up: ([a, b]) => [b, -a],
+};
+function arrowFaces(way, lift) {
+  const base = ARROW.map(TURN[way]);
   const top = base.map(([u, v]) => [u, v - lift]);
   let area = 0;
   for (let i = 0; i < base.length; i++) { const [x0, y0] = base[i], [x1, y1] = base[(i + 1) % base.length]; area += x0 * y1 - x1 * y0; }
@@ -154,12 +156,21 @@ function arrowFaces(dir, lift = LIFT) {
   for (let i = 0; i < base.length; i++) {
     const j = (i + 1) % base.length;
     const [x0, y0] = base[i], [x1, y1] = base[j];
-    /* outward normal of the edge; the face is seen when it points down-screen (toward the viewer) */
-    const ny = area > 0 ? -(x1 - x0) : (x1 - x0);       /* outward normal (dy, -dx) when area > 0 */
+    const ny = area > 0 ? -(x1 - x0) : (x1 - x0);        /* outward normal's v: > 0 faces down-page, toward the reader */
     if (ny > 1e-9) sides.push({ pts: [base[i], base[j], top[j], top[i]], depth: (y0 + y1) / 2 });
   }
-  sides.sort((a, b) => a.depth - b.depth);
-  return { sides: sides.map((s) => s.pts), top };
+  sides.sort((x, y) => x.depth - y.depth);
+  return { sides: sides.map((f) => f.pts), top, base };
+}
+/* which side of the hero faces another Plate: the dominant axis between their centres */
+function wayTo(from, to) {
+  const du = (to.rect.u0 + to.rect.u1 - from.rect.u0 - from.rect.u1) / 2, dv = (to.rect.v0 + to.rect.v1 - from.rect.v0 - from.rect.v1) / 2;
+  return Math.abs(du) >= Math.abs(dv) ? (du >= 0 ? 'right' : 'left') : (dv >= 0 ? 'down' : 'up');
+}
+/* the tail node for an arrow on one side of a Plate, `along` steps from that side's middle node */
+function tailFor(r, way, along) {
+  const mu = Math.round((r.u0 + r.u1) / 2) + along, mv = Math.round((r.v0 + r.v1) / 2) + along;
+  return way === 'right' ? [r.u1 + 1, mv] : way === 'left' ? [r.u0 - 1, mv] : way === 'down' ? [mu, r.v1 + 1] : [mu, r.v0 - 1];
 }
 
 /* ---------- live: the overlay (placeholders, dotted outlines), arrows, hover, stills ---------- */
@@ -195,9 +206,8 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
     b.hidden = false;
     const dir = Number(b.dataset.dir);
     const s = b.querySelector('svg');
-    const f = arrowFaces(dir);
-    for (let i = 0; i < f.sides.length + 1; i++) s.appendChild(document.createElementNS(NS, 'polygon'));
-    const a = { dir, s, polys: [...s.querySelectorAll('polygon')], all: [...f.sides.flat(), ...f.top], lift: { from: 0, to: 0, t0: 0 } };
+    for (let i = 0; i < 8; i++) s.appendChild(document.createElementNS(NS, 'polygon'));   /* top + up to 7 sides */
+    const a = { dir, s, polys: [...s.querySelectorAll('polygon')], way: 'right', target: 0, lift: { from: 0, to: 0, t0: 0 } };
     const aim = (to) => { const now = performance.now() / 1000; a.lift = { from: liftOf(a, now), to, t0: now }; };
     b.addEventListener('pointerenter', () => aim(1));
     b.addEventListener('pointerleave', () => aim(0));
@@ -220,15 +230,16 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
     L.records.forEach((r, i) => { const [u, v] = centre(r.hero); const d = Math.hypot(u - Tc[0], v - Tc[1]); if (d < bd) { bd = d; best = i; } });
     return best;
   }
-  function step(dir) {
-    const i = currentIndex();
-    const j = (i + dir + L.records.length) % L.records.length;
-    sheet.show({ camera: L.frame(L.records[j].hero, L.g, W(), H()) }, { animate: !reduceMotion });
-  }
-  for (const b of btns) b.addEventListener('click', (e) => { e.stopPropagation(); step(Number(b.dataset.dir)); });
+  /* an arrow goes where it points: to the Record it was aimed at when drawn */
+  function go(a) { sheet.show({ camera: L.frame(L.records[a.target].hero, L.g, W(), H()) }, { animate: !reduceMotion }); }
+  for (const b of btns) b.addEventListener('click', (e) => { e.stopPropagation(); go(arrowSvg.get(b)); });
+  const KEY_WAY = { ArrowRight: 'right', ArrowLeft: 'left', ArrowUp: 'up', ArrowDown: 'down' };
   document.addEventListener('keydown', (e) => {
     if (e.target.closest && e.target.closest('input, textarea, [contenteditable]')) return;
-    if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); } else if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+    const way = KEY_WAY[e.key];
+    if (!way) return;
+    const a = [...arrowSvg.values()].find((x) => x.way === way);   /* a key only works when an arrow points its way */
+    if (a) { e.preventDefault(); go(a); }
   });
 
   /* placeholder hover: sheet2d never sees placeholders, so their titles are shown here */
@@ -271,7 +282,8 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
           const o = s * 1;                                     /* one step out, in the gutter */
           sh.dots.setAttribute('x', x0 - o); sh.dots.setAttribute('y', y0 - o);
           sh.dots.setAttribute('width', x1 - x0 + 2 * o); sh.dots.setAttribute('height', y1 - y0 + 2 * o);
-          sh.dots.style.strokeDasharray = `0 ${Math.max(4, s * 0.9).toFixed(1)}`;
+          const every = Math.max(1, Math.ceil(4 / s));          /* a dot on every node, or every nth when zoomed out */
+          sh.dots.style.strokeDasharray = `0 ${(every * s).toFixed(3)}`;
         }
         if (sh.title) {
           const [tx, ty] = sheet.toScreen(sh.p.rect.u0, sh.p.rect.v1 + 0.6);
@@ -279,36 +291,40 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
         }
       }
     }
-    /* arrows beside the current Record's hero: tail one gutter out, at the hero's mid row */
+    /* arrows beside the current Record's hero, each on the side that faces the Record it leads to */
     const hero = L.records[cur].hero;
-    const midV = hero.rect.v0 + Math.round((hero.rect.v1 - hero.rect.v0) / 4) * 2;   /* even row: a bold node */
+    const n = L.records.length;
+    const aims = [...arrowSvg.values()].map((a) => { a.target = (cur + a.dir + n) % n; a.way = wayTo(hero, L.records[a.target].hero); return a; });
+    const shared = aims.length === 2 && aims[0].way === aims[1].way;
     const nowS = performance.now() / 1000;
-    const lifts = [...arrowSvg.values()].map((a) => liftOf(a, nowS).toFixed(3)).join(',');
-    const ak = k + '|' + cur + '|' + lifts;
+    const lifts = aims.map((a) => liftOf(a, nowS).toFixed(3)).join(',');
+    const ak = k + '|' + cur + '|' + aims.map((a) => a.way).join(',') + '|' + lifts;
     if (ak !== draw.ak) {
       draw.ak = ak;
       for (const [b, a] of arrowSvg) {
-        /* centred in the gutter beside the hero */
-        const inset = (GUTTER - 4 * 4 * ARROW_K) / 2;
-        const tail = a.dir > 0 ? [hero.rect.u1 + inset, midV] : [hero.rect.u0 - inset, midV];
-        const f = arrowFaces(a.dir, LIFT * liftOf(a, nowS));
+        const tail = tailFor(hero.rect, a.way, shared ? (a.dir > 0 ? 4 : -4) : 0);   /* two on one side: four nodes apart */
+        const f = arrowFaces(a.way, LIFT * liftOf(a, nowS));
         const faces = [...f.sides, f.top];
-        a.polys.forEach((poly, i) => { poly.dataset.pts = JSON.stringify(faces[i]); poly.classList.toggle('is-side', i < f.sides.length); });
-        const s = camera.s;
-        const us = a.all.map(([u]) => u), vs = a.all.map(([, v]) => v);
-        const pad = 2;
-        const minU = Math.min(...us), maxU = Math.max(...us), minV = Math.min(...vs), maxV = Math.max(...vs);
+        const full = arrowFaces(a.way, LIFT);                                        /* the box holds the full lift */
+        const all = [...full.base, ...full.top];
+        const s = camera.s, pad = 2;
+        const minU = Math.min(...all.map(([u]) => u)), maxU = Math.max(...all.map(([u]) => u));
+        const minV = Math.min(...all.map(([, v]) => v)), maxV = Math.max(...all.map(([, v]) => v));
         const [bx, by] = sheet.toScreen(tail[0] + minU, tail[1] + minV);
         const bw = (maxU - minU) * s, bh = (maxV - minV) * s;
         b.style.transform = `translate(${(bx - pad).toFixed(1)}px, ${(by - pad).toFixed(1)}px)`;
         b.style.width = (bw + 2 * pad) + 'px'; b.style.height = (bh + 2 * pad) + 'px';
         a.s.setAttribute('viewBox', `${-pad} ${-pad} ${bw + 2 * pad} ${bh + 2 * pad}`);
         a.s.setAttribute('width', bw + 2 * pad); a.s.setAttribute('height', bh + 2 * pad);
-        for (const poly of a.polys) {
-          const pts = JSON.parse(poly.dataset.pts);
-          poly.setAttribute('points', pts.map(([u, v]) => `${((u - minU) * s).toFixed(2)},${((v - minV) * s).toFixed(2)}`).join(' '));
-        }
+        a.polys.forEach((poly, i) => {
+          const pts = faces[i];
+          poly.style.display = pts ? '' : 'none';
+          poly.classList.toggle('is-side', i < f.sides.length);
+          if (pts) poly.setAttribute('points', pts.map(([u, v]) => `${((u - minU) * s).toFixed(2)},${((v - minV) * s).toFixed(2)}`).join(' '));
+        });
         b.dataset.tail = tail.join(',');
+        b.dataset.way = a.way;
+        b.dataset.target = L.records[a.target].id;
       }
     }
     requestAnimationFrame(draw);
