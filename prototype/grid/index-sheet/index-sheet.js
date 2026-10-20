@@ -216,10 +216,8 @@ stage.addEventListener('pointermove', (e) => {
 window.addEventListener('pointerup', () => { press = null; }, true);
 
 /* ---------- light or dark: the nav's half-inked cell; remembered site-wide ----------
-   PROTOTYPE: three ways for the page to change (?flip=swap|negative|wipe, default swap). All of them
-   keep the camera still; reduced motion always swaps. */
-const FLIPS = ['swap', 'negative', 'wipe'];
-const flip = FLIPS.includes(q.get('flip')) ? q.get('flip') : 'swap';
+   The page turns like a print to its negative (Ethan, 2026-10-20): the old view inverts and fades as the
+   new one comes up through it. The camera stays still; reduced motion swaps in one frame. */
 const themeBtn = document.querySelector('[data-theme-toggle]');
 const themeNow = () => (document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark');
 const labelTheme = () => {
@@ -238,36 +236,14 @@ async function applyTheme(t) {
      waiting on a frame here: rendering is paused inside a view transition's update) */
   await Promise.race([stillsDone, new Promise((r) => setTimeout(r, 300))]);
 }
-/* the wipe: the new paper sweeps down from the nav one row of cells at a time, snapping at the gutters */
-function wipeFrames() {
-  const { camera } = sheet.debug();
-  const row = 32 * camera.s, gutterY = (k) => window.innerHeight / 2 + (k * 32 - 2 - camera.T[1]) * camera.s;
-  let k = Math.ceil((camera.T[1] - window.innerHeight / 2 / camera.s + 2) / 32);
-  const ys = [];
-  for (let y = gutterY(k); y < window.innerHeight + row; y = gutterY(++k)) ys.push(Math.max(0, Math.min(window.innerHeight, y)));
-  const n = ys.length, frames = [{ clipPath: 'inset(0 0 100% 0)', offset: 0 }];
-  ys.forEach((y, i) => {
-    const at = `inset(0 0 ${(window.innerHeight - y).toFixed(1)}px 0)`;
-    frames.push({ clipPath: frames[frames.length - 1].clipPath, offset: (i + 1) / (n + 1) - 0.0001 }, { clipPath: at, offset: (i + 1) / (n + 1) });
-  });
-  frames.push({ clipPath: frames[frames.length - 1].clipPath, offset: 0.9999 }, { clipPath: 'inset(0 0 0 0)', offset: 1 });
-  return { frames, dur: 90 * (n + 1) };
-}
 themeBtn.addEventListener('click', async () => {
   const t = themeNow() === 'light' ? 'dark' : 'light';
-  if (flip === 'swap' || reduceMotion || !document.startViewTransition) { applyTheme(t); return; }
+  if (reduceMotion || !document.startViewTransition) { applyTheme(t); return; }
   const vt = document.startViewTransition(() => applyTheme(t));
   await vt.ready;
   const root = document.documentElement;
-  if (flip === 'negative') {
-    /* the old print turns to its negative as the new one comes up through it */
-    root.animate([{ filter: 'invert(0)', opacity: 1 }, { filter: 'invert(1)', opacity: 0 }], { duration: 420, easing: 'ease-in', pseudoElement: '::view-transition-old(root)', fill: 'both' });
-    root.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, easing: 'ease-out', pseudoElement: '::view-transition-new(root)', fill: 'both' });
-  } else {
-    const { frames, dur } = wipeFrames();
-    root.animate([{ opacity: 1 }, { opacity: 1 }], { duration: dur, pseudoElement: '::view-transition-old(root)', fill: 'both' });
-    root.animate(frames, { duration: dur, pseudoElement: '::view-transition-new(root)', fill: 'both' });
-  }
+  root.animate([{ filter: 'invert(0)', opacity: 1 }, { filter: 'invert(1)', opacity: 0 }], { duration: 420, easing: 'ease-in', pseudoElement: '::view-transition-old(root)', fill: 'both' });
+  root.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, easing: 'ease-out', pseudoElement: '::view-transition-new(root)', fill: 'both' });
 });
 
 /* ---------- PROTOTYPE switcher + state (localhost only) ---------- */
@@ -282,8 +258,6 @@ if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
     if (e.target.closest && e.target.closest('input, textarea, [contenteditable]')) return;
     if (e.key === '[') go(-1); else if (e.key === ']') go(1);
   });
-  bar.querySelector('[data-flip]').textContent = flip;
-  bar.querySelector('[data-flip-cycle]').addEventListener('click', () => { q.set('flip', FLIPS[(FLIPS.indexOf(flip) + 1) % FLIPS.length]); location.search = q.toString(); });
   const stateEl = bar.querySelector('[data-state]');
   const report = () => {
     const { camera } = sheet.debug();
