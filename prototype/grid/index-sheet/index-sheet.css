@@ -43,6 +43,7 @@
 }
 .ix-proto button { border: 0; background: #111; color: #f5e663; border-radius: 999px; width: 28px; height: 28px; cursor: pointer; font: inherit; }
 .ix-proto-state { opacity: 0.7; }
+.ix-proto .ix-proto-flip { width: auto; padding: 0 10px; }
 @media (max-width: 600px) { .ix-proto-state { display: none; } }
 
 /* D: the live model's canvas sits between the plane and the titles; it never takes the pointer */
@@ -119,22 +120,15 @@ html.ix-plates span.ix-plate-title { cursor: default; }
 
 /* black on white: pure white, so work drawn on white sits flush with the paper */
 html[data-theme="light"] body.ix-page { --color-bg: #ffffff; --color-bg-alt: #ffffff; --color-primary: #111111; --color-text: #111111; }
-/* the theme toggle: one quiet line in the corner; the current theme reads full strength */
-.ix-theme {
-    position: absolute;
-    right: 16px;
-    bottom: 16px;
-    z-index: 6;
-    padding: 4px 8px;
-    border: 0;
-    background: var(--color-bg);
-    color: var(--color-text-light);
-    font: inherit;
-    font-size: 13px;
-    letter-spacing: 0.02em;
-    cursor: pointer;
-}
-.ix-theme span { opacity: 0.45; }
-html:not([data-theme="light"]) .ix-theme .is-dark,
-html[data-theme="light"] .ix-theme .is-light { opacity: 1; color: var(--color-primary); }
-.ix-theme:hover, .ix-theme:focus-visible { outline: 1px solid color-mix(in srgb, var(--color-primary) 40%, transparent); outline-offset: 2px; }
+/* the theme toggle: the nav's last item, one cell split on its middle line. The ink sits on the left on
+   dark paper and slides to the right on light, so the cell always shows which paper is down. */
+.ix-theme { display: inline-flex; align-items: center; padding: 0; border: 0; background: none; cursor: pointer; color: inherit; font: inherit; }
+.ix-theme svg { width: 14px; height: 14px; display: block; overflow: visible; }
+.ix-theme svg rect, .ix-theme svg line { stroke: currentColor; stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.ix-theme-cell { fill: none; }
+.ix-theme-ink { fill: currentColor; transition: transform 0.25s ease; }
+html[data-theme="light"] .ix-theme-ink { transform: translateX(7.25px); }
+.ix-theme:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) { .ix-theme-ink { transition: none; } }
+/* the view transitions are driven from JS; the browser's default crossfade is off */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
