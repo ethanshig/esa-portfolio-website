@@ -2,14 +2,14 @@
    The hovered model Plate, live: one WebGL canvas over the sheet draws only that Plate's model, in
    hidden-line ink (../axon/ink.js), scissored to the Plate's screen rect, transparent so the paper's
    dots show round it; the still beneath is hidden while the live model holds the Plate (onHold).
-   The pose (platestill.js: grow or turn) runs 0 -> 1 over 0.7 s on hover and back on leave; at 0 it
-   matches the still, and the canvas lets go. */
+   The view (platestill.js: plan -> dimetric) runs 0 -> 1 over 0.7 s on hover and back on leave; at 0
+   it matches the still, and the canvas lets go. */
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { createInkMaterials, makeInk } from '../axon/ink.js';
-import { liftMode, posed, fitScale, stillLineWidth, aim } from './platestill.js';
+import { posed, fitScale, stillLineWidth, aim } from './platestill.js';
 
 const T_LIFT = 0.7;          /* s */
 const calm = (u) => 0.5 - 0.5 * Math.cos(Math.PI * Math.min(1, Math.max(0, u)));
@@ -32,7 +32,6 @@ function load(id) {
 
 /* stage: the sheet's stage; before: the element the canvas goes under (the titles and arrows) */
 export function createPlateLive({ stage, before, sheet, reduceMotion, pxPerStep, onHold = () => {} }) {
-  const mode = liftMode();
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.setClearColor(0x000000, 0);
@@ -63,7 +62,7 @@ export function createPlateLive({ stage, before, sheet, reduceMotion, pxPerStep,
     const t = await load(plate.model);
     if (!t || my !== token || want !== plate) return;
     if (cur) scene.remove(cur.pose.pivot);
-    const pose = posed(t.object.clone(true), t.box, mode);
+    const pose = posed(t.object.clone(true), t.box);
     scene.add(pose.pivot);
     cur = { plate, pose };
   }
@@ -100,7 +99,7 @@ export function createPlateLive({ stage, before, sheet, reduceMotion, pxPerStep,
     const k = fitScale(cur.pose.extents, w, h);
     camera.left = -w / 2 / k; camera.right = w / 2 / k; camera.top = h / 2 / k; camera.bottom = -h / 2 / k;
     camera.updateProjectionMatrix();
-    aim(camera, cur.pose.pose(u));
+    aim(camera, cur.pose.view(u));
     /* gl's origin is bottom-left */
     const gy = H - y1;
     renderer.setScissor(x0, gy, w, h); renderer.setViewport(x0, gy, w, h);
@@ -110,5 +109,5 @@ export function createPlateLive({ stage, before, sheet, reduceMotion, pxPerStep,
     return t - lift.t0 < T_LIFT;
   }
 
-  return { hover, frame, state: () => ({ mode, live: cur ? cur.plate.id : null, u: value(now()) }) };
+  return { hover, frame, state: () => ({ live: cur ? cur.plate.id : null, u: value(now()) }) };
 }

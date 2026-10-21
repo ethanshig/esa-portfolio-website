@@ -12,18 +12,12 @@ import { ELEVATION, AZIMUTH } from '../axon/dimetric.js';
 
 const MARGIN = 0.12;          /* share of the Plate left as paper round the model */
 
-/* PROTOTYPE (#11, Ethan 2026-10-20: keep the lift). How a model Plate moves on hover, ?lift=grow|turn:
-   grow  at rest the model is its plan: seen straight down, collapsed, its axes square to the page's
-         grid, so it reads as a 2D drawing on the dots (Ethan: flat in 3D is not flat on our grid).
-         Hovered, the view swings to 2:1 dimetric (azimuth 0 -> 45, elevation 90 -> 30) as the model
-         grows up off the paper, round 2's lift scaled to the Plate.
-   turn  at rest the full model in dimetric; hovered it turns 90 degrees about its vertical axis.
-   The still is the pose at u = 0, and one scale fits every pose, so the live model takes over from
-   the still without a jump. Model Plates have no ground of their own: the model sits on the paper. */
-export const LIFT_MODES = ['grow', 'turn'];
-export const liftMode = () => { const m = new URLSearchParams(location.search).get('lift'); return LIFT_MODES.includes(m) ? m : 'grow'; };
-const FLAT = 0.02;            /* grow: the collapsed height, as a share of the full one */
-const GROW_DELAY = 0.15;      /* grow: share of the swing before the walls start up (lift.js) */
+/* PROTOTYPE (#11, Ethan 2026-10-20: keep the lift). A model Plate is read in plan at rest: the whole
+   model seen straight down, its axes square to the page's grid, so it is a 2D drawing on the dots.
+   Hovered, only the view turns, to 2:1 dimetric (azimuth 0 -> 45, elevation 90 -> 30), and it reads
+   as an axon. The model never changes shape (Ethan: no growing, no stretching in z). The still is the
+   plan, and one scale fits every view on the way, so the live model takes over without a jump. Model
+   Plates have no ground of their own: the model sits on the paper. */
 const PLAN_EL = Math.PI / 2;
 /* the view from elevation el, azimuth az: back (toward the camera), up and right on screen */
 function viewAt(el, az) {
@@ -32,40 +26,22 @@ function viewAt(el, az) {
   const right = new THREE.Vector3().crossVectors(up, back).normalize();
   return { back, up, right };
 }
-export const VIEW = viewAt(ELEVATION, AZIMUTH);
-const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
-/* the model in a pivot group: base on the pivot (grow scales from the ground), centred on x and z
-   (turn spins in place), the full model's centre at the origin. pose(u), u in 0..1, sets the model
-   and returns the view to draw it from. */
-export function posed(object, box, mode) {
+/* the model centred at the origin. view(u), u in 0..1 from plan to dimetric, is the view to draw it from */
+export function posed(object, box) {
   const c = box.getCenter(new THREE.Vector3());
   const pivot = new THREE.Group();
-  pivot.position.set(0, box.min.y - c.y, 0);
-  object.position.set(-c.x, -box.min.y, -c.z);
+  object.position.sub(c);
   pivot.add(object);
   const corners = [];
   for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) corners.push(new THREE.Vector3(x - c.x, y - c.y, z - c.z));
-  const base = box.min.y - c.y;
-  const poseAt = (u) => (mode === 'grow'
-    ? { view: viewAt(PLAN_EL + (ELEVATION - PLAN_EL) * u, AZIMUTH * u), h: FLAT + (1 - FLAT) * clamp01((u - GROW_DELAY) / (1 - GROW_DELAY)), a: 0 }
-    : { view: VIEW, h: 1, a: u * Math.PI / 2 });
-  /* half-extents on screen over every pose on the way */
+  const view = (u) => viewAt(PLAN_EL + (ELEVATION - PLAN_EL) * u, AZIMUTH * u);
+  /* half-extents on screen over every view on the way */
   let rx = 0, ry = 0;
   for (let i = 0; i <= 12; i++) {
-    const { view, h, a } = poseAt(i / 12);
-    for (const p0 of corners) {
-      const p = new THREE.Vector3(p0.x, base + (p0.y - base) * h, p0.z).applyAxisAngle(new THREE.Vector3(0, 1, 0), a);
-      rx = Math.max(rx, Math.abs(p.dot(view.right))); ry = Math.max(ry, Math.abs(p.dot(view.up)));
-    }
+    const v = view(i / 12);
+    for (const p of corners) { rx = Math.max(rx, Math.abs(p.dot(v.right))); ry = Math.max(ry, Math.abs(p.dot(v.up))); }
   }
-  const pose = (u) => {
-    const { view, h, a } = poseAt(u);
-    pivot.scale.y = h;
-    pivot.rotation.y = a;
-    return view;
-  };
-  pose(0);
-  return { pivot, pose, extents: [rx, ry] };
+  return { pivot, view, extents: [rx, ry] };
 }
 /* point an orthographic camera along a view */
 export function aim(cam, view) {
@@ -102,17 +78,16 @@ export async function renderStills(jobs, { ink, paper, plate }) {
   renderer.setClearColor(0x000000, 0);            /* transparent: the model sits on the paper */
   const materials = createInkMaterials();
   materials.setColors(ink, plate);
-  const mode = liftMode();
   for (const job of jobs) {
     try {
       const g = await loadGlb(loader, job.model);
       const { object, box } = makeInk(g.scene, { materials });
-      const pose = posed(object, box, mode);
+      const pose = posed(object, box);
       const scene = new THREE.Scene();
       scene.add(pose.pivot);
       const k = fitScale(pose.extents, job.w, job.h);
       const cam = new THREE.OrthographicCamera(-job.w / 2 / k, job.w / 2 / k, job.h / 2 / k, -job.h / 2 / k, -1e5, 1e5);
-      aim(cam, pose.pose(0));
+      aim(cam, pose.view(0));
       cam.updateProjectionMatrix();
       renderer.setSize(job.w, job.h, false);
       const lw = stillLineWidth(job.w);
