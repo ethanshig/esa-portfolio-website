@@ -116,6 +116,10 @@ html.ix-plates span.ix-plate-title { cursor: default; }
 .ix-axarrow polygon { fill: var(--color-bg); stroke: var(--color-primary); stroke-width: 1.4; stroke-linejoin: round; }
 .ix-axarrow:hover polygon, .ix-axarrow:focus-visible polygon { stroke: var(--color-accent); }
 .ix-axarrow:focus-visible { outline: none; }
+/* a finger needs more than the arrow's 2 steps: an unseen 44px target centred on it */
+@media (hover: none) {
+    .ix-axarrow::before { content: ""; position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; translate: -50% -50%; }
+}
 
 /* the arrow lies flat at rest as three hairlines; each only has area once it lifts into a fin */
 

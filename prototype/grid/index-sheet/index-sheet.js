@@ -128,11 +128,11 @@ const KEYS = Object.keys(VARIANTS);
 
 /* ---------- boot ---------- */
 const q = new URLSearchParams(location.search);
-/* the column is the index on a phone (#12); ?variant= still forces any variant */
+/* the phone keeps the sheet too (#12, Ethan 2026-10-20); g, the column, stays here for comparison */
+const variant = KEYS.includes(q.get('variant')) ? q.get('variant') : 'f';
 const NARROW = 640;
 const narrow = () => window.innerWidth < NARROW;
-const chosen = KEYS.includes(q.get('variant')) ? q.get('variant') : null;
-const variant = chosen || (narrow() ? 'g' : 'f');
+const bootNarrow = narrow();
 if (variant === 'e' || variant === 'f' || variant === 'g') document.documentElement.classList.add('ix-plates', 'ix-plates-' + variant);
 const W = window.innerWidth, H = window.innerHeight;
 const { drawings, arrival } = VARIANTS[variant](W, H);
@@ -155,7 +155,7 @@ const sheet = await createSheet({
 });
 document.documentElement.classList.add('env-live');
 window.addEventListener('resize', () => {
-  if (!chosen && narrow() !== (variant === 'g')) { location.reload(); return; }   /* crossed the line: the other layout */
+  if (narrow() !== bootNarrow) { location.reload(); return; }   /* crossed phone width: frame the arrival afresh for it */
   sheet.resize();
 });
 /* the column scrolls: the wheel travels it up and down rather than zooming (its scale is fixed) */
