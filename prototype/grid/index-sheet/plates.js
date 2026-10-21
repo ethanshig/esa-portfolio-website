@@ -14,6 +14,7 @@
    the field stays a field. It stops when the Plates run out. similarity = shared Facets / 3. */
 import { PLATES, RECORDS } from './plates-data.js';
 import { renderStills } from './platestill.js';
+import { createPlateLive } from './platelive.js';
 
 const GRIDS = {
   e: { pw: 32, ph: 40, ch: 36 },
@@ -258,15 +259,31 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
     phHot = sh;
     if (phHot && phHot.title) phHot.title.classList.add('is-hot');
   };
+  /* the lift and the turn (ADR-0007's index hover, kept 2026-10-20): a model Plate lifts live, a
+     drawing Plate turns to its Record's next Drawing. One Plate at a time. */
+  const live = createPlateLive({ stage, before: overlay, sheet, reduceMotion, pxPerStep: PX_PER_STEP });
+  let hovered = null;
+  function hoverPlate(p) {
+    if (p === hovered) return;
+    if (hovered && turns.has(hovered)) turns.get(hovered).classList.remove('is-turned');
+    hovered = p;
+    if (p && turns.has(p)) turns.get(p).classList.add('is-turned');
+    live.hover(p);
+  }
+  const plateAt = (u, v) => L.plates.find((q) => !q.placeholder && u >= q.rect.u0 && u <= q.rect.u1 && v >= q.rect.v0 && v <= q.rect.v1) || null;
   stage.addEventListener('pointermove', (e) => {
     if (e.buttons) return;
-    if (e.target.closest && e.target.closest('button, a')) { setPh(null); return; }
+    if (e.target.closest && e.target.closest('button')) { setPh(null); hoverPlate(null); return; }
     const { camera } = sheet.debug();
     const r = stage.getBoundingClientRect();
     const u = camera.T[0] + (e.clientX - r.left - r.width / 2) / camera.s, v = camera.T[1] + (e.clientY - r.top - r.height / 2) / camera.s;
     setPh(shapes.find((sh) => sh.p.placeholder && u >= sh.p.rect.u0 && u <= sh.p.rect.u1 && v >= sh.p.rect.v0 && v <= sh.p.rect.v1) || null);
+    hoverPlate(plateAt(u, v));
   });
-  stage.addEventListener('pointerleave', () => setPh(null));
+  stage.addEventListener('pointerleave', () => { setPh(null); hoverPlate(null); });
+  /* keyboard: a focused Plate title is a hover */
+  overlay.addEventListener('focusin', (e) => { const t = e.target.closest('[data-drawing]'); hoverPlate(t ? L.plates.find((q) => q.id === t.dataset.drawing) || null : null); });
+  overlay.addEventListener('focusout', () => hoverPlate(null));
 
   /* per frame: redraw only when the camera moved */
   let lastKey = '';
@@ -335,6 +352,7 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
         b.dataset.target = L.records[a.target].id;
       }
     }
+    live.frame();
     requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);
@@ -342,6 +360,26 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
   /* model stills: rendered once offscreen, then swapped into their images (sheet2d appends in data order) */
   const imgs = [...stage.querySelectorAll('.env-plane .env-plane-img')];
   const real = L.plates.filter((p) => !p.placeholder);
+
+  /* the turn: each drawing Plate gets its Record's next Drawing laid on top, clipped away until hovered.
+     Next = the first of the Record's Drawings after this Plate's own that no Plate shows, else simply
+     the next one round (most Records have no Drawing that is not already a Plate yet). */
+  const shown = new Set(real.map((p) => p.src).filter(Boolean));
+  const turns = new Map();
+  for (const p of real) {
+    const list = (RECORDS[p.record] && RECORDS[p.record].drawings) || [];
+    const at = list.indexOf(p.src);
+    if (!p.src || at < 0 || list.length < 2) continue;
+    const round = list.slice(at + 1).concat(list.slice(0, at));
+    const next = round.find((d) => !shown.has(d)) || round[0];
+    const img = imgs[real.indexOf(p)];
+    const n = img.cloneNode(false);
+    n.classList.add('ix-next');
+    n.src = next;
+    n.alt = '';
+    img.after(n);
+    turns.set(p, n);
+  }
   const modelPlates = real.filter((p) => p.model);
   const stills = { done: false, count: 0 };
   let paintRun = 0;
@@ -367,6 +405,7 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
   return {
     /* the theme changed: the stills and plain cells are baked in page colours, so they repaint */
     retheme: paint,
+
     state() {
       const r = L.records[cur];
       return {
@@ -381,6 +420,8 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
         hero: r.hero.id,
         order: L.records.map((x) => x.id),
         stills,
+        lift: live.state(),
+        turns: [...turns].map(([p, n]) => ({ id: p.id, next: n.getAttribute('src').split('/').pop(), turned: n.classList.contains('is-turned') })),
         camera: sheet.debug().camera,
         placement: L.plates.map((p) => ({ id: p.id, c: p.c, r: p.r, span: p.span })),
       };

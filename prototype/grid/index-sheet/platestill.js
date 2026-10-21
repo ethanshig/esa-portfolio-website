@@ -12,6 +12,50 @@ import { ELEVATION, AZIMUTH } from '../axon/dimetric.js';
 
 const MARGIN = 0.12;          /* share of the Plate left as paper round the model */
 
+/* PROTOTYPE (#11, Ethan 2026-10-20: keep the lift). How a model Plate moves on hover, ?lift=grow|turn:
+   grow  at rest the model lies collapsed on the paper, its footprint drawn in dimetric; hovered it
+         grows up to full height in place (no camera move).
+   turn  at rest the full model; hovered it turns 90 degrees about its vertical axis.
+   The still is the pose at u = 0, and one scale fits every pose, so the live model takes over from
+   the still without a jump. */
+export const LIFT_MODES = ['grow', 'turn'];
+export const liftMode = () => { const m = new URLSearchParams(location.search).get('lift'); return LIFT_MODES.includes(m) ? m : 'grow'; };
+const FLAT = 0.02;            /* grow: the collapsed height, as a share of the full one */
+export const VIEW = (() => {
+  const back = new THREE.Vector3(Math.cos(ELEVATION) * Math.sin(AZIMUTH), Math.sin(ELEVATION), Math.cos(ELEVATION) * Math.cos(AZIMUTH));
+  const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), back).normalize();
+  const up = new THREE.Vector3().crossVectors(back, right).normalize();
+  return { back, right, up };
+})();
+/* the model in a pivot group: base on the pivot (grow scales from the ground), centred on x and z
+   (turn spins in place), the full model's centre at the origin. set(u) poses it, u in 0..1. */
+export function posed(object, box, mode) {
+  const c = box.getCenter(new THREE.Vector3());
+  const pivot = new THREE.Group();
+  pivot.position.set(0, box.min.y - c.y, 0);
+  object.position.set(-c.x, -box.min.y, -c.z);
+  pivot.add(object);
+  const corners = [];
+  for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) corners.push(new THREE.Vector3(x - c.x, y - c.y, z - c.z));
+  /* half-extents on screen over every pose: the box, and for turn every angle on the way round */
+  let rx = 0, ry = 0;
+  const angles = mode === 'turn' ? [0, 1, 2, 3, 4, 5, 6].map((i) => (i / 6) * Math.PI / 2) : [0];
+  for (const a of angles) for (const p of corners) {
+    const q = p.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), a);
+    rx = Math.max(rx, Math.abs(q.dot(VIEW.right))); ry = Math.max(ry, Math.abs(q.dot(VIEW.up)));
+  }
+  const set = (u) => {
+    if (mode === 'grow') pivot.scale.y = FLAT + (1 - FLAT) * u;
+    else pivot.rotation.y = u * Math.PI / 2;
+  };
+  set(0);
+  return { pivot, set, extents: [rx, ry] };
+}
+/* the scale (px per model unit) that fits a w x h px Plate with its margin */
+export const fitScale = (extents, w, h) => Math.min(w * (1 - 2 * MARGIN) / 2 / extents[0], h * (1 - 2 * MARGIN) / 2 / extents[1]);
+/* the still's line width at its own resolution, so the live model can draw the same weight on screen */
+export const stillLineWidth = (wPx) => Math.max(1.5, wPx / 320);
+
 function loadGlb(loader, id) {
   return new Promise((res, rej) => loader.load(new URL(`../models/${id}.glb`, import.meta.url).href, res, undefined, rej));
 }
@@ -36,32 +80,22 @@ export async function renderStills(jobs, { ink, paper, plate }) {
   renderer.setClearColor(new THREE.Color(plate), 1);
   const materials = createInkMaterials();
   materials.setColors(ink, plate);
-  const back = new THREE.Vector3(Math.cos(ELEVATION) * Math.sin(AZIMUTH), Math.sin(ELEVATION), Math.cos(ELEVATION) * Math.cos(AZIMUTH));
-  const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), back).normalize();
-  const up = new THREE.Vector3().crossVectors(back, right).normalize();
-
+  const mode = liftMode();
   for (const job of jobs) {
     try {
       const g = await loadGlb(loader, job.model);
       const { object, box } = makeInk(g.scene, { materials });
-      const c = box.getCenter(new THREE.Vector3());
-      object.position.sub(c);
+      const pose = posed(object, box, mode);
       const scene = new THREE.Scene();
-      scene.add(object);
-      /* the box's half-extents seen along the dimetric axes */
-      let rx = 0, ry = 0;
-      for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) {
-        const p = new THREE.Vector3(x, y, z).sub(c);
-        rx = Math.max(rx, Math.abs(p.dot(right))); ry = Math.max(ry, Math.abs(p.dot(up)));
-      }
-      const k = Math.min(job.w * (1 - 2 * MARGIN) / 2 / rx, job.h * (1 - 2 * MARGIN) / 2 / ry);
+      scene.add(pose.pivot);
+      const k = fitScale(pose.extents, job.w, job.h);
       const cam = new THREE.OrthographicCamera(-job.w / 2 / k, job.w / 2 / k, job.h / 2 / k, -job.h / 2 / k, -1e5, 1e5);
-      cam.position.copy(back).multiplyScalar(1000);
+      cam.position.copy(VIEW.back).multiplyScalar(1000);
       cam.up.set(0, 1, 0);
       cam.lookAt(0, 0, 0);
       cam.updateProjectionMatrix();
       renderer.setSize(job.w, job.h, false);
-      const lw = Math.max(1.5, job.w / 320);
+      const lw = stillLineWidth(job.w);
       materials.setLineWidth(lw); materials.setOutlineWidth(lw); materials.setResolution(job.w, job.h);
       renderer.render(scene, cam);
       out.set(job.model, renderer.domElement.toDataURL('image/png'));

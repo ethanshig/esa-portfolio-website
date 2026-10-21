@@ -18,12 +18,13 @@ export const VOCAB = {
 
 const TOUR = '../../../images/tour/';
 
-/* Records. href null = placeholder (no page yet, not clickable). */
+/* Records. href null = placeholder (no page yet, not clickable). drawings: the Record page's Drawings,
+   in page order, for the turn (bb-loop is the one not yet on a Plate). */
 export const RECORDS = {
-  'uss-lead': { status: 'complete', href: '../../../projects/uss-lead-revival.html' },
-  'beavers-burden': { status: 'complete', href: '../../../projects/beavers-burden.html' },
-  'mylo': { status: 'complete', href: '../../../projects/mylo-to-go.html' },
-  'three-little-pigs': { status: 'complete', href: '../project/three-little-pigs/' },
+  'uss-lead': { status: 'complete', href: '../../../projects/uss-lead-revival.html', drawings: ['a273-atlas', 'a273-board', 'a273-gable'].map((d) => TOUR + d + '.jpg') },
+  'beavers-burden': { status: 'complete', href: '../../../projects/beavers-burden.html', drawings: ['bb-catamaraft', 'bb-crawling', 'bb-landscape', 'bb-standing', 'bb-loop'].map((d) => TOUR + d + '.jpg') },
+  'mylo': { status: 'complete', href: '../../../projects/mylo-to-go.html', drawings: ['mylo-logo', 'mylo-picnic', 'mylo-poster'].map((d) => TOUR + d + '.jpg') },
+  'three-little-pigs': { status: 'complete', href: '../project/three-little-pigs/', drawings: ['tlp-axon', 'tlp-section'].map((d) => TOUR + d + '.jpg') },
   'rap': { status: 'active', href: null },
   'instruments': { status: 'complete', href: null },
   'ratio': { status: 'active', href: null },

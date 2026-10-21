@@ -120,3 +120,19 @@ html.ix-plates span.ix-plate-title { cursor: default; }
 /* black on white: pure white, so work drawn on white sits flush with the paper */
 html[data-theme="light"] body.ix-page { --color-bg: #ffffff; --color-bg-alt: #ffffff; --color-primary: #111111; --color-text: #111111; }
 /* the theme toggle's cell and the negative flip are shared with the project pages: ../project/env.css */
+
+/* the turn (round 2's, on the Plates): the next Drawing's edge sweeps right to left, taking the
+   first Drawing off as it lays the next one down */
+html.ix-plates .env-plane-img.ix-next {
+    visibility: hidden;
+    clip-path: inset(0 0 0 100%);
+    transition: clip-path 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.4s;
+}
+html.ix-plates .env-plane-img:has(+ .ix-next) { clip-path: inset(0 0 0 0); transition: clip-path 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+html.ix-plates .env-plane-img.ix-next.is-turned {
+    visibility: visible;
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s;
+}
+html.ix-plates .env-plane-img:has(+ .ix-next.is-turned) { clip-path: inset(0 100% 0 0); }
+@media (prefers-reduced-motion: reduce) { html.ix-plates .env-plane-img, html.ix-plates .env-plane-img.ix-next { transition: none; } }
