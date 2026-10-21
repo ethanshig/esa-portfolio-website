@@ -148,7 +148,6 @@ const sheet = await createSheet({
   limits: (W, H) => (PLATE_LAYOUT ? PLATE_LAYOUT.limits(W, H) : null),
   onFocus(id) {
     if (PLATE_LAYOUT) {
-      if (plates && plates.tap(id)) return false;   /* a first tap: held as a hover, and the view stays put */
       const p = PLATE_LAYOUT.plates.find((x) => x.id === id); if (p && p.href) location.href = p.href; return false;
     }
     const p = byId.get(id.replace(/-z$/, '')); if (p && p.href) location.href = p.href;

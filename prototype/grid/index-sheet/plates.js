@@ -219,7 +219,8 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
   });
 
   /* the arrows: buttons in the HTML holding an empty svg; JS draws the shape only */
-  const btns = [...stage.querySelectorAll('.ix-axarrow')];
+  const noHover = window.matchMedia('(hover: none)').matches;
+  const btns = L.g.cols ? [] : [...stage.querySelectorAll('.ix-axarrow')];   /* the column has none */
   const arrowSvg = new Map();
   for (const b of btns) {
     b.hidden = false;
@@ -277,33 +278,32 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
   const live = createPlateLive({ stage, before: overlay, sheet, reduceMotion, pxPerStep: PX_PER_STEP,
     onHold: (p, on) => { const img = imgs[real.indexOf(p)]; if (img) img.style.visibility = on ? 'hidden' : ''; } });
   let hovered = null;
-  let held = null;                 /* touch: the Plate the first tap lifted, its title shown */
-  const titleOf = (p) => overlay.querySelector(`.ix-plate-title[data-drawing="${p.id}"]`);
   function hoverPlate(p) {
     if (p === hovered) return;
     if (hovered && turns.has(hovered)) turns.get(hovered).classList.remove('is-turned');
-    if (held && held !== p) { const t = titleOf(held); if (t) t.classList.remove('is-hot'); held = null; }
     hovered = p;
     if (p && turns.has(p)) turns.get(p).classList.add('is-turned');
     live.hover(p);
   }
-  /* touch is tap-tap (round 2): the first tap on a Plate is its hover, the second opens it.
-     A tap on bare paper lets go. */
-  let press = null;                /* { type, x, y } of the last pointerdown */
-  stage.addEventListener('pointerdown', (e) => { press = { type: e.pointerType, x: e.clientX, y: e.clientY }; }, true);
-  stage.addEventListener('pointerup', (e) => {
-    if (e.pointerType !== 'touch' || !press || Math.hypot(e.clientX - press.x, e.clientY - press.y) > 8) return;
-    const { camera } = sheet.debug();
-    const u = camera.T[0] + (e.clientX - W() / 2) / camera.s, v = camera.T[1] + (e.clientY - H() / 2) / camera.s;
-    if (!plateAt(u, v)) hoverPlate(null);
-  });
-  function tap(id) {
-    const p = L.plates.find((q) => q.id === id);
-    if (!p || !press || press.type !== 'touch' || p === held) return false;
-    hoverPlate(p);
-    held = p;
-    const t = titleOf(p); if (t) t.classList.add('is-hot');
-    return true;
+  /* without hover (a phone, #12, Ethan 2026-10-20) a tap simply opens the Plate: no turn first. The
+     model Plates turn of their own accord instead: the one most central and wholly in view swings to
+     the axon, holds, swings back to plan, holds, and again, for as long as it stays in view. */
+  const AUTO_DELAY = 0.6, AUTO_UP = 3.7, AUTO_CYCLE = 6.4;        /* s: plan first, axon (0.7 + 3), back (0.7 + 2) */
+  let auto = null;                                                /* { p, t0 } */
+  function autoTurn() {
+    const f = { left: 0, right: W(), top: NAV_H, bottom: H() };
+    let best = null, bd = Infinity;
+    for (const p of real) {
+      if (!p.model) continue;
+      const [x0, y0] = sheet.toScreen(p.rect.u0, p.rect.v0), [x1, y1] = sheet.toScreen(p.rect.u1, p.rect.v1);
+      if (x0 < f.left || x1 > f.right || y0 < f.top || y1 > f.bottom) continue;
+      const d = Math.hypot((x0 + x1 - f.left - f.right) / 2, (y0 + y1 - f.top - f.bottom) / 2);
+      if (d < bd) { bd = d; best = p; }
+    }
+    const now = performance.now() / 1000;
+    if (!auto || auto.p !== best) auto = { p: best, t0: now + AUTO_DELAY };
+    const e = now - auto.t0;
+    live.hover(best && e >= 0 && e % AUTO_CYCLE < AUTO_UP ? best : null);
   }
   const plateAt = (u, v) => L.plates.find((q) => !q.placeholder && u >= q.rect.u0 && u <= q.rect.u1 && v >= q.rect.v0 && v <= q.rect.v1) || null;
   stage.addEventListener('pointermove', (e) => {
@@ -353,6 +353,8 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
         }
       }
     }
+    if (noHover && !reduceMotion) autoTurn();
+    if (L.g.cols) { live.frame(); requestAnimationFrame(draw); return; }   /* the column scrolls: no arrows */
     /* arrows beside the current Record's hero, each on the side that faces the Record it leads to */
     const hero = L.records[cur].hero;
     const n = L.records.length;
@@ -441,8 +443,6 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
   return {
     /* the theme changed: the stills and plain cells are baked in page colours, so they repaint */
     retheme: paint,
-    /* a pick on a Plate: true when it was a first tap, held as a hover rather than opened */
-    tap,
 
     state() {
       const r = L.records[cur];
@@ -459,7 +459,7 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
         order: L.records.map((x) => x.id),
         stills,
         lift: live.state(),
-        held: held ? held.id : null,
+        noHover,
         turns: [...turns].map(([p, n]) => ({ id: p.id, next: n.getAttribute('src').split('/').pop(), turned: n.classList.contains('is-turned') })),
         camera: sheet.debug().camera,
         placement: L.plates.map((p) => ({ id: p.id, c: p.c, r: p.r, span: p.span })),
