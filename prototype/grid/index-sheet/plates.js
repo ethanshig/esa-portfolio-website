@@ -122,7 +122,7 @@ export function layoutPlates(variant, W, H) {
   /* sheet2d gets the real Plates only: placeholders are drawn by the overlay and never picked */
   const drawings = G.plates.filter((p) => !p.placeholder).map((p) => ({
     id: p.id, at: [p.rect.u0, p.rect.v0], w: p.wSteps, px: px(p),
-    src: p.src || svgData(...px(p), `<rect width="100%" height="100%" fill="${getComputedStyle(document.documentElement).getPropertyValue('--color-bg-alt').trim() || '#14171a'}"/>`),
+    src: p.src || svgData(...px(p), p.model ? '' : `<rect width="100%" height="100%" fill="${getComputedStyle(document.documentElement).getPropertyValue('--color-bg-alt').trim() || '#14171a'}"/>`),   /* a model's Plate is bare paper until its still lands */
   }));
   const frame = (p) => frameAround(p, g, W, H);
   const field = {
@@ -261,7 +261,8 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
   };
   /* the lift and the turn (ADR-0007's index hover, kept 2026-10-20): a model Plate lifts live, a
      drawing Plate turns to its Record's next Drawing. One Plate at a time. */
-  const live = createPlateLive({ stage, before: overlay, sheet, reduceMotion, pxPerStep: PX_PER_STEP });
+  const live = createPlateLive({ stage, before: overlay, sheet, reduceMotion, pxPerStep: PX_PER_STEP,
+    onHold: (p, on) => { const img = imgs[real.indexOf(p)]; if (img) img.style.visibility = on ? 'hidden' : ''; } });
   let hovered = null;
   function hoverPlate(p) {
     if (p === hovered) return;
@@ -360,6 +361,7 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
   /* model stills: rendered once offscreen, then swapped into their images (sheet2d appends in data order) */
   const imgs = [...stage.querySelectorAll('.env-plane .env-plane-img')];
   const real = L.plates.filter((p) => !p.placeholder);
+  for (const p of real) if (p.model) imgs[real.indexOf(p)].classList.add('ix-model');
 
   /* the turn: each drawing Plate gets its Record's next Drawing laid on top, clipped away until hovered.
      Next = the first of the Record's Drawings after this Plate's own that no Plate shows, else simply
@@ -389,7 +391,7 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
     for (const p of real) if (!p.src && !p.model) imgs[real.indexOf(p)].src = svgData(p.wSteps * PX_PER_STEP, p.hSteps * PX_PER_STEP, `<rect width="100%" height="100%" fill="${bg}"/>`);
     stills.done = false; stills.count = 0;
     return renderStills(modelPlates.map((p) => ({ model: p.model, w: p.wSteps * PX_PER_STEP, h: p.hSteps * PX_PER_STEP })), {
-      ink: css('--color-primary', '#e9ecee'), paper: bg, plate: bg,
+      ink: css('--color-primary', '#e9ecee'), paper: bg, plate: css('--color-bg', '#0e1013'),
     }).then((map) => {
       if (run !== paintRun) return;                          /* a newer theme won */
       for (const p of modelPlates) {

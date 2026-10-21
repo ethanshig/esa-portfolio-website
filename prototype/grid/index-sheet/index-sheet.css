@@ -72,6 +72,8 @@
 
 /* E, F: a field of Plates. Images cover their cell; only the Plate titles show, and only on hover */
 html.ix-plates .env-plane-img { object-fit: cover; background: var(--color-bg-alt); }
+/* a model Plate has no ground: its still is transparent and the model sits on the paper */
+html.ix-plates .env-plane-img.ix-model { background: none; }
 html.ix-plates .env-title:not(.ix-plate-title) { display: none; }
 html:not(.ix-plates) .ix-plate-title,
 html:not(.ix-plates) .ix-plates-svg,
