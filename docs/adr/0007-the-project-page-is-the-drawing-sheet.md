@@ -21,8 +21,11 @@ model stands beside it, so a reader sees both what was made and what it was made
 **If it is 3D it renders 3D; if it is 2D it renders 2D.** A Record with a model gets a sheet with
 the model standing in dimetric beside flat drawings. A Record without one gets a flat sheet: pan
 and zoom, no orbit, no tilt. Nothing is extruded, faked or sheet-lifted into a third dimension it
-never had. The index follows the same rule: hovering a 3D project lifts its model; hovering a 2D
-project turns to its next Drawing.
+never had. The index follows the same rule: a model's Plate reads in plan at rest and turns to
+dimetric when hovered, the model itself unchanged; hovering a drawing's Plate turns to its Record's
+next Drawing. *Amended 2026-10-20 (#11):* the sheet's own marks — the index's arrows — may lift into
+the third dimension on hover, because they are instruments of the sheet, not the work; a drawing
+still never fakes depth.
 
 **The hero drawing leads.** Arrival frames the hero drawing lying flat, model in view beside it.
 The model is the evidence, not the product.
@@ -75,5 +78,6 @@ no-WebGL fallback rather than the page. Each section needs a *view* in the conte
 drawing or model part it is about. Those views are authored by Ethan; the prototype's are marked
 `#proposed`. Records need their drawings' provenance (Make2D layer, sheet file) recorded so marks
 can be measured; only three-little-pigs has that today. A model's export needs its Rhino offset kept
-(`glbOffsetRhino`), since the origin is where the model meets the paper. The index paints no paper:
-there the lattice is a measure, not a drawing. The index itself is due a substantial rework.
+(`glbOffsetRhino`), since the origin is where the model meets the paper. The index is now a sheet
+of its own, a square grid of Plates on the same dot paper (#11, 2026-10-20), so the earlier "the
+index paints no paper" no longer holds.
