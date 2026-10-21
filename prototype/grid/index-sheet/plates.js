@@ -5,6 +5,7 @@
    c even and c/2 + r even), which holds when widths are multiples of 4 and heights even:
      e  cell 28 x 36 (8.5 x 11 is 28 x 36.2), pitch 32 x 40, gutter 4; 11x17 = 2 cells = 60 x 36
      f  cell 28 x 28, pitch 32 x 32, gutter 4; wide = 60 x 28
+     g  f's cells, grown into a column two cells wide, downward from the seed (phone, #12)
    Images cover their cell (cropped); the rect's px is the cell's, and CSS sets object-fit: cover.
 
    Growth: the seed is the Plate with the highest total Facet similarity to all others, at the
@@ -19,6 +20,7 @@ import { createPlateLive } from './platelive.js';
 const GRIDS = {
   e: { pw: 32, ph: 40, ch: 36 },
   f: { pw: 32, ph: 32, ch: 28 },
+  g: { pw: 32, ph: 32, ch: 28, cols: 2 },
 };
 const GUTTER = 4;
 const PX_PER_STEP = 20;                 /* resolution of the stills and the px aspect of the rects */
@@ -53,7 +55,7 @@ function grow(variant) {
   };
 
   const order = [];
-  put(plates[seed], plates[seed].span === 2 ? -1 : 0, 0);
+  put(plates[seed], g.cols || plates[seed].span !== 2 ? 0 : -1, 0);
   order.push(seed);
   const placed = new Set([seed]);
   while (placed.size < n) {
@@ -78,6 +80,7 @@ function grow(variant) {
     let pick = null;
     for (const k of starts) {
       const [c, r] = k.split(',').map(Number);
+      if (g.cols && (c < 0 || c + p.span > g.cols || r < 0)) continue;   /* the column: its width, and only downward */
       if (footprint(c, r, p.span).some(([x, y]) => cells.has(key(x, y)))) continue;
       const nb = neighboursOf(c, r, p.span);
       if (nb.size === 0) continue;
@@ -138,15 +141,23 @@ export function layoutPlates(variant, W, H) {
 const MOST_ACROSS = 6, MOST_DOWN = 4, MOST_IN = 2;
 function limitsFor(g, field, W, H) {
   const fh = H - NAV_H;
+  /* the column: never narrower than the screen, so it only travels up and down */
+  if (g.cols) { const s = W / (g.cols * g.pw + GUTTER); return { sMin: s, sMax: MOST_IN * s, bounds: field, margin: GUTTER }; }
   return { sMin: Math.max(W / (MOST_ACROSS * g.pw), fh / (MOST_DOWN * g.ph)), sMax: MOST_IN * fh / g.ph, bounds: field, margin: g.pw / 2 };
 }
 
 /* a camera on a Plate that shows at most 3 cells across and 2 down (Ethan, 2026-10-18): the larger of
    the two fits wins, so neither count is exceeded. Centred on the Plate's column; its row starts just
-   under the nav, so the Plate shows whole and whatever room is left shows the row below. */
+   under the nav, so the Plate shows whole and whatever room is left shows the row below. On a narrow
+   screen (#12) the 2-down fit would push a Plate off the sides, so the Plate's own width, a gutter
+   either side, caps it. The column (g) is framed on its full width. */
 function frameAround(p, g, W, H) {
   const fw = W, fh = H - NAV_H;
-  const s = Math.max(fw / (3 * g.pw), fh / (2 * g.ph));
+  if (g.cols) {
+    const s = fw / (g.cols * g.pw + GUTTER);
+    return { T: [(g.cols * g.pw - GUTTER) / 2, p.rect.v0 - GUTTER / 2 + (H / 2 - NAV_H) / s], s };
+  }
+  const s = Math.min(Math.max(fw / (3 * g.pw), fh / (2 * g.ph)), fw / (p.wSteps + 2 * GUTTER));
   return { T: [(p.rect.u0 + p.rect.u1) / 2, p.rect.v0 - GUTTER / 2 + (H / 2 - NAV_H) / s], s };
 }
 
@@ -264,12 +275,33 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
   const live = createPlateLive({ stage, before: overlay, sheet, reduceMotion, pxPerStep: PX_PER_STEP,
     onHold: (p, on) => { const img = imgs[real.indexOf(p)]; if (img) img.style.visibility = on ? 'hidden' : ''; } });
   let hovered = null;
+  let held = null;                 /* touch: the Plate the first tap lifted, its title shown */
+  const titleOf = (p) => overlay.querySelector(`.ix-plate-title[data-drawing="${p.id}"]`);
   function hoverPlate(p) {
     if (p === hovered) return;
     if (hovered && turns.has(hovered)) turns.get(hovered).classList.remove('is-turned');
+    if (held && held !== p) { const t = titleOf(held); if (t) t.classList.remove('is-hot'); held = null; }
     hovered = p;
     if (p && turns.has(p)) turns.get(p).classList.add('is-turned');
     live.hover(p);
+  }
+  /* touch is tap-tap (round 2): the first tap on a Plate is its hover, the second opens it.
+     A tap on bare paper lets go. */
+  let press = null;                /* { type, x, y } of the last pointerdown */
+  stage.addEventListener('pointerdown', (e) => { press = { type: e.pointerType, x: e.clientX, y: e.clientY }; }, true);
+  stage.addEventListener('pointerup', (e) => {
+    if (e.pointerType !== 'touch' || !press || Math.hypot(e.clientX - press.x, e.clientY - press.y) > 8) return;
+    const { camera } = sheet.debug();
+    const u = camera.T[0] + (e.clientX - W() / 2) / camera.s, v = camera.T[1] + (e.clientY - H() / 2) / camera.s;
+    if (!plateAt(u, v)) hoverPlate(null);
+  });
+  function tap(id) {
+    const p = L.plates.find((q) => q.id === id);
+    if (!p || !press || press.type !== 'touch' || p === held) return false;
+    hoverPlate(p);
+    held = p;
+    const t = titleOf(p); if (t) t.classList.add('is-hot');
+    return true;
   }
   const plateAt = (u, v) => L.plates.find((q) => !q.placeholder && u >= q.rect.u0 && u <= q.rect.u1 && v >= q.rect.v0 && v <= q.rect.v1) || null;
   stage.addEventListener('pointermove', (e) => {
@@ -281,7 +313,7 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
     setPh(shapes.find((sh) => sh.p.placeholder && u >= sh.p.rect.u0 && u <= sh.p.rect.u1 && v >= sh.p.rect.v0 && v <= sh.p.rect.v1) || null);
     hoverPlate(plateAt(u, v));
   });
-  stage.addEventListener('pointerleave', () => { setPh(null); hoverPlate(null); });
+  stage.addEventListener('pointerleave', (e) => { if (e.pointerType === 'touch') return; setPh(null); hoverPlate(null); });   /* touch leaves on every lift */
   /* keyboard: a focused Plate title is a hover */
   overlay.addEventListener('focusin', (e) => { const t = e.target.closest('[data-drawing]'); hoverPlate(t ? L.plates.find((q) => q.id === t.dataset.drawing) || null : null); });
   overlay.addEventListener('focusout', () => hoverPlate(null));
@@ -407,6 +439,8 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
   return {
     /* the theme changed: the stills and plain cells are baked in page colours, so they repaint */
     retheme: paint,
+    /* a pick on a Plate: true when it was a first tap, held as a hover rather than opened */
+    tap,
 
     state() {
       const r = L.records[cur];
@@ -423,6 +457,7 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
         order: L.records.map((x) => x.id),
         stills,
         lift: live.state(),
+        held: held ? held.id : null,
         turns: [...turns].map(([p, n]) => ({ id: p.id, next: n.getAttribute('src').split('/').pop(), turned: n.classList.contains('is-turned') })),
         camera: sheet.debug().camera,
         placement: L.plates.map((p) => ({ id: p.id, c: p.c, r: p.r, span: p.span })),

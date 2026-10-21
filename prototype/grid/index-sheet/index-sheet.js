@@ -123,13 +123,13 @@ function layoutD(W, H) {
 let PLATE_LAYOUT = null;
 const layoutPlateVariant = (v) => (W, H) => { PLATE_LAYOUT = layoutPlates(v, W, H); return { drawings: PLATE_LAYOUT.drawings, arrival: PLATE_LAYOUT.arrival }; };
 
-const VARIANTS = { e: layoutPlateVariant('e'), f: layoutPlateVariant('f'), d: layoutD, a: layoutA, b: layoutB, c: layoutC };
+const VARIANTS = { e: layoutPlateVariant('e'), f: layoutPlateVariant('f'), g: layoutPlateVariant('g'), d: layoutD, a: layoutA, b: layoutB, c: layoutC };
 const KEYS = Object.keys(VARIANTS);
 
 /* ---------- boot ---------- */
 const q = new URLSearchParams(location.search);
 const variant = KEYS.includes(q.get('variant')) ? q.get('variant') : 'f';
-if (variant === 'e' || variant === 'f') document.documentElement.classList.add('ix-plates', 'ix-plates-' + variant);
+if (variant === 'e' || variant === 'f' || variant === 'g') document.documentElement.classList.add('ix-plates', 'ix-plates-' + variant);
 const W = window.innerWidth, H = window.innerHeight;
 const { drawings, arrival } = VARIANTS[variant](W, H);
 const byId = new Map(HEROES.map((p) => [p.id, p]));
@@ -143,7 +143,10 @@ const sheet = await createSheet({
   freeRegion: () => ({ left: 0, right: window.innerWidth, top: NAV_H, bottom: window.innerHeight }),
   limits: (W, H) => (PLATE_LAYOUT ? PLATE_LAYOUT.limits(W, H) : null),
   onFocus(id) {
-    if (PLATE_LAYOUT) { const p = PLATE_LAYOUT.plates.find((x) => x.id === id); if (p && p.href) location.href = p.href; return; }
+    if (PLATE_LAYOUT) {
+      if (plates && plates.tap(id)) return false;   /* a first tap: held as a hover, and the view stays put */
+      const p = PLATE_LAYOUT.plates.find((x) => x.id === id); if (p && p.href) location.href = p.href; return false;
+    }
     const p = byId.get(id.replace(/-z$/, '')); if (p && p.href) location.href = p.href;
   },
 });

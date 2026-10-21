@@ -240,14 +240,14 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     pan: panBy,
     zoom: zoomAt,
     roll() { /* no rotation on a flat sheet */ },
-    pick(x, y) { const id = drawingAt(x, y); if (id) { onHold(); onFocus(id); show(id); } },
+    pick(x, y) { const id = drawingAt(x, y); if (id) { onHold(); if (onFocus(id) !== false) show(id); } },   /* onFocus returns false to keep the view */
     hover(x, y) { setHot(drawingAt(x, y)); },
     leave() { setHot(null); },
   });
 
   overlay.addEventListener('click', (e) => {
     const t = e.target.closest('.env-title[data-drawing]');
-    if (t && byId.has(t.dataset.drawing)) { onHold(); onFocus(t.dataset.drawing); show(t.dataset.drawing); }
+    if (t && byId.has(t.dataset.drawing)) { onHold(); if (onFocus(t.dataset.drawing) !== false) show(t.dataset.drawing); }
   });
   overlay.addEventListener('pointerover', (e) => {
     const t = e.target.closest('.env-title[data-drawing]');
