@@ -44,6 +44,19 @@ The second-person register of the same work — the `meet` and `with` lines. It 
 Document, held on one line at the foot and keyed to the section a reader has reached.
 _Avoid_: story (the Record field is named that), copy, voiceover, text
 
+**Plate**:
+One tile on the index: a square cell, or two cells wide, showing one of a Record's Drawings or its
+model, cropped to fit. A Record shows on the index as one or more Plates — more for more extensive
+work — and every Plate opens that Record's page. A Plate whose art is not made yet stands in as a
+dashed placeholder that opens nothing.
+_Avoid_: artifact (Ethan's "records are artifacts" means a Record is never rewritten), tile, card, thumbnail
+
+**Facet**:
+One of three short, shared vocabularies a Plate is tagged with — subject, skill and end product —
+that decide which Plates lie next to each other on the index. Facets belong to the Plate, not the
+Record: one project's Plates can show different things made with different tools, so they spread.
+_Avoid_: tag, theme (themes are free words per Record), category
+
 **Crossing**:
 An authored link from one Record's page to another, carrying a narrative label
 ("Follow the water east to poisoned ground") and a plain one (the destination's title). Both ship
