@@ -14,7 +14,7 @@
    ones goes into the free frontier cell (two side-by-side free cells for a wide Plate) whose
    edge neighbours it matches best, plus a small pull toward more neighbours and the centre so
    the field stays a field. It stops when the Plates run out. similarity = shared Facets / 3. */
-import { PLATES, RECORDS } from './plates-data.js';
+import { PLATES, RECORDS, FACETS } from './plates-data.js';
 import { renderStills } from './platestill.js';
 import { createPlateLive } from './platelive.js';
 
@@ -28,7 +28,8 @@ const PX_PER_STEP = 20;                 /* resolution of the stills and the px a
 const NAV_H = 84;
 const W_NEIGHBOURS = 0.15, W_CENTRE = 0.004;
 
-export const sim = (a, b) => ((a.facets.subject === b.facets.subject) + (a.facets.skill === b.facets.skill) + (a.facets.product === b.facets.product)) / 3;
+/* a Facet with no word (a Plate about no cycle) never matches */
+export const sim = (a, b) => FACETS.reduce((n, f) => n + (a.facets[f] != null && a.facets[f] === b.facets[f]), 0) / FACETS.length;
 
 const svgData = (w, h, body) => 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${body}</svg>`);
 
