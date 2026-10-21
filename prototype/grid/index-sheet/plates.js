@@ -5,7 +5,8 @@
    c even and c/2 + r even), which holds when widths are multiples of 4 and heights even:
      e  cell 28 x 36 (8.5 x 11 is 28 x 36.2), pitch 32 x 40, gutter 4; 11x17 = 2 cells = 60 x 36
      f  cell 28 x 28, pitch 32 x 32, gutter 4; wide = 60 x 28
-     g  f's cells, grown into a column two cells wide, downward from the seed (phone, #12)
+     g  f's cells, grown into a column two cells wide, downward from the seed: the index under
+        640px (#12, Ethan 2026-10-20)
    Images cover their cell (cropped); the rect's px is the cell's, and CSS sets object-fit: cover.
 
    Growth: the seed is the Plate with the highest total Facet similarity to all others, at the
@@ -141,8 +142,9 @@ export function layoutPlates(variant, W, H) {
 const MOST_ACROSS = 6, MOST_DOWN = 4, MOST_IN = 2;
 function limitsFor(g, field, W, H) {
   const fh = H - NAV_H;
-  /* the column: never narrower than the screen, so it only travels up and down */
-  if (g.cols) { const s = W / (g.cols * g.pw + GUTTER); return { sMin: s, sMax: MOST_IN * s, bounds: field, margin: GUTTER }; }
+  /* the column (Ethan, 2026-10-20: the phone's index): one fixed scale filling the width, so it only
+     travels up and down */
+  if (g.cols) { const s = W / (g.cols * g.pw + GUTTER); return { sMin: s, sMax: s, bounds: field, margin: GUTTER }; }
   return { sMin: Math.max(W / (MOST_ACROSS * g.pw), fh / (MOST_DOWN * g.ph)), sMax: MOST_IN * fh / g.ph, bounds: field, margin: g.pw / 2 };
 }
 

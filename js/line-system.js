@@ -207,6 +207,8 @@
     document.body.appendChild(layer);
   }
   function sizeLayer() {
+    /* measured with the layer out of the way: otherwise it holds the page at its own old size */
+    layer.setAttribute('width', 0); layer.setAttribute('height', 0);
     var w = document.documentElement.scrollWidth, h = document.documentElement.scrollHeight;
     layer.setAttribute('width', w); layer.setAttribute('height', h);
     layer.setAttribute('viewBox', '0 0 ' + w + ' ' + h);

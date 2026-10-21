@@ -276,6 +276,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     /* the theme changed: the dots read the page colours on every render */
     retheme() { dirty = true; kick(); },
     refit({ force = false, animate = !reduceMotion } = {}) { if (force || !moved) show(lastTarget, { animate }); },
+    panBy(dx, dy) { fly = null; moved = true; panBy(dx, dy); },
     zoomBy(f) {
       const free = freeRegion();
       fly = null;

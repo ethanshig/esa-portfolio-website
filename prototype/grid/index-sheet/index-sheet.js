@@ -128,7 +128,11 @@ const KEYS = Object.keys(VARIANTS);
 
 /* ---------- boot ---------- */
 const q = new URLSearchParams(location.search);
-const variant = KEYS.includes(q.get('variant')) ? q.get('variant') : 'f';
+/* the column is the index on a phone (#12); ?variant= still forces any variant */
+const NARROW = 640;
+const narrow = () => window.innerWidth < NARROW;
+const chosen = KEYS.includes(q.get('variant')) ? q.get('variant') : null;
+const variant = chosen || (narrow() ? 'g' : 'f');
 if (variant === 'e' || variant === 'f' || variant === 'g') document.documentElement.classList.add('ix-plates', 'ix-plates-' + variant);
 const W = window.innerWidth, H = window.innerHeight;
 const { drawings, arrival } = VARIANTS[variant](W, H);
@@ -151,7 +155,18 @@ const sheet = await createSheet({
   },
 });
 document.documentElement.classList.add('env-live');
-window.addEventListener('resize', () => sheet.resize());
+window.addEventListener('resize', () => {
+  if (!chosen && narrow() !== (variant === 'g')) { location.reload(); return; }   /* crossed the line: the other layout */
+  sheet.resize();
+});
+/* the column scrolls: the wheel travels it up and down rather than zooming (its scale is fixed) */
+if (variant === 'g') {
+  window.addEventListener('wheel', (e) => {
+    if (!e.target.closest || !e.target.closest('.env-stage')) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    if (!e.ctrlKey) sheet.panBy(0, -(e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY));
+  }, { capture: true, passive: false });
+}
 
 /* ---------- E, F: placeholders, dotted outlines, the dimetric arrows, model stills ---------- */
 let plates = null;
