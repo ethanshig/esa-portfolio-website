@@ -27,6 +27,10 @@ const GUTTER = 4;
 const PX_PER_STEP = 20;                 /* resolution of the stills and the px aspect of the rects */
 const NAV_H = 84;
 const W_NEIGHBOURS = 0.15, W_CENTRE = 0.004;
+/* #16 trials, by URL: ?outline=gutter|edge (where the dotted outline runs), ?ow=<px> (its weight) */
+const MARKS = new URLSearchParams(location.search);
+const OUTLINE_OUT = MARKS.get('outline') === 'edge' ? 0 : 1;       /* steps out from the Plate */
+const OUTLINE_W = Number(MARKS.get('ow')) > 0 ? Number(MARKS.get('ow')) : 2;
 
 /* a Facet with no word (a Plate about no cycle) never matches */
 export const sim = (a, b) => FACETS.reduce((n, f) => n + (a.facets[f] != null && a.facets[f] === b.facets[f]), 0) / FACETS.length;
@@ -349,7 +353,8 @@ export function attachPlates({ sheet, stage, layout, reduceMotion }) {
           sh.frame.setAttribute('width', Math.max(0, x1 - x0 - 2 * inset)); sh.frame.setAttribute('height', Math.max(0, y1 - y0 - 2 * inset));
         }
         if (sh.dots) {
-          const o = s * 1;                                     /* one step out, in the gutter */
+          const o = s * OUTLINE_OUT;                           /* one step out, in the gutter; or on the Plate's edge */
+          sh.dots.style.strokeWidth = OUTLINE_W;
           sh.dots.setAttribute('x', x0 - o); sh.dots.setAttribute('y', y0 - o);
           sh.dots.setAttribute('width', x1 - x0 + 2 * o); sh.dots.setAttribute('height', y1 - y0 + 2 * o);
           const every = Math.max(1, Math.ceil(4 / s));          /* a dot on every node, or every nth when zoomed out */

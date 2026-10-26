@@ -10,8 +10,9 @@
     <link rel="stylesheet" href="../../../css/line-system.css">
     <link rel="stylesheet" href="../project/env.css">
     <link rel="stylesheet" href="index-sheet.css">
-    <!-- before paint: ?theme=light|dark, else the reader's last choice on the toggle -->
-    <script>(function(){var t=null;try{t=new URLSearchParams(location.search).get('theme');if(t!=='light'&&t!=='dark')t=localStorage.getItem('esa-theme');}catch(e){}if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}())</script>
+    <!-- before paint: ?theme=light|dark, else the reader's last choice on the toggle, else (#16 trial,
+         ?default=os) the system's light or dark; otherwise dark -->
+    <script>(function(){var t=null,q=null;try{q=new URLSearchParams(location.search);t=q.get('theme');if(t!=='light'&&t!=='dark')t=localStorage.getItem('esa-theme');}catch(e){}if(t!=='light'&&t!=='dark'&&q&&q.get('default')==='os'&&window.matchMedia)t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}())</script>
     <script type="importmap">
     {
         "imports": {

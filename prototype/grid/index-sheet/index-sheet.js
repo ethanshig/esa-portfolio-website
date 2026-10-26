@@ -216,8 +216,50 @@ if (variant === 'd') {
   requestAnimationFrame(tick);
 }
 
+/* ---------- #16 trials: ?nav=halo|chip, ?hint=off, ?fling=on ---------- */
+if (['halo', 'chip'].includes(q.get('nav'))) document.documentElement.classList.add('ix-nav-' + q.get('nav'));
+/* fling: a one-finger pan that leaves with speed carries on and slows, like a native scroll */
+if (q.get('fling') === 'on') {
+  const FRICTION = 0.0035;                   /* per ms: speed halves in about 200 ms */
+  let track = null, glide = 0;
+  const fingers = new Set();
+  stage.addEventListener('pointerdown', (e) => {
+    if (e.pointerType !== 'touch') return;
+    cancelAnimationFrame(glide);
+    fingers.add(e.pointerId);
+    track = fingers.size === 1 ? { id: e.pointerId, pts: [[e.clientX, e.clientY, e.timeStamp]] } : null;   /* two fingers never fling */
+  }, true);
+  stage.addEventListener('pointermove', (e) => {
+    if (!track || e.pointerId !== track.id) return;
+    track.pts.push([e.clientX, e.clientY, e.timeStamp]);
+    while (track.pts.length > 2 && e.timeStamp - track.pts[0][2] > 80) track.pts.shift();   /* the last 80 ms */
+  }, true);
+  const end = (e) => {
+    if (e.pointerType !== 'touch') return;
+    fingers.delete(e.pointerId);
+    if (!track || e.pointerId !== track.id) return;
+    const [a, b] = [track.pts[0], track.pts[track.pts.length - 1]];
+    track = null;
+    const dt = b[2] - a[2];
+    if (dt <= 0 || e.timeStamp - b[2] > 60) return;                       /* it stopped before lifting */
+    let vx = (b[0] - a[0]) / dt, vy = (b[1] - a[1]) / dt;                  /* px per ms */
+    if (Math.hypot(vx, vy) < 0.3) return;
+    let t0 = performance.now();
+    const step = (t) => {
+      const ms = Math.min(32, t - t0); t0 = t;
+      const k = Math.exp(-FRICTION * ms);
+      sheet.panBy(vx * ms, vy * ms);
+      vx *= k; vy *= k;
+      if (Math.hypot(vx, vy) > 0.02) glide = requestAnimationFrame(step);
+    };
+    glide = requestAnimationFrame(step);
+  };
+  stage.addEventListener('pointerup', end, true);
+  stage.addEventListener('pointercancel', end, true);
+}
+
 /* ---------- the left-drag hint: once per session, only after a left-drag that moved nothing ---------- */
-const hint = document.querySelector('.ix-hint');
+const hint = q.get('hint') === 'off' ? document.createElement('p') : document.querySelector('.ix-hint');   /* off: a detached stand-in */
 let seen = false;
 try { seen = sessionStorage.getItem('esa-index-hint') === '1'; } catch (e) { /* storage blocked: show it each load */ }
 let press = null;

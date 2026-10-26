@@ -123,6 +123,21 @@ html.ix-plates span.ix-plate-title { cursor: default; }
 
 /* the arrow lies flat at rest as three hairlines; each only has area once it lifts into a fin */
 
+/* #16 trial, ?nav=halo|chip: the nav without the difference blend, which goes to mud over a mid-tone photo */
+html.ix-nav-halo .navbar, html.ix-nav-chip .navbar { mix-blend-mode: normal !important; }
+html.ix-nav-halo .navbar .nav-link, html.ix-nav-halo .navbar .logo, html.ix-nav-halo .navbar .hamburger,
+html.ix-nav-chip .navbar .nav-link, html.ix-nav-chip .navbar .logo, html.ix-nav-chip .navbar .hamburger { color: var(--color-primary) !important; }
+html.ix-nav-halo .navbar .hamburger span, html.ix-nav-chip .navbar .hamburger span { background-color: var(--color-primary) !important; }
+html.ix-nav-halo .navbar .nav-link { text-shadow: 0 0 2px var(--color-bg), 0 0 4px var(--color-bg), 0 0 8px var(--color-bg); }
+html.ix-nav-halo .navbar .logo, html.ix-nav-halo .navbar .env-theme svg, html.ix-nav-halo .navbar .hamburger,
+html.ix-nav-chip .navbar .logo { filter: drop-shadow(0 0 2px var(--color-bg)) drop-shadow(0 0 4px var(--color-bg)); }
+html.ix-nav-chip .navbar .nav-link { background: var(--color-bg); padding: 2px 6px; }
+/* the logo's ribbons and the rule carry their own difference blend */
+html.ix-nav-halo .ls-nav-svg, html.ix-nav-chip .ls-nav-svg {
+    mix-blend-mode: normal; color: var(--color-primary);
+    filter: drop-shadow(0 0 1.5px var(--color-bg)) drop-shadow(0 0 3px var(--color-bg));
+}
+
 /* black on white: pure white, so work drawn on white sits flush with the paper */
 html[data-theme="light"] body.ix-page { --color-bg: #ffffff; --color-bg-alt: #ffffff; --color-primary: #111111; --color-text: #111111; }
 /* the theme toggle's cell and the negative flip are shared with the project pages: ../project/env.css */
