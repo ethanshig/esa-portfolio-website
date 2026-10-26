@@ -40,9 +40,10 @@ test('every internal link resolves to a file that exists', () => {
   assert.strictEqual(broken.length, 0, 'broken links:\n    ' + broken.join('\n    '));
 });
 
-test('index.html is the landing page, not the tour', () => {
+test('index.html is the sheet of Plates, with the mark sequence, not the tour', () => {
   const h = read('index.html');
-  assert.ok(/class="ls-home/.test(h), 'index.html does not carry the landing');
+  assert.ok(/class="ix-grid"/.test(h), 'index.html does not carry the Plates (issue #17)');
+  assert.ok(/js\/landing-sequence\.js/.test(h), 'index.html lost the esa mark sequence');
   assert.ok(!/ASK_ENDPOINT|tour\.template/.test(h), 'index.html still carries the tour');
 });
 
@@ -55,20 +56,30 @@ test('no page offers the guided tour any more', () => {
   assert.strictEqual(offenders.length, 0, 'still offering the tour: ' + offenders.join(', '));
 });
 
-test('adventure.html and home.html redirect rather than 404', () => {
-  for (const p of ['adventure.html', 'home.html']) {
+test('adventure.html, home.html and projects.html redirect rather than 404', () => {
+  for (const p of ['adventure.html', 'home.html', 'projects.html']) {
     const h = read(p);
     assert.ok(/http-equiv="refresh"/i.test(h) && /index\.html/.test(h),
       `${p} does not redirect to index.html`);
   }
 });
 
-test('the story control is on the front door and on every project page', () => {
-  assert.ok(/class="story-toggle"/.test(read('index.html')),
-    'index.html has no story control — it is the only hint the site gives');
+// #15: the index carries no story control; every project page keeps it. The theme switch is
+// site-wide (index and project pages).
+test('the story control is on every project page and not on the index', () => {
+  assert.ok(!/class="story-toggle"/.test(read('index.html')), 'index.html has a story control; #15 took it off the index');
   for (const p of pages.filter((x) => x.startsWith('projects/'))) {
     if (/http-equiv="refresh"/i.test(read(p))) continue;   // the legacy project1-3 redirects
     assert.ok(/class="story-toggle"/.test(read(p)), `${p} has no story control`);
+  }
+});
+
+test('the theme switch is on the index and on every project page', () => {
+  for (const p of ['index.html'].concat(pages.filter((x) => x.startsWith('projects/')))) {
+    const h = read(p);
+    if (/http-equiv="refresh"/i.test(h)) continue;
+    assert.ok(/data-theme-toggle/.test(h), `${p} has no theme switch`);
+    assert.ok(/localStorage\.getItem\('esa-theme'\)/.test(h), `${p} has no pre-paint theme script`);
   }
 });
 
