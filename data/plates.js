@@ -72,7 +72,7 @@ export const RECORDS = {
     drawings: ['bb-catamaraft', 'bb-crawling', 'bb-landscape', 'bb-standing', 'bb-loop'].map((d) => TOUR + d + '.jpg'),
   },
   'mylo-to-go': {
-    title: 'Mylo To-Go', meta: 'ARTD 326 · 2024', status: 'complete', href: 'projects/mylo-to-go.html',
+    title: 'Mylo To-Go', meta: 'ARTD 326 · 2025', status: 'complete', href: 'projects/mylo-to-go.html',
     dates: { start: '2025-01', end: '2025-05' },
     drawings: ['mylo-logo', 'mylo-picnic', 'mylo-poster'].map((d) => TOUR + d + '.jpg'),
   },
