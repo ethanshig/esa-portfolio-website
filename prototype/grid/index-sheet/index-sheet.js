@@ -216,10 +216,11 @@ if (variant === 'd') {
   requestAnimationFrame(tick);
 }
 
-/* ---------- #16 trials: ?nav=halo|chip, ?hint=off, ?fling=on ---------- */
-if (['halo', 'chip'].includes(q.get('nav'))) document.documentElement.classList.add('ix-nav-' + q.get('nav'));
-/* fling: a one-finger pan that leaves with speed carries on and slows, like a native scroll */
-if (q.get('fling') === 'on') {
+/* ---------- #16 (Ethan, 2026-10-26): the nav's halo, touch fling; trials ?nav=blend|chip, ?fling=off, ?hint=off ---------- */
+document.documentElement.classList.add('ix-nav-' + (['blend', 'chip'].includes(q.get('nav')) ? q.get('nav') : 'halo'));
+/* fling: a one-finger pan that leaves with speed carries on and slows, like a native scroll. Touch only:
+   the mouse stays Rhino-exact */
+if (q.get('fling') !== 'off') {
   const FRICTION = 0.0035;                   /* per ms: speed halves in about 200 ms */
   let track = null, glide = 0;
   const fingers = new Set();

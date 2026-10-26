@@ -14,10 +14,10 @@
     <!-- PROTOTYPE (ADR-0007): a Record without a model is a flat sheet. Pan and zoom only;
          no WebGL. Prose, Narration and Crossings are copied from projects/para-la-tierra.html
          (generated from the approved record); nothing here is authored. -->
-    <!-- Attribute-only, before paint: applies ?story= / the stored preference and ?theme= / the stored esa-theme,
+    <!-- Attribute-only, before paint: applies ?story= / the stored preference and ?theme= / the stored esa-theme / the system's light or dark (#16),
          and turns the CYOA gate on. It writes no text. If env.js never runs, the gate lifts
          after 8 s and the panel becomes the whole Document. -->
-    <script>(function(){var r=document.documentElement;try{var p=new URLSearchParams(location.search);var q=p.get('story');var v=(q==='off'||q==='on')?q:localStorage.getItem('esa-story');if(v==='off'||v==='on')r.setAttribute('data-story',v);var t=p.get('theme');if(t!=='light'&&t!=='dark')t=localStorage.getItem('esa-theme');if(t==='light'||t==='dark')r.setAttribute('data-theme',t);}catch(e){}r.classList.add('env-js');setTimeout(function(){if(!r.classList.contains('env-live')){r.classList.remove('env-js');r.classList.add('env-static','env-nosheet');}},8000);}())</script>
+    <script>(function(){var r=document.documentElement;try{var p=new URLSearchParams(location.search);var q=p.get('story');var v=(q==='off'||q==='on')?q:localStorage.getItem('esa-story');if(v==='off'||v==='on')r.setAttribute('data-story',v);var t=p.get('theme');if(t!=='light'&&t!=='dark')t=localStorage.getItem('esa-theme');if(t!=='light'&&t!=='dark'&&window.matchMedia)t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';if(t==='light'||t==='dark')r.setAttribute('data-theme',t);}catch(e){}r.classList.add('env-js');setTimeout(function(){if(!r.classList.contains('env-live')){r.classList.remove('env-js');r.classList.add('env-static','env-nosheet');}},8000);}())</script>
     <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": "CreativeWork",

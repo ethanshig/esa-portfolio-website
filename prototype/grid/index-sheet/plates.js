@@ -27,10 +27,11 @@ const GUTTER = 4;
 const PX_PER_STEP = 20;                 /* resolution of the stills and the px aspect of the rects */
 const NAV_H = 84;
 const W_NEIGHBOURS = 0.15, W_CENTRE = 0.004;
-/* #16 trials, by URL: ?outline=gutter|edge (where the dotted outline runs), ?ow=<px> (its weight) */
+/* the dotted outline (#16, Ethan 2026-10-26): on the Plate's edge, so an arrow in the gutter stands
+   clear of it, at 1.5px. ?outline=gutter and ?ow=<px> bring back the trials */
 const MARKS = new URLSearchParams(location.search);
-const OUTLINE_OUT = MARKS.get('outline') === 'edge' ? 0 : 1;       /* steps out from the Plate */
-const OUTLINE_W = Number(MARKS.get('ow')) > 0 ? Number(MARKS.get('ow')) : 2;
+const OUTLINE_OUT = MARKS.get('outline') === 'gutter' ? 1 : 0;      /* steps out from the Plate */
+const OUTLINE_W = Number(MARKS.get('ow')) > 0 ? Number(MARKS.get('ow')) : 1.5;
 
 /* a Facet with no word (a Plate about no cycle) never matches */
 export const sim = (a, b) => FACETS.reduce((n, f) => n + (a.facets[f] != null && a.facets[f] === b.facets[f]), 0) / FACETS.length;
