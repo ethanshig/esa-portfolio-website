@@ -52,9 +52,13 @@ dashed placeholder that opens nothing.
 _Avoid_: artifact (Ethan's "records are artifacts" means a Record is never rewritten), tile, card, thumbnail
 
 **Facet**:
-One of three short, shared vocabularies a Plate is tagged with — subject, skill and end product —
-that decide which Plates lie next to each other on the index. Facets belong to the Plate, not the
-Record: one project's Plates can show different things made with different tools, so they spread.
+One of three short, shared vocabularies a Plate is tagged with, which decide which Plates lie next
+to each other on the index: **with** (who or what the work is made with or for: animals, plants &
+fungi, soil, a person, a community, designers), **made** (how the Plate's image was made: drawn,
+built, coded, grown, gathered, written) and **cycle** (the cycle it is about: waste, water, energy,
+materials, access, or none). Facets belong to the Plate, not the Record: one project's Plates can
+show different things made in different ways, so they spread. They are not shown to the reader;
+the reader sees only which Plates sit together.
 _Avoid_: tag, theme (themes are free words per Record), category
 
 **Crossing**:
