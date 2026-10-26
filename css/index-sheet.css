@@ -70,7 +70,9 @@ html:not(.ix-js) a.ix-plate:hover .ix-name,
 html:not(.ix-js) a.ix-plate:focus-visible .ix-name { text-decoration: underline; }
 html:not(.ix-js) span.ix-plate {
     display: flex;
-    align-items: flex-end;
+    flex-wrap: wrap;
+    align-content: flex-end;
+    column-gap: 0.3em;
     aspect-ratio: 1;
     padding: 10px;
     box-sizing: border-box;
