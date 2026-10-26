@@ -13,7 +13,7 @@
    centre. Then, greedily: the unplaced Plate with the largest total similarity to the placed
    ones goes into the free frontier cell (two side-by-side free cells for a wide Plate) whose
    edge neighbours it matches best, plus a small pull toward more neighbours and the centre so
-   the field stays a field. It stops when the Plates run out. similarity = shared Facets / 3. */
+   the field stays a field. It stops when the Plates run out. similarity = shared Facets / 3 (a Facet with no word never matches). */
 import { PLATES, RECORDS, FACETS } from './plates-data.js';
 import { renderStills } from './platestill.js';
 import { createPlateLive } from './platelive.js';
@@ -40,8 +40,15 @@ function grow(variant) {
   const n = plates.length;
   const S = plates.map((a) => plates.map((b) => (a === b ? 0 : sim(a, b))));
   const total = S.map((row) => row.reduce((t, x) => t + x, 0));
-  let seed = 0;
-  for (let i = 1; i < n; i++) if (total[i] > total[seed]) seed = i;
+  /* the seed is a real Plate (#14): the highest total; a tie goes to the Record with more real Plates
+     (then, in the spec, the more recent Record: the prototype has no dates) */
+  const isReal = (p) => !!RECORDS[p.record].href;
+  const realIn = (p) => plates.filter((q) => q.record === p.record && isReal(q)).length;
+  let seed = -1;
+  for (let i = 0; i < n; i++) {
+    if (!isReal(plates[i])) continue;
+    if (seed < 0 || total[i] > total[seed] + 1e-9 || (Math.abs(total[i] - total[seed]) < 1e-9 && realIn(plates[i]) > realIn(plates[seed]))) seed = i;
+  }
 
   const cells = new Map();              /* "c,r" -> plate index */
   const key = (c, r) => c + ',' + r;
