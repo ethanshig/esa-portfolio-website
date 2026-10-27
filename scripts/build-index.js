@@ -27,7 +27,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as DATA from '../data/plates.js';
 import { growField } from '../js/index-sheet/field.js';
-import { shapeForImage, shapeForHint } from '../js/index-sheet/shape.js';
+import { shapeForImage, shapeForHint, boxSteps, keepOf, SPAN_MIN, SPAN_MAX } from '../js/index-sheet/shape.js';
 import { imageSize } from './image-size.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -55,7 +55,13 @@ export function computeShapes() {
       const file = join(root, p.drawing);
       if (!existsSync(file)) throw new Error(`build-index: plate ${p.id}: ${p.drawing} does not exist`);
       const { w, h } = imageSize(file);
-      const { m, n, keep } = shapeForImage(w, h, p.size);
+      let { m, n, keep } = shapeForImage(w, h, p.size);
+      if (p.shape) {                                    /* Ethan's override of the rule, for this Plate only */
+        [m, n] = p.shape;
+        if (![m, n].every((k) => Number.isInteger(k) && k >= SPAN_MIN && k <= SPAN_MAX)) throw new Error(`build-index: plate ${p.id}: shape ${p.shape} is not two whole spans in ${SPAN_MIN}..${SPAN_MAX}`);
+        const [bw, bh] = boxSteps(m, n);
+        keep = keepOf(w / h, bw / bh);
+      }
       shapes[p.id] = { m, n, px: [w, h], keep: Number(keep.toFixed(4)) };
     } else {
       shapes[p.id] = shapeForHint(p.size);

@@ -103,7 +103,8 @@ export const PLATES = [
   /* USS Lead */
   P('uss-atlas', 'uss-lead-revival', 'cell', ['plants & fungi', 'gathered', 'waste'], { drawing: TOUR + 'a273-atlas.jpg' }),
   P('uss-board', 'uss-lead-revival', 'wide', ['a community', 'drawn', 'water'], { drawing: TOUR + 'a273-board.jpg' }),
-  P('uss-gable', 'uss-lead-revival', 'cell', ['a community', 'built', 'water'], { drawing: TOUR + 'a273-gable.jpg' }),
+  /* shape: Ethan wants the gable 3x2 like the other landscape drawings (2026-10-27); the rule alone gives 2x2 */
+  P('uss-gable', 'uss-lead-revival', 'cell', ['a community', 'built', 'water'], { drawing: TOUR + 'a273-gable.jpg', shape: [3, 2] }),
   P('uss-model', 'uss-lead-revival', 'cell', ['plants & fungi', 'built', 'waste'], { model: 'uss-lead-revival' }),
   /* Beaver's Burden */
   P('bb-catamaraft', 'beavers-burden', 'cell', ['animals', 'built', 'water'], { drawing: TOUR + 'bb-catamaraft.jpg' }),

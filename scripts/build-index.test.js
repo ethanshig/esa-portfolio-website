@@ -44,7 +44,10 @@ test('the shape rule: the coordinator\'s numbers, and where the rule as written 
      and 4x3 .949 - .2 ln 3 = .730. No area weight gives it 3x2 with target 4: 3x2 beats 2x2 only
      below .126 and beats 4x3 only above .180. */
   assert.strictEqual(at('tlp-section'), '3x2');
-  assert.strictEqual(at('uss-gable'), '2x2');
+  /* so the gable carries Ethan's override, shape: [3, 2], in data/plates.js */
+  const rule = shapeForImage(2000, 1545, 'cell');
+  assert.strictEqual(`${rule.m}x${rule.n}`, '2x2');
+  assert.strictEqual(at('uss-gable'), '3x2');
 });
 
 test('a 533 x 1600 image gets n > m; spans stay in 2..8; hints give 2x2 and 4x2', () => {
@@ -65,11 +68,11 @@ test('data/plate-shapes.js is what build-index.js writes now (rerun it after cha
   assert.strictEqual(readFileSync(join(root, 'data/plate-shapes.js'), 'utf8'), renderShapes(computeShapes()));
 });
 
-test('the seed is uss-model, a real Plate; the mean neighbour similarity on the module grid is 0.532', () => {
+test('the seed is uss-model, a real Plate; the mean neighbour similarity on the module grid is 0.529', () => {
   const seed = F.plates[F.seed];
   assert.strictEqual(seed.id, 'uss-model');
   assert.ok(!seed.placeholder);
-  assert.strictEqual(F.meanEdge.toFixed(3), '0.532');
+  assert.strictEqual(F.meanEdge.toFixed(3), '0.529');   /* 0.532 before the gable override */
 });
 
 test('contact packs the field tighter without losing neighbour similarity', () => {
@@ -79,7 +82,7 @@ test('contact packs the field tighter without losing neighbour similarity', () =
     const h = Math.max(...G.plates.map((p) => p.r + p.n)) - Math.min(...G.plates.map((p) => p.r));
     return w * h - G.plates.reduce((t, p) => t + p.m * p.n, 0);
   };
-  assert.strictEqual(paper(F), 47);
+  assert.strictEqual(paper(F), 45);   /* with the gable at 3x2 (its override) */
   assert.ok(paper(F) < paper(loose), `${paper(F)} vs ${paper(loose)} module cells of paper`);
   assert.ok(F.meanEdge >= loose.meanEdge, `${F.meanEdge} vs ${loose.meanEdge}`);
 });

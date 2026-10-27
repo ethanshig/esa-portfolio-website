@@ -14,6 +14,9 @@
    the Plate's size hint: 4 for 'cell', 8 for 'wide'. Ties keep the first
    found, m ascending, then n ascending.
 
+   A Plate's data may carry shape: [m, n], which overrides the rule for that
+   Plate only (Ethan's call; the build still reports the share it shows).
+
    A Plate with no image (a model, a placeholder) takes its hint directly:
    'cell' is 2 x 2, 'wide' is 4 x 2 (60 x 28 steps).
    =================================================================== */

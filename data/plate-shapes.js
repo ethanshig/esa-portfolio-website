@@ -5,7 +5,7 @@
 export const SHAPES = {
   "uss-atlas": {"m":2,"n":2,"px":[2600,2600],"keep":1},
   "uss-board": {"m":3,"n":3,"px":[2200,2200],"keep":1},
-  "uss-gable": {"m":2,"n":2,"px":[2000,1545],"keep":0.7725},
+  "uss-gable": {"m":3,"n":2,"px":[2000,1545],"keep":0.8238},
   "uss-model": {"m":2,"n":2},
   "bb-catamaraft": {"m":3,"n":2,"px":[1600,1067],"keep":0.9542},
   "bb-crawling": {"m":3,"n":2,"px":[1600,1035],"keep":0.9838},
