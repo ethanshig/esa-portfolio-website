@@ -54,8 +54,12 @@ export const fitScale = (extents, w, h) => Math.min(w * (1 - 2 * MARGIN) / 2 / e
 /* the still's line width at its own resolution, so the live model can draw the same weight on screen */
 export const stillLineWidth = (wPx) => Math.max(1.5, wPx / 320);
 
+const LOAD_TIMEOUT_MS = 20000;     /* a model that has not arrived by then is reported, not waited on */
 function loadGlb(loader, id) {
-  return new Promise((res, rej) => loader.load(new URL(`../../models/${id}.glb`, import.meta.url).href, res, undefined, rej));
+  return new Promise((res, rej) => {
+    const timer = setTimeout(() => rej(new Error(`models/${id}.glb did not load in ${LOAD_TIMEOUT_MS / 1000} s`)), LOAD_TIMEOUT_MS);
+    loader.load(new URL(`../../models/${id}.glb`, import.meta.url).href, (g) => { clearTimeout(timer); res(g); }, undefined, (e) => { clearTimeout(timer); rej(e); });
+  });
 }
 
 /* jobs: [{ model, w, h }] in px. Resolves to Map(model -> data URL); a model that fails is left out. */
