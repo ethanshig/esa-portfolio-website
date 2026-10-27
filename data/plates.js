@@ -37,7 +37,13 @@
    PLATES   Plate[], in authoring order (the growth breaks exact ties by it):
               id        string    unique
               record    string    a key of RECORDS
-              size      'cell' | 'wide'   one 28 x 28 step cell, or two side by side (60 x 28)
+              size      'cell' | 'wide'   a size hint, not a shape. The shape (m x n
+                                        16-step modules) is computed by
+                                        scripts/build-index.js into data/plate-shapes.js:
+                                        a drawing's from its image's aspect, aiming at
+                                        about 4 modules for 'cell' and 8 for 'wide'
+                                        (js/index-sheet/shape.js); a model or a
+                                        placeholder is 2 x 2 for 'cell', 4 x 2 for 'wide'.
               drawing   string    an image path from the site root      } exactly one of
               model     string    a GLB id: models/<id>.glb             } these two;
                                                                          } neither = placeholder

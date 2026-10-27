@@ -4,10 +4,13 @@
    by scripts/build-index.js to write the no-JS index in growth order, so
    the two always agree.
 
-   Grid, in dot steps: square cells of 28 on a 32 pitch (4-step gutters);
-   a wide Plate takes two cells, 60 x 28. Widths are multiples of 4 and
-   heights even, so every Plate corner sits on a bold lattice node
-   (isBold in ../axon/dimetric.js).
+   Grid, in dot steps: a 16-step module (shape.js). A Plate is m x n
+   modules, its box (16m - 4) x (16n - 4), so the gutter is 4. Its m and n
+   come from data.SHAPES, which scripts/build-index.js writes from the
+   images (data/plate-shapes.js): the browser never measures an image.
+   Every corner lands on a bold lattice node (isBold in ../axon/dimetric.js):
+   a corner is (16i or 16i - 4, 16j or 16j - 4), so c is even, c/2 is even
+   and r is even.
 
    similarity(a, b) = Facets with the same word / 3; a Facet with no word
    (a Plate about no cycle) never matches.
@@ -19,16 +22,19 @@
 
    Grow: greedily, the unplaced Plate with the largest total similarity to
    the placed ones (ties: the larger single similarity, then authoring
-   order) goes into the free frontier cell, or two side-by-side free cells
-   for a wide Plate, scoring
-       sum of similarity to its edge neighbours
+   order) goes into the best free placement whose m x n footprint touches
+   the field edge to edge, scoring
+       sum of similarity to its edge neighbours (Plates sharing an edge segment)
        + 0.15 x the neighbour count
-       - 0.004 x the distance of its centre from the seed's cell origin
-   (ties: the first start found). Deterministic: same data, same field.
+       - 0.004 x the distance in steps from its centre to the seed's centre
+   (ties: the first placement found, scanning row by row, left to right).
+   Holes are allowed: the paper shows through. Deterministic: same data,
+   same field.
    =================================================================== */
 
-export const GRID = { pw: 32, ph: 32, ch: 28 };   /* pitch across, pitch down, cell height */
-export const GUTTER = 4;
+import { MODULE, GUTTER, SPAN_MIN, SPAN_MAX, boxSteps } from './shape.js';
+export { MODULE, GUTTER };
+const CELL = 2 * MODULE;                           /* the old cell pitch: the unit the framing counts in */
 export const NAV_H = 84;                           /* css px the floating nav occupies */
 const W_NEIGHBOURS = 0.15, W_CENTRE = 0.004;
 const EPS = 1e-9;
@@ -37,8 +43,9 @@ const FACETS = ['with', 'made', 'cycle'];
 export const sim = (a, b) => FACETS.reduce((n, f) => n + (a.facets[f] != null && a.facets[f] === b.facets[f]), 0) / FACETS.length;
 
 /* Throws on the first thing in the data that the field cannot be grown from. */
-export function validatePlates({ VOCAB, RECORDS, PLATES }) {
+export function validatePlates({ VOCAB, RECORDS, PLATES, SHAPES }) {
   const fail = (msg) => { throw new Error(`plates data: ${msg}`); };
+  if (!SHAPES || typeof SHAPES !== 'object') fail('needs SHAPES (data/plate-shapes.js; run scripts/build-index.js)');
   if (!VOCAB || !RECORDS || !Array.isArray(PLATES)) fail('needs VOCAB, RECORDS and PLATES');
   for (const f of FACETS) if (!Array.isArray(VOCAB[f])) fail(`VOCAB.${f} is not a list`);
   for (const [id, r] of Object.entries(RECORDS)) {
@@ -66,8 +73,12 @@ export function validatePlates({ VOCAB, RECORDS, PLATES }) {
       if (w === null && f === 'cycle') continue;
       if (!VOCAB[f].includes(w)) fail(`plate ${p.id}: ${f} "${w}" is not a ${f} word`);
     }
+    const sh = SHAPES[p.id];
+    const okSpan = (k) => Number.isInteger(k) && k >= SPAN_MIN && k <= SPAN_MAX;
+    if (!sh || !okSpan(sh.m) || !okSpan(sh.n)) fail(`plate ${p.id} has no shape of ${SPAN_MIN}..${SPAN_MAX} modules each way in SHAPES (rerun scripts/build-index.js)`);
     if (r.href) real++;
   }
+  for (const id of Object.keys(SHAPES)) if (!ids.has(id)) fail(`SHAPES has ${id}, which is not a Plate (rerun scripts/build-index.js)`);
   if (real === 0) fail('no real Plate to seed the field from');
 }
 
@@ -80,7 +91,8 @@ export function growField(data) {
   const { RECORDS, PLATES } = data;
   const plates = PLATES.map((p, i) => {
     const r = RECORDS[p.record];
-    return { ...p, i, span: p.size === 'wide' ? 2 : 1, href: r.href, active: r.status === 'active', placeholder: !r.href };
+    const { m, n } = data.SHAPES[p.id];
+    return { ...p, i, m, n, href: r.href, active: r.status === 'active', placeholder: !r.href };
   });
   const n = plates.length;
   const S = plates.map((a) => plates.map((b) => (a === b ? 0 : sim(a, b))));
@@ -102,67 +114,75 @@ export function growField(data) {
     if (recency(RECORDS[p.record]) > recency(RECORDS[q.record])) seed = i;
   }
 
-  const cells = new Map();              /* "c,r" -> plate index */
+  const cells = new Map();              /* "c,r" module -> plate index */
   const key = (c, r) => c + ',' + r;
-  const put = (p, c, r) => { p.c = c; p.r = r; for (let k = 0; k < p.span; k++) cells.set(key(c + k, r), p.i); };
-  const footprint = (c, r, span) => Array.from({ length: span }, (_, k) => [c + k, r]);
-  const neighboursOf = (c, r, span) => {
+  const SIDES = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  function* footprint(c, r, m, h) { for (let y = r; y < r + h; y++) for (let x = c; x < c + m; x++) yield [x, y]; }
+  const put = (p, c, r) => { p.c = c; p.r = r; for (const [x, y] of footprint(c, r, p.m, p.n)) cells.set(key(x, y), p.i); };
+  const fits = (c, r, m, h) => { for (const [x, y] of footprint(c, r, m, h)) if (cells.has(key(x, y))) return false; return true; };
+  /* the Plates sharing an edge segment with a footprint */
+  const neighboursOf = (c, r, m, h) => {
     const set = new Set();
-    for (const [x, y] of footprint(c, r, span)) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-      const j = cells.get(key(x + dx, y + dy));
-      if (j !== undefined) set.add(j);
-    }
+    for (let x = c; x < c + m; x++) for (const y of [r - 1, r + h]) { const j = cells.get(key(x, y)); if (j !== undefined) set.add(j); }
+    for (let y = r; y < r + h; y++) for (const x of [c - 1, c + m]) { const j = cells.get(key(x, y)); if (j !== undefined) set.add(j); }
     return set;
   };
+  const centre = (c, r, m, h) => [(c + m / 2) * MODULE, (r + h / 2) * MODULE];
 
   const order = [seed];
-  put(plates[seed], plates[seed].span === 2 ? -1 : 0, 0);
+  const s0 = plates[seed];
+  put(s0, -Math.floor(s0.m / 2), 0);
+  const seedCentre = centre(s0.c, s0.r, s0.m, s0.n);
   const placed = new Set([seed]);
   while (placed.size < n) {
     let best = -1, bestT = -1, bestM = -1;
     for (let i = 0; i < n; i++) {
       if (placed.has(i)) continue;
-      let t = 0, m = 0;
-      for (const j of placed) { t += S[i][j]; m = Math.max(m, S[i][j]); }
-      if (t > bestT + EPS || (Math.abs(t - bestT) < EPS && m > bestM)) { best = i; bestT = t; bestM = m; }
+      let t = 0, mx = 0;
+      for (const j of placed) { t += S[i][j]; mx = Math.max(mx, S[i][j]); }
+      if (t > bestT + EPS || (Math.abs(t - bestT) < EPS && mx > bestM)) { best = i; bestT = t; bestM = mx; }
     }
     const p = plates[best];
-    /* frontier starts: any free cell beside the field, and for a wide Plate the pair starting there or one left */
+    /* every free placement whose footprint covers a free module beside the field: those are exactly
+       the placements that touch it edge to edge */
     const starts = new Set();
     for (const k of cells.keys()) {
       const [c, r] = k.split(',').map(Number);
-      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-        for (let s = 0; s < p.span; s++) starts.add(key(c + dx - s, r + dy));
+      for (const [dx, dy] of SIDES) {
+        const x = c + dx, y = r + dy;
+        if (cells.has(key(x, y))) continue;
+        for (let oy = 0; oy < p.n; oy++) for (let ox = 0; ox < p.m; ox++) starts.add(key(x - ox, y - oy));
       }
     }
+    const ordered = [...starts].map((k) => k.split(',').map(Number)).sort((a, b) => a[1] - b[1] || a[0] - b[0]);
     let pick = null;
-    for (const k of starts) {
-      const [c, r] = k.split(',').map(Number);
-      if (footprint(c, r, p.span).some(([x, y]) => cells.has(key(x, y)))) continue;
-      const nb = neighboursOf(c, r, p.span);
+    for (const [c, r] of ordered) {
+      if (!fits(c, r, p.m, p.n)) continue;
+      const nb = neighboursOf(c, r, p.m, p.n);
       if (nb.size === 0) continue;
-      let s = 0;
-      for (const j of nb) s += S[best][j];
-      const cx = (c + p.span / 2) * GRID.pw, cy = (r + 0.5) * GRID.ph;
-      const score = s + W_NEIGHBOURS * nb.size - W_CENTRE * Math.hypot(cx, cy);
+      let sum = 0;
+      for (const j of nb) sum += S[best][j];
+      const [cx, cy] = centre(c, r, p.m, p.n);
+      const score = sum + W_NEIGHBOURS * nb.size - W_CENTRE * Math.hypot(cx - seedCentre[0], cy - seedCentre[1]);
       if (!pick || score > pick.score + EPS) pick = { c, r, score };
     }
-    if (!pick) throw new Error(`field: no free cell for plate ${p.id}`);   /* cannot happen on an unbounded grid */
+    if (!pick) throw new Error(`field: no free placement for plate ${p.id}`);   /* cannot happen on an unbounded grid */
     put(p, pick.c, pick.r);
     placed.add(best);
     order.push(best);
   }
 
   for (const p of plates) {
-    const u0 = p.c * GRID.pw, v0 = p.r * GRID.ph;
-    p.rect = { u0, v0, u1: u0 + p.span * GRID.pw - GUTTER, v1: v0 + GRID.ch };
-    p.wSteps = p.rect.u1 - p.rect.u0;
-    p.hSteps = p.rect.v1 - p.rect.v0;
+    const [w, h] = boxSteps(p.m, p.n);
+    const u0 = p.c * MODULE, v0 = p.r * MODULE;
+    p.rect = { u0, v0, u1: u0 + w, v1: v0 + h };
+    p.wSteps = w;
+    p.hSteps = h;
   }
 
   /* edge-adjacent pairs and their mean similarity */
   const pairs = new Set();
-  for (const p of plates) for (const j of neighboursOf(p.c, p.r, p.span)) if (j !== p.i) pairs.add(Math.min(p.i, j) + '-' + Math.max(p.i, j));
+  for (const p of plates) for (const j of neighboursOf(p.c, p.r, p.m, p.n)) if (j !== p.i) pairs.add(Math.min(p.i, j) + '-' + Math.max(p.i, j));
   let sum = 0;
   for (const k of pairs) { const [a, b] = k.split('-').map(Number); sum += S[a][b]; }
 
@@ -178,20 +198,21 @@ export function growField(data) {
   return { plates, order, seed, records, bounds, meanEdge: pairs.size ? sum / pairs.size : 0, edgePairs: pairs.size };
 }
 
-/* How far the index lets a reader go. Out: at most 6 cells across and 4 down. In: one cell at most
-   twice the height under the nav. Pan: the view stops half a cell past the field's bounding box. */
-const MOST_ACROSS = 6, MOST_DOWN = 4, MOST_IN = 2;
+/* How far the index lets a reader go, in the old 32-step cells. Out: at most 6 cells across (192
+   steps) and 4 down (128). In: a 28-step square at most twice the height under the nav. Pan: the
+   view stops 16 steps past the field's bounding box. */
+const MOST_ACROSS = 6, MOST_DOWN = 4, MOST_IN = 2, SQUARE = 28;
 export function limitsFor(bounds, W, H) {
   const fh = H - NAV_H;
-  return { sMin: Math.max(W / (MOST_ACROSS * GRID.pw), fh / (MOST_DOWN * GRID.ph)), sMax: MOST_IN * fh / GRID.ph, bounds, margin: GRID.pw / 2 };
+  return { sMin: Math.max(W / (MOST_ACROSS * CELL), fh / (MOST_DOWN * CELL)), sMax: MOST_IN * fh / SQUARE, bounds, margin: CELL / 2 };
 }
 
-/* A camera on a Plate showing at most 3 cells across and 2 down: the larger of the two fits wins, so
+/* A camera on a Plate showing at most 3 cells across and 2 down (96 x 64 steps): the larger of the two fits wins, so
    neither count is exceeded. Centred on the Plate's column; its row starts just under the nav. On a
    narrow screen the Plate's own width plus a gutter either side caps it, so a two-cell Plate never
    spills off a phone (#12). */
 export function frameAround(p, W, H) {
   const fh = H - NAV_H;
-  const s = Math.min(Math.max(W / (3 * GRID.pw), fh / (2 * GRID.ph)), W / (p.wSteps + 2 * GUTTER));
+  const s = Math.min(Math.max(W / (3 * CELL), fh / (2 * CELL)), W / (p.wSteps + 2 * GUTTER));
   return { T: [(p.rect.u0 + p.rect.u1) / 2, p.rect.v0 - GUTTER / 2 + (H / 2 - NAV_H) / s], s };
 }

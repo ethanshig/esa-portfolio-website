@@ -39,47 +39,58 @@ html.ix-index .ls-nav-svg {
 /* the phone menu needs a real ground while it is open */
 html.ix-index.ls-on .navbar:has(.nav-menu.active) { background: var(--color-bg); }
 
-/* ---------- without the sheet: a plain grid of links, in growth order ---------- */
+/* ---------- without the sheet: a plain grid of links, in growth order ----------
+   Module tracks, each Plate spanning its own m x n (data/plate-shapes.js, carried as ix-m* / ix-n*
+   classes). Dense packing fills holes. The track is sized so 8 always fit, so the widest Plate
+   (8 modules) never pushes the page sideways. */
 .ix-grid {
+    --ix-mod: clamp(24px, calc((100vw - 32px - 7 * 8px) / 8), 64px);
     list-style: none;
     margin: 0;
     padding: 140px 16px 48px;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, var(--ix-mod));
+    grid-auto-rows: var(--ix-mod);
+    grid-auto-flow: row dense;
+    justify-content: center;
+    gap: 8px;
 }
-@media (min-width: 480px) { .ix-grid > .ix-wide { grid-column: span 2; } }
-.ix-grid > li { margin: 0; min-width: 0; }
+.ix-m2 { grid-column: span 2; } .ix-n2 { grid-row: span 2; }
+.ix-m3 { grid-column: span 3; } .ix-n3 { grid-row: span 3; }
+.ix-m4 { grid-column: span 4; } .ix-n4 { grid-row: span 4; }
+.ix-m5 { grid-column: span 5; } .ix-n5 { grid-row: span 5; }
+.ix-m6 { grid-column: span 6; } .ix-n6 { grid-row: span 6; }
+.ix-m7 { grid-column: span 7; } .ix-n7 { grid-row: span 7; }
+.ix-m8 { grid-column: span 8; } .ix-n8 { grid-row: span 8; }
+.ix-grid > li { margin: 0; min-width: 0; min-height: 0; }
 .ix-plate { display: block; color: var(--color-text); text-decoration: none; }
-.ix-plate img {
-    display: block;
-    width: 100%;
-    aspect-ratio: 1;
-    object-fit: cover;
-    background: var(--color-bg-alt);
-}
-.ix-wide .ix-plate img { aspect-ratio: 60 / 28; }
+.ix-plate img { display: block; object-fit: cover; background: var(--color-bg-alt); }
 /* a model's still is drawn in the dark paper's ink: on light paper it inverts */
 .ix-plate img.ix-still { object-fit: contain; background: none; }
 html[data-theme="light"] .ix-plate img.ix-still { filter: invert(1); }
 .ix-plate .ix-name { display: inline; }
 .ix-meta { color: var(--color-text-light); opacity: 0.6; }
-html:not(.ix-js) .ix-plate { font-size: 0.85rem; line-height: 1.3; }
-html:not(.ix-js) .ix-plate img + .ix-name { margin-top: 6px; display: inline-block; }
-html:not(.ix-js) a.ix-plate:hover .ix-name,
-html:not(.ix-js) a.ix-plate:focus-visible .ix-name { text-decoration: underline; }
-html:not(.ix-js) span.ix-plate {
+/* the box keeps its shape: the image fills it, the title sits inside its foot */
+html:not(.ix-js) .ix-plate {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     align-content: flex-end;
     column-gap: 0.3em;
-    aspect-ratio: 1;
-    padding: 10px;
+    width: 100%;
+    height: 100%;
     box-sizing: border-box;
-    border: 1.5px dashed var(--color-text-light);
-    background: var(--color-bg-alt);
+    padding: 6px 8px;
+    overflow: hidden;
+    font-size: 0.75rem;
+    line-height: 1.25;
 }
-html:not(.ix-js) .ix-wide span.ix-plate { aspect-ratio: 60 / 28; }
+html:not(.ix-js) .ix-plate img { position: absolute; inset: 0; width: 100%; height: 100%; }
+html:not(.ix-js) a.ix-plate .ix-name,
+html:not(.ix-js) a.ix-plate .ix-meta { position: relative; background: var(--color-bg); padding: 0 3px; }
+html:not(.ix-js) a.ix-plate:hover .ix-name,
+html:not(.ix-js) a.ix-plate:focus-visible .ix-name { text-decoration: underline; }
+html:not(.ix-js) span.ix-plate { border: 1.5px dashed var(--color-text-light); background: var(--color-bg-alt); }
 html:not(.ix-js) .env-stage > :not(.env-overlay) { display: none; }
 
 /* ---------- the sheet ---------- */

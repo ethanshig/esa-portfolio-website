@@ -18,6 +18,7 @@
    for the verification scripts. No other URL switch.
    =================================================================== */
 import * as DATA from '../../data/plates.js';
+import { SHAPES } from '../../data/plate-shapes.js';
 import { growField, limitsFor, frameAround, NAV_H } from './field.js';
 import { createSheet } from '../sheet/sheet2d.js';
 import { attachPlates, PX_PER_STEP, svgData } from './plates.js';
@@ -61,7 +62,7 @@ async function boot() {
   const stage = document.querySelector('.env-stage');
   if (!stage) throw new Error('no .env-stage in the page');
 
-  const field = growField(DATA);
+  const field = growField({ ...DATA, SHAPES });
   const drawings = field.plates.filter((p) => !p.placeholder).map((p) => {
     const px = [p.wSteps * PX_PER_STEP, p.hSteps * PX_PER_STEP];
     /* a model Plate is bare paper until its still lands */

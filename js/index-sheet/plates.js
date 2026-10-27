@@ -15,7 +15,7 @@
      - the model stills (platestill.js), repainted when the theme turns
    JavaScript adds no text: every title is in the HTML (scripts/build-index.js).
    =================================================================== */
-import { GRID, NAV_H, frameAround } from './field.js';
+import { MODULE, NAV_H, frameAround } from './field.js';
 import { renderStills } from './platestill.js';
 import { createPlateLive } from './platelive.js';
 
@@ -323,8 +323,8 @@ export function attachPlates({ sheet, stage, field, records, reduceMotion }) {
         noHover,
         turns: [...turns].map(([p, n]) => ({ id: p.id, next: n.dataset.src.split('/').pop(), turned: n.classList.contains('is-turned') })),
         camera: sheet.debug().camera,
-        grid: GRID,
-        placement: L.plates.map((p) => ({ id: p.id, c: p.c, r: p.r, span: p.span, rect: p.rect })),
+        module: MODULE,
+        placement: L.plates.map((p) => ({ id: p.id, c: p.c, r: p.r, m: p.m, n: p.n, rect: p.rect, placeholder: p.placeholder, model: p.model || null })),
       };
     },
   };

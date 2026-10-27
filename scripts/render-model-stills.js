@@ -12,12 +12,15 @@
  *   CHROME=/path/to/chrome \
  *   bun scripts/render-model-stills.js
  *
- * Rerun it when a model or a model Plate's size changes, then rerun build-index.js.
+ * Run build-index.js first (it writes the shapes), then this, then build-index.js again if a
+ * still was new.
  */
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join, dirname, normalize } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as DATA from '../data/plates.js';
+import { SHAPES } from '../data/plate-shapes.js';
+import { boxSteps } from '../js/index-sheet/shape.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PX_PER_STEP = 20;
@@ -29,9 +32,12 @@ const { PLAYWRIGHT_CORE, CHROME } = process.env;
 if (!PLAYWRIGHT_CORE || !existsSync(PLAYWRIGHT_CORE)) fail('set PLAYWRIGHT_CORE to playwright-core/index.mjs');
 if (!CHROME || !existsSync(CHROME)) fail('set CHROME to a Chromium executable');
 
-const jobs = DATA.PLATES.filter((p) => p.model).map((p) => ({
-  model: p.model, w: (p.size === 'wide' ? 60 : 28) * PX_PER_STEP, h: 28 * PX_PER_STEP,
-}));
+/* each model Plate's box (data/plate-shapes.js, from scripts/build-index.js) */
+const jobs = DATA.PLATES.filter((p) => p.model).map((p) => {
+  if (!SHAPES[p.id]) fail(`${p.id} has no shape: run scripts/build-index.js first`);
+  const [w, h] = boxSteps(SHAPES[p.id].m, SHAPES[p.id].n);
+  return { model: p.model, w: w * PX_PER_STEP, h: h * PX_PER_STEP };
+});
 if (!jobs.length) fail('no model Plates in data/plates.js');
 
 const HARNESS = `<!DOCTYPE html><html><head><script type="importmap">{"imports":{
