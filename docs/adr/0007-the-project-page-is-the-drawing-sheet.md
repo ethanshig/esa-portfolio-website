@@ -25,7 +25,9 @@ never had. The index follows the same rule: a model's Plate reads in plan at res
 dimetric when hovered, the model itself unchanged; hovering a drawing's Plate turns to its Record's
 next Drawing. *Amended 2026-10-20 (#11):* the sheet's own marks — the index's arrows — may lift into
 the third dimension on hover, because they are instruments of the sheet, not the work; a drawing
-still never fakes depth.
+still never fakes depth. *Amended 2026-10-27:* Plates now follow their images' shapes, so a
+Record's next Drawing rarely fits the box; hovering a drawing's Plate no longer turns it, but shows
+its name and draws a hairline frame round it.
 
 **The hero drawing leads.** Arrival frames the hero drawing lying flat, model in view beside it.
 The model is the evidence, not the product.
