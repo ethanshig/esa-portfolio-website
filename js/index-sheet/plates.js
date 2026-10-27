@@ -9,7 +9,7 @@
        1.5 px, a dot on every node
      - the two drafting arrows beside the current Record's hero, and the
        arrow keys that follow them
-     - hover: a model Plate lifts live (platelive.js), an image Plate turns
+     - hover: a model Plate lifts live (platelive.js), an image Plate draws its frame
        to its Record's next Drawing; without hover, the model Plate most
        central and wholly in view turns on its own
      - the model stills (platestill.js), repainted when the theme turns
@@ -52,7 +52,7 @@ function tailFor(r, way, along) {
   return way === 'right' ? [r.u1 + 1, mv] : way === 'left' ? [r.u0 - 1, mv] : way === 'down' ? [mu, r.v1 + 1] : [mu, r.v0 - 1];
 }
 
-/* field: growField()'s result. records: the data's RECORDS (for each Record's drawings). */
+/* field: growField()'s result. records: the data's RECORDS (unused since the turn went, 2026-10-27; kept for callers). */
 export function attachPlates({ sheet, stage, field, records, reduceMotion }) {
   const L = field;
   const root = document.documentElement;
@@ -63,7 +63,13 @@ export function attachPlates({ sheet, stage, field, records, reduceMotion }) {
   if (!svg || !overlay) throw new Error('plates: the stage needs .ix-plates-svg and .env-overlay');
   const shapes = L.plates.map((p) => {
     const g = document.createElementNS(NS, 'g');
-    let frame = null, dots = null;
+    let frame = null, dots = null, hframe = null;
+    if (!p.placeholder && !p.model) {                 /* an image Plate's hover frame, drawn on in CSS */
+      hframe = document.createElementNS(NS, 'rect');
+      hframe.setAttribute('class', 'ix-hframe');
+      hframe.setAttribute('pathLength', '1');
+      g.appendChild(hframe);
+    }
     if (p.placeholder) {
       frame = document.createElementNS(NS, 'rect');
       frame.setAttribute('class', 'ix-ph');
@@ -78,7 +84,7 @@ export function attachPlates({ sheet, stage, field, records, reduceMotion }) {
     svg.appendChild(g);
     const title = p.placeholder ? overlay.querySelector(`[data-plate="${p.id}"]`) : null;
     if (p.placeholder && !title) throw new Error(`plates: placeholder ${p.id} has no title in the HTML`);
-    return { p, frame, dots, title };
+    return { p, frame, dots, hframe, title };
   });
 
   /* the arrows: buttons in the HTML holding an empty svg; JS draws the shape only */
@@ -143,16 +149,19 @@ export function attachPlates({ sheet, stage, field, records, reduceMotion }) {
   const imgs = [...stage.querySelectorAll('.env-plane .env-plane-img')];   /* sheet2d appends them in data order */
   if (imgs.length !== real.length) throw new Error(`plates: ${real.length} real Plates but ${imgs.length} images on the sheet`);
 
-  /* the lift and the turn (ADR-0007's index hover): a model Plate lifts live, a drawing Plate turns to
-     its Record's next Drawing. One Plate at a time. */
+  /* the hover (ADR-0007's index hover, restated 2026-10-27): a model Plate lifts live; an image Plate
+     shows its name and draws a hairline frame round itself. It no longer turns to the next Drawing:
+     since Plates follow their images' shapes, the next Drawing rarely fits the box (Ethan). One Plate
+     at a time. */
   const live = createPlateLive({ stage, before: overlay, sheet, reduceMotion, pxPerStep: PX_PER_STEP,
     onHold: (p, on) => { const img = imgs[real.indexOf(p)]; if (img) img.style.visibility = on ? 'hidden' : ''; } });
   let hovered = null;
   function hoverPlate(p) {
     if (p === hovered) return;
-    if (hovered && turns.has(hovered)) turns.get(hovered).classList.remove('is-turned');
+    const frameOf = (q) => q && shapes[L.plates.indexOf(q)].hframe;
+    if (frameOf(hovered)) frameOf(hovered).classList.remove('is-on');
     hovered = p;
-    if (p && turns.has(p)) turns.get(p).classList.add('is-turned');
+    if (frameOf(p)) frameOf(p).classList.add('is-on');
     live.hover(p);
   }
   /* Without hover a tap simply opens the Plate. The model Plates turn of their own accord instead: the
@@ -209,6 +218,11 @@ export function attachPlates({ sheet, stage, field, records, reduceMotion }) {
           sh.frame.setAttribute('x', x0 + inset); sh.frame.setAttribute('y', y0 + inset);
           sh.frame.setAttribute('width', Math.max(0, x1 - x0 - 2 * inset)); sh.frame.setAttribute('height', Math.max(0, y1 - y0 - 2 * inset));
         }
+        if (sh.hframe) {
+          /* 4 px out on the paper, where the flat sheet's own hover frame sat, so it reads on any image */
+          sh.hframe.setAttribute('x', x0 - 4); sh.hframe.setAttribute('y', y0 - 4);
+          sh.hframe.setAttribute('width', x1 - x0 + 8); sh.hframe.setAttribute('height', y1 - y0 + 8);
+        }
         if (sh.dots) {
           sh.dots.setAttribute('x', x0); sh.dots.setAttribute('y', y0);
           sh.dots.setAttribute('width', x1 - x0); sh.dots.setAttribute('height', y1 - y0);
@@ -260,26 +274,6 @@ export function attachPlates({ sheet, stage, field, records, reduceMotion }) {
 
   for (const p of real) if (p.model) imgs[real.indexOf(p)].classList.add('ix-model');
 
-  /* The turn: each drawing Plate gets its Record's next Drawing laid on top, clipped away until hovered.
-     Next = the first of the Record's Drawings after this Plate's own that no Plate shows, else simply
-     the next one round. */
-  const shown = new Set(real.map((p) => p.drawing).filter(Boolean));
-  const turns = new Map();
-  for (const p of real) {
-    const list = records[p.record].drawings;
-    const at = list.indexOf(p.drawing);
-    if (!p.drawing || at < 0 || list.length < 2) continue;
-    const round = list.slice(at + 1).concat(list.slice(0, at));
-    const next = round.find((d) => !shown.has(d)) || round[0];
-    const img = imgs[real.indexOf(p)];
-    const turned = img.cloneNode(false);
-    turned.classList.add('ix-next');
-    turned.src = new URL(next, document.baseURI).href;
-    turned.dataset.src = next;
-    turned.alt = '';
-    img.after(turned);
-    turns.set(p, turned);
-  }
 
   /* model stills: rendered once offscreen, then swapped into their images; again when the theme turns */
   const modelPlates = real.filter((p) => p.model);
@@ -321,7 +315,7 @@ export function attachPlates({ sheet, stage, field, records, reduceMotion }) {
         stills: { ...stills },
         lift: live.state(),
         noHover,
-        turns: [...turns].map(([p, n]) => ({ id: p.id, next: n.dataset.src.split('/').pop(), turned: n.classList.contains('is-turned') })),
+        framed: shapes.filter((sh) => sh.hframe && sh.hframe.classList.contains('is-on')).map((sh) => sh.p.id),
         camera: sheet.debug().camera,
         module: MODULE,
         placement: L.plates.map((p) => ({ id: p.id, c: p.c, r: p.r, m: p.m, n: p.n, rect: p.rect, placeholder: p.placeholder, model: p.model || null })),

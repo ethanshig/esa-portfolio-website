@@ -155,7 +155,8 @@ html.ix-js .ix-plate:focus-visible { opacity: 1; pointer-events: auto; }
 html.ix-js .ix-plate:focus-visible { outline: 1px solid var(--color-accent); outline-offset: 3px; }
 html.ix-js span.ix-plate { cursor: default; }
 
-/* the flat sheet's hover frame round a real Plate */
+/* the flat sheet's hover frame round a real Plate. The index draws its own (.ix-hframe), so it is off here */
+html.ix-js .env-stage .env-frame { display: none; }
 .env-frame {
     position: absolute;
     left: 0;
@@ -215,20 +216,17 @@ html.ix-js span.ix-plate { cursor: default; }
 }
 .ix-hint.is-on { opacity: 1; }
 
-/* the turn: the next Drawing's edge sweeps right to left over 0.4 s, taking the first off as it lays
-   the next one down */
-.env-plane-img.ix-next {
-    visibility: hidden;
-    clip-path: inset(0 0 0 100%);
-    transition: clip-path 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.4s;
+/* an image Plate's hover (Ethan, 2026-10-27): a hairline frame in ink draws itself round the image,
+   from its top-left corner clockwise, over 0.45 s; it withdraws faster when the pointer leaves */
+.ix-hframe {
+    fill: none;
+    stroke: var(--color-primary);
+    stroke-width: 1.5;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 0.25s ease-in;
 }
-.env-plane-img:has(+ .ix-next) { clip-path: inset(0 0 0 0); transition: clip-path 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-.env-plane-img.ix-next.is-turned {
-    visibility: visible;
-    clip-path: inset(0 0 0 0);
-    transition: clip-path 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s;
-}
-.env-plane-img:has(+ .ix-next.is-turned) { clip-path: inset(0 100% 0 0); }
+.ix-hframe.is-on { stroke-dashoffset: 0; transition: stroke-dashoffset 0.45s cubic-bezier(0.4, 0, 0.2, 1); }
 
 /* ---------- the landing (js/landing-sequence.js): once per session the esa mark builds over the
    sheet; as it unbuilds, the paper's dots come up from where it stood, and then the field shows at
@@ -245,5 +243,5 @@ html.ls-landing .env-plane, html.ls-landing .ix-plates-svg, html.ls-landing .env
 html.ls-landing .ix-axarrow, html.ls-landing .ix-gl { opacity: 0; }
 
 @media (prefers-reduced-motion: reduce) {
-    .env-plane-img, .env-plane-img.ix-next, .ix-plate, .env-frame, .ix-hint { transition: none; }
+    .env-plane-img, .ix-hframe, .ix-plate, .env-frame, .ix-hint { transition: none; }
 }
