@@ -5,7 +5,7 @@
 export const SHAPES = {
   "uss-atlas": {"m":2,"n":2,"px":[2600,2600],"keep":1},
   "uss-board": {"m":3,"n":3,"px":[2200,2200],"keep":1},
-  "uss-gable": {"m":4,"n":3,"px":[2000,1545],"keep":0.9493},
+  "uss-gable": {"m":2,"n":2,"px":[2000,1545],"keep":0.7725},
   "uss-model": {"m":2,"n":2},
   "bb-catamaraft": {"m":3,"n":2,"px":[1600,1067],"keep":0.9542},
   "bb-crawling": {"m":3,"n":2,"px":[1600,1035],"keep":0.9838},
@@ -17,7 +17,7 @@ export const SHAPES = {
   "mylo-poster": {"m":2,"n":3,"px":[1108,1600],"keep":0.9189},
   "mylo-model": {"m":2,"n":2},
   "tlp-axon": {"m":3,"n":2,"px":[1600,1035],"keep":0.9838},
-  "tlp-section": {"m":4,"n":3,"px":[1600,1141],"keep":0.9724},
+  "tlp-section": {"m":3,"n":2,"px":[1600,1141],"keep":0.8924},
   "tlp-model": {"m":2,"n":2},
   "rap-1": {"m":4,"n":2},
   "rap-2": {"m":2,"n":2},

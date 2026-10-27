@@ -39,11 +39,12 @@ test('the shape rule: the coordinator\'s numbers, and where the rule as written 
   assert.strictEqual(at('mylo-poster'), '2x3');
   assert.strictEqual(at('mylo-logo'), '2x2');
   assert.strictEqual(at('bb-landscape'), '2x5');
-  /* the brief expected 3x2 for these two; the rule as written scores 4x3 higher:
-     uss-gable 2000x1545: 3x2 keep .824 - .1 ln(6/4) = .783 < 4x3 keep .949 - .1 ln(12/4) = .839
-     tlp-section 1600x1141: 3x2 keep .892 - .041 = .852 < 4x3 keep .972 - .110 = .862 */
-  assert.strictEqual(at('uss-gable'), '4x3');
-  assert.strictEqual(at('tlp-section'), '4x3');
+  /* area weight 0.2 (Ethan, 2026-10-27). tlp-section becomes 3x2 as asked; uss-gable (2000x1545,
+     about 4:3, a 'cell') becomes 2x2, not 3x2: 2x2 keep .773 - 0 = .773 beats 3x2 .824 - .2 ln 1.5 = .743
+     and 4x3 .949 - .2 ln 3 = .730. No area weight gives it 3x2 with target 4: 3x2 beats 2x2 only
+     below .126 and beats 4x3 only above .180. */
+  assert.strictEqual(at('tlp-section'), '3x2');
+  assert.strictEqual(at('uss-gable'), '2x2');
 });
 
 test('a 533 x 1600 image gets n > m; spans stay in 2..8; hints give 2x2 and 4x2', () => {
@@ -64,11 +65,23 @@ test('data/plate-shapes.js is what build-index.js writes now (rerun it after cha
   assert.strictEqual(readFileSync(join(root, 'data/plate-shapes.js'), 'utf8'), renderShapes(computeShapes()));
 });
 
-test('the seed is uss-model, a real Plate; the mean neighbour similarity on the module grid is 0.510', () => {
+test('the seed is uss-model, a real Plate; the mean neighbour similarity on the module grid is 0.532', () => {
   const seed = F.plates[F.seed];
   assert.strictEqual(seed.id, 'uss-model');
   assert.ok(!seed.placeholder);
-  assert.strictEqual(F.meanEdge.toFixed(3), '0.510');
+  assert.strictEqual(F.meanEdge.toFixed(3), '0.532');
+});
+
+test('contact packs the field tighter without losing neighbour similarity', () => {
+  const loose = growField({ ...DATA, SHAPES }, { contactWeight: 0 });
+  const paper = (G) => {
+    const w = Math.max(...G.plates.map((p) => p.c + p.m)) - Math.min(...G.plates.map((p) => p.c));
+    const h = Math.max(...G.plates.map((p) => p.r + p.n)) - Math.min(...G.plates.map((p) => p.r));
+    return w * h - G.plates.reduce((t, p) => t + p.m * p.n, 0);
+  };
+  assert.strictEqual(paper(F), 47);
+  assert.ok(paper(F) < paper(loose), `${paper(F)} vs ${paper(loose)} module cells of paper`);
+  assert.ok(F.meanEdge >= loose.meanEdge, `${F.meanEdge} vs ${loose.meanEdge}`);
 });
 
 test('the growth is deterministic', () => {
@@ -151,9 +164,11 @@ test('arrival fits the seed: at most 3 across / 2 down, and inside a 390 px phon
   }
 });
 
-test('limits: 192 steps across zoomed out at 1600x900; a 28-step square at most twice the height under the nav', () => {
+test('limits: 256 steps (8 cells) across zoomed out at 1600x900; a 28-step square at most twice the height under the nav', () => {
   const l = limitsFor(F.bounds, 1600, 900);
-  assert.strictEqual((1600 / l.sMin).toFixed(2), '192.00');
+  assert.strictEqual((1600 / l.sMin).toFixed(2), '256.00');
+  const tall = limitsFor(F.bounds, 390, 844);
+  assert.strictEqual(((844 - NAV_H) / tall.sMin).toFixed(2), (32 * 16 / 3).toFixed(2));
   assert.ok(28 * l.sMax <= 2 * (900 - NAV_H) + 1e-9);
   assert.strictEqual(l.margin, 16);
 });

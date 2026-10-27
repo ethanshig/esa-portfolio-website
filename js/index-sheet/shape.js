@@ -8,7 +8,7 @@
    The shape is computed, not authored. For a drawing Plate,
    scripts/build-index.js measures the image and picks (m, n), each in
    2..8 (never under 2: no slivers), maximising
-       keep - 0.1 * |ln(m n / target)|
+       keep - 0.2 * |ln(m n / target)|
    where keep = min(a, b) / max(a, b) for the image aspect a and the box
    aspect b (the share of the image a cover-fit box shows), and target is
    the Plate's size hint: 4 for 'cell', 8 for 'wide'. Ties keep the first
@@ -22,7 +22,7 @@ export const MODULE = 16;              /* steps */
 export const GUTTER = 4;               /* steps */
 export const SPAN_MIN = 2, SPAN_MAX = 8;
 const TARGET = { cell: 4, wide: 8 };
-const AREA_WEIGHT = 0.1;
+const AREA_WEIGHT = 0.2;
 
 export const boxSteps = (m, n) => [MODULE * m - GUTTER, MODULE * n - GUTTER];
 

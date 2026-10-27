@@ -26,6 +26,7 @@
    the field edge to edge, scoring
        sum of similarity to its edge neighbours (Plates sharing an edge segment)
        + 0.15 x the neighbour count
+       + 1.75 x the share of its perimeter against Plates already down
        - 0.004 x the distance in steps from its centre to the seed's centre
    (ties: the first placement found, scanning row by row, left to right).
    Holes are allowed: the paper shows through. Deterministic: same data,
@@ -37,6 +38,13 @@ export { MODULE, GUTTER };
 const CELL = 2 * MODULE;                           /* the old cell pitch: the unit the framing counts in */
 export const NAV_H = 84;                           /* css px the floating nav occupies */
 const W_NEIGHBOURS = 0.15, W_CENTRE = 0.004;
+/* Contact (Ethan, 2026-10-27: pack tighter): the share of a candidate's perimeter lying against Plates
+   already down, 0..1. 1.75 sits mid-way on the plateau 1.45..2.05 where, on today's data, the field
+   is most compact (bounding box 13 x 16 modules, 47 module cells of paper inside it, 3 enclosed)
+   while mean neighbour similarity rises (0.527 -> 0.532) and more Plates touch one of their own
+   Record (21 -> 23 of 27). Below 1.45 or above 2.05 the field loosens or similarity drops. It only
+   chooses WHERE a Plate goes; WHICH Plate goes next is still similarity alone. */
+export const W_CONTACT = 1.75;
 const EPS = 1e-9;
 const FACETS = ['with', 'made', 'cycle'];
 
@@ -86,7 +94,7 @@ const recency = (r) => (r.dates ? r.dates.end || r.dates.start : '');
 
 /* The field: every Plate placed, plus the growth order, the seed, the Records in the order they
    first appear (each with its hero, its first Plate placed) and the mean edge similarity. */
-export function growField(data) {
+export function growField(data, { contactWeight = W_CONTACT } = {}) {
   validatePlates(data);
   const { RECORDS, PLATES } = data;
   const plates = PLATES.map((p, i) => {
@@ -127,6 +135,13 @@ export function growField(data) {
     for (let y = r; y < r + h; y++) for (const x of [c - 1, c + m]) { const j = cells.get(key(x, y)); if (j !== undefined) set.add(j); }
     return set;
   };
+  /* the share of a footprint's perimeter that lies against Plates already down, 0..1 */
+  const contactOf = (c, r, m, h) => {
+    let shared = 0;
+    for (let x = c; x < c + m; x++) for (const y of [r - 1, r + h]) if (cells.has(key(x, y))) shared++;
+    for (let y = r; y < r + h; y++) for (const x of [c - 1, c + m]) if (cells.has(key(x, y))) shared++;
+    return shared / (2 * (m + h));
+  };
   const centre = (c, r, m, h) => [(c + m / 2) * MODULE, (r + h / 2) * MODULE];
 
   const order = [seed];
@@ -163,7 +178,7 @@ export function growField(data) {
       let sum = 0;
       for (const j of nb) sum += S[best][j];
       const [cx, cy] = centre(c, r, p.m, p.n);
-      const score = sum + W_NEIGHBOURS * nb.size - W_CENTRE * Math.hypot(cx - seedCentre[0], cy - seedCentre[1]);
+      const score = sum + W_NEIGHBOURS * nb.size + contactWeight * contactOf(c, r, p.m, p.n) - W_CENTRE * Math.hypot(cx - seedCentre[0], cy - seedCentre[1]);
       if (!pick || score > pick.score + EPS) pick = { c, r, score };
     }
     if (!pick) throw new Error(`field: no free placement for plate ${p.id}`);   /* cannot happen on an unbounded grid */
@@ -198,10 +213,12 @@ export function growField(data) {
   return { plates, order, seed, records, bounds, meanEdge: pairs.size ? sum / pairs.size : 0, edgePairs: pairs.size };
 }
 
-/* How far the index lets a reader go, in the old 32-step cells. Out: at most 6 cells across (192
-   steps) and 4 down (128). In: a 28-step square at most twice the height under the nav. Pan: the
-   view stops 16 steps past the field's bounding box. */
-const MOST_ACROSS = 6, MOST_DOWN = 4, MOST_IN = 2, SQUARE = 28;
+/* How far the index lets a reader go, in the old 32-step cells. Out (Ethan, 2026-10-20: zoomed far out
+   the work looks small and insignificant): at most 6 cells across and 4 down at first; widened
+   2026-10-27, once Plates took their images' shapes and the field grew, to 8 across (256 steps) and
+   down in proportion, 16/3 (about 171 steps). In: a 28-step square at most twice the height under
+   the nav. Pan: the view stops 16 steps past the field's bounding box. */
+const MOST_ACROSS = 8, MOST_DOWN = 16 / 3, MOST_IN = 2, SQUARE = 28;
 export function limitsFor(bounds, W, H) {
   const fh = H - NAV_H;
   return { sMin: Math.max(W / (MOST_ACROSS * CELL), fh / (MOST_DOWN * CELL)), sMax: MOST_IN * fh / SQUARE, bounds, margin: CELL / 2 };
