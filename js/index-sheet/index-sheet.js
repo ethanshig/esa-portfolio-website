@@ -104,6 +104,7 @@ async function boot() {
     sheet.retheme();                      /* the paper's dots read the page colours on redraw */
     return plates.retheme();              /* the stills are baked in page colours */
   };
+  window.__esaRepaint = repaint;          /* PROTOTYPE (prototype/palette): the switcher repaints on a palette change */
 }
 
 /* A one-finger touch pan that leaves with speed glides on and slows, like a native scroll. Two

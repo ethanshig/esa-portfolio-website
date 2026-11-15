@@ -10,6 +10,10 @@
     <link rel="stylesheet" href="css/line-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/index-sheet.css">
+    <!-- PROTOTYPE (prototype/palette): throwaway palette switcher; never merge -->
+    <script src="prototype/palette/cvd.js"></script>
+    <script src="prototype/palette/palettes.js"></script>
+    <script src="prototype/palette/switcher.js"></script>
     <script>(function(){var r=document.documentElement,t=null;try{t=new URLSearchParams(location.search).get('theme');if(t!=='light'&&t!=='dark')t=localStorage.getItem('esa-theme');}catch(e){}if(t!=='light'&&t!=='dark'&&window.matchMedia)t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';if(t==='light'||t==='dark')r.setAttribute('data-theme',t);r.classList.add('ix-js');var seen=false;try{seen=sessionStorage.getItem('esa-landing-seen')==='1';}catch(e){}if(!seen&&!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches))r.classList.add('ls-landing');setTimeout(function(){if(r.classList.contains('ix-js')&&!r.classList.contains('env-live')){r.classList.remove('ix-js','ls-landing','ls-unbuilding');console.error('[index] the sheet did not start in 15 s: showing the static index');}},15000);}())</script>
     <script type="importmap">
     {
