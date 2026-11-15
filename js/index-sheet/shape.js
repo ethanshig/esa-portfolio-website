@@ -24,7 +24,12 @@
 export const MODULE = 16;              /* steps */
 export const GUTTER = 4;               /* steps */
 export const SPAN_MIN = 2, SPAN_MAX = 8;
-const TARGET = { cell: 4, wide: 8 };
+/* the size scale (prototype/plate-sizes): Ethan picks one per Plate for the work and the
+   emphasis it carries; the aspect rule still picks the shape. cell and wide are the old
+   two-step hint, kept as S and M. */
+const TARGET = { s: 4, m: 8, l: 12, xl: 20, cell: 4, wide: 8 };
+export const SIZES = ['s', 'm', 'l', 'xl', 'cell', 'wide'];
+const HINT = { s: [2, 2], m: [4, 2], l: [4, 3], xl: [5, 4], cell: [2, 2], wide: [4, 2] };
 const AREA_WEIGHT = 0.2;
 
 export const boxSteps = (m, n) => [MODULE * m - GUTTER, MODULE * n - GUTTER];
@@ -35,7 +40,7 @@ export const keepOf = (a, b) => Math.min(a, b) / Math.max(a, b);
 export function shapeForImage(wPx, hPx, size) {
   if (!(wPx > 0 && hPx > 0)) throw new Error(`shape: image size ${wPx} x ${hPx} is not measurable`);
   const target = TARGET[size];
-  if (!target) throw new Error(`shape: size hint "${size}" is not cell or wide`);
+  if (!target) throw new Error(`shape: size hint "${size}" is not one of ${Object.keys(TARGET).join(', ')}`);
   const a = wPx / hPx;
   let best = null;
   for (let m = SPAN_MIN; m <= SPAN_MAX; m++) {
@@ -50,7 +55,7 @@ export function shapeForImage(wPx, hPx, size) {
 }
 
 export function shapeForHint(size) {
-  if (size === 'cell') return { m: 2, n: 2 };
-  if (size === 'wide') return { m: 4, n: 2 };
-  throw new Error(`shape: size hint "${size}" is not cell or wide`);
+  if (!HINT[size]) throw new Error(`shape: size hint "${size}" is not one of ${Object.keys(HINT).join(', ')}`);
+  const [m, n] = HINT[size];
+  return { m, n };
 }

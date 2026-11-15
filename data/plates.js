@@ -37,7 +37,7 @@
    PLATES   Plate[], in authoring order (the growth breaks exact ties by it):
               id        string    unique
               record    string    a key of RECORDS
-              size      'cell' | 'wide'   a size hint, not a shape. The shape (m x n
+              size      's' | 'm' | 'l' | 'xl' (or the old 'cell' = s, 'wide' = m)   a size hint, not a shape. The shape (m x n
                                         16-step modules) is computed by
                                         scripts/build-index.js into data/plate-shapes.js:
                                         a drawing's from its image's aspect, aiming at
@@ -100,27 +100,28 @@ export const RECORDS = {
 const P = (id, record, size, f, art = {}) => ({ id, record, size, ...art, facets: { with: f[0], made: f[1], cycle: f[2] } });
 
 export const PLATES = [
+  /* sizes: a first pass by Fay (prototype/plate-sizes, 2026-11-15), for Ethan to correct */
   /* USS Lead */
-  P('uss-atlas', 'uss-lead-revival', 'cell', ['plants & fungi', 'gathered', 'waste'], { drawing: TOUR + 'a273-atlas.jpg' }),
-  P('uss-board', 'uss-lead-revival', 'wide', ['a community', 'drawn', 'water'], { drawing: TOUR + 'a273-board.jpg' }),
+  P('uss-atlas', 'uss-lead-revival', 'l', ['plants & fungi', 'gathered', 'waste'], { drawing: TOUR + 'a273-atlas.jpg' }),
+  P('uss-board', 'uss-lead-revival', 'xl', ['a community', 'drawn', 'water'], { drawing: TOUR + 'a273-board.jpg' }),
   /* shape: Ethan wants the gable 3x2 like the other landscape drawings (2026-10-27); the rule alone gives 2x2 */
   P('uss-gable', 'uss-lead-revival', 'cell', ['a community', 'built', 'water'], { drawing: TOUR + 'a273-gable.jpg', shape: [3, 2] }),
-  P('uss-model', 'uss-lead-revival', 'cell', ['plants & fungi', 'built', 'waste'], { model: 'uss-lead-revival' }),
+  P('uss-model', 'uss-lead-revival', 'l', ['plants & fungi', 'built', 'waste'], { model: 'uss-lead-revival' }),
   /* Beaver's Burden */
-  P('bb-catamaraft', 'beavers-burden', 'cell', ['animals', 'built', 'water'], { drawing: TOUR + 'bb-catamaraft.jpg' }),
-  P('bb-crawling', 'beavers-burden', 'wide', ['animals', 'drawn', 'materials'], { drawing: TOUR + 'bb-crawling.jpg' }),
-  P('bb-landscape', 'beavers-burden', 'cell', ['animals', 'drawn', 'water'], { drawing: TOUR + 'bb-landscape.jpg' }),
-  P('bb-standing', 'beavers-burden', 'wide', ['animals', 'drawn', 'materials'], { drawing: TOUR + 'bb-standing.jpg' }),
-  P('bb-model', 'beavers-burden', 'cell', ['animals', 'built', 'materials'], { model: 'beavers-burden' }),
+  P('bb-catamaraft', 'beavers-burden', 'm', ['animals', 'built', 'water'], { drawing: TOUR + 'bb-catamaraft.jpg' }),
+  P('bb-crawling', 'beavers-burden', 'm', ['animals', 'drawn', 'materials'], { drawing: TOUR + 'bb-crawling.jpg' }),
+  P('bb-landscape', 'beavers-burden', 'l', ['animals', 'drawn', 'water'], { drawing: TOUR + 'bb-landscape.jpg' }),
+  P('bb-standing', 'beavers-burden', 'm', ['animals', 'drawn', 'materials'], { drawing: TOUR + 'bb-standing.jpg' }),
+  P('bb-model', 'beavers-burden', 'm', ['animals', 'built', 'materials'], { model: 'beavers-burden' }),
   /* Mylo To-Go */
-  P('mylo-logo', 'mylo-to-go', 'cell', ['plants & fungi', 'drawn', 'waste'], { drawing: TOUR + 'mylo-logo.jpg' }),
-  P('mylo-picnic', 'mylo-to-go', 'wide', ['a community', 'gathered', 'waste'], { drawing: TOUR + 'mylo-picnic.jpg' }),
-  P('mylo-poster', 'mylo-to-go', 'cell', ['plants & fungi', 'drawn', 'materials'], { drawing: TOUR + 'mylo-poster.jpg' }),
-  P('mylo-model', 'mylo-to-go', 'cell', ['plants & fungi', 'grown', 'waste'], { model: 'mylo-to-go' }),
+  P('mylo-logo', 'mylo-to-go', 's', ['plants & fungi', 'drawn', 'waste'], { drawing: TOUR + 'mylo-logo.jpg' }),
+  P('mylo-picnic', 'mylo-to-go', 'm', ['a community', 'gathered', 'waste'], { drawing: TOUR + 'mylo-picnic.jpg' }),
+  P('mylo-poster', 'mylo-to-go', 'm', ['plants & fungi', 'drawn', 'materials'], { drawing: TOUR + 'mylo-poster.jpg' }),
+  P('mylo-model', 'mylo-to-go', 's', ['plants & fungi', 'grown', 'waste'], { model: 'mylo-to-go' }),
   /* 3 Little Pigs */
-  P('tlp-axon', 'three-little-pigs', 'wide', ['plants & fungi', 'drawn', 'materials'], { drawing: TOUR + 'tlp-axon.jpg' }),
-  P('tlp-section', 'three-little-pigs', 'cell', ['plants & fungi', 'drawn', 'energy'], { drawing: TOUR + 'tlp-section.jpg' }),
-  P('tlp-model', 'three-little-pigs', 'cell', ['plants & fungi', 'built', 'materials'], { model: 'three-little-pigs' }),
+  P('tlp-axon', 'three-little-pigs', 'l', ['plants & fungi', 'drawn', 'materials'], { drawing: TOUR + 'tlp-axon.jpg' }),
+  P('tlp-section', 'three-little-pigs', 'm', ['plants & fungi', 'drawn', 'energy'], { drawing: TOUR + 'tlp-section.jpg' }),
+  P('tlp-model', 'three-little-pigs', 's', ['plants & fungi', 'built', 'materials'], { model: 'three-little-pigs' }),
   /* placeholders: pieces on the index whose Plates are not made yet */
   P('rap-1', 'rap', 'wide', ['a person', 'coded', 'access']),
   P('rap-2', 'rap', 'cell', ['a person', 'built', 'access']),

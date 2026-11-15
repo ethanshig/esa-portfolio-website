@@ -33,7 +33,7 @@
    same field.
    =================================================================== */
 
-import { MODULE, GUTTER, SPAN_MIN, SPAN_MAX, boxSteps } from './shape.js';
+import { MODULE, GUTTER, SPAN_MIN, SPAN_MAX, boxSteps, SIZES } from './shape.js';
 export { MODULE, GUTTER };
 const CELL = 2 * MODULE;                           /* the old cell pitch: the unit the framing counts in */
 export const NAV_H = 84;                           /* css px the floating nav occupies */
@@ -71,7 +71,7 @@ export function validatePlates({ VOCAB, RECORDS, PLATES, SHAPES }) {
     ids.add(p.id);
     const r = RECORDS[p.record];
     if (!r) fail(`plate ${p.id}: record "${p.record}" is not in RECORDS`);
-    if (p.size !== 'cell' && p.size !== 'wide') fail(`plate ${p.id}: size "${p.size}" is not cell or wide`);
+    if (!SIZES.includes(p.size)) fail(`plate ${p.id}: size "${p.size}" is not one of ${SIZES.join(', ')}`);
     if (p.drawing && p.model) fail(`plate ${p.id}: has both a drawing and a model`);
     if (r.href && !p.drawing && !p.model) fail(`plate ${p.id}: its record has a page, so it needs a drawing or a model`);
     if (!r.href && (p.drawing || p.model)) fail(`plate ${p.id}: its record has no page yet, so it must be a placeholder`);
