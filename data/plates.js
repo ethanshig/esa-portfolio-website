@@ -43,7 +43,8 @@
                                         a drawing's from its image's aspect, aiming at
                                         about 4 modules for 'cell' and 8 for 'wide'
                                         (js/index-sheet/shape.js); a model or a
-                                        placeholder is 2 x 2 for 'cell', 4 x 2 for 'wide'.
+                                        placeholder from its hint (shapeForHint); a placeholder
+                                        may be one module thin: 1 x 1 for s, 2 x 1 for m.
               drawing   string    an image path from the site root      } exactly one of
               model     string    a GLB id: models/<id>.glb             } these two;
                                                                          } neither = placeholder
@@ -100,27 +101,26 @@ export const RECORDS = {
 const P = (id, record, size, f, art = {}) => ({ id, record, size, ...art, facets: { with: f[0], made: f[1], cycle: f[2] } });
 
 export const PLATES = [
-  /* sizes: a first pass by Fay (prototype/plate-sizes, 2026-11-15), for Ethan to correct */
+  /* sizes: Ethan's, from his markup on the prototype (2026-11-15); tlp-section is off the index */
   /* USS Lead */
-  P('uss-atlas', 'uss-lead-revival', 'l', ['plants & fungi', 'gathered', 'waste'], { drawing: TOUR + 'a273-atlas.jpg' }),
-  P('uss-board', 'uss-lead-revival', 'xl', ['a community', 'drawn', 'water'], { drawing: TOUR + 'a273-board.jpg' }),
+  P('uss-atlas', 'uss-lead-revival', 'xl', ['plants & fungi', 'gathered', 'waste'], { drawing: TOUR + 'a273-atlas.jpg' }),
+  P('uss-board', 'uss-lead-revival', 'm', ['a community', 'drawn', 'water'], { drawing: TOUR + 'a273-board.jpg' }),
   /* shape: Ethan wants the gable 3x2 like the other landscape drawings (2026-10-27); the rule alone gives 2x2 */
   P('uss-gable', 'uss-lead-revival', 'cell', ['a community', 'built', 'water'], { drawing: TOUR + 'a273-gable.jpg', shape: [3, 2] }),
-  P('uss-model', 'uss-lead-revival', 'l', ['plants & fungi', 'built', 'waste'], { model: 'uss-lead-revival' }),
+  P('uss-model', 'uss-lead-revival', 's', ['plants & fungi', 'built', 'waste'], { model: 'uss-lead-revival' }),
   /* Beaver's Burden */
   P('bb-catamaraft', 'beavers-burden', 'm', ['animals', 'built', 'water'], { drawing: TOUR + 'bb-catamaraft.jpg' }),
-  P('bb-crawling', 'beavers-burden', 'm', ['animals', 'drawn', 'materials'], { drawing: TOUR + 'bb-crawling.jpg' }),
-  P('bb-landscape', 'beavers-burden', 'l', ['animals', 'drawn', 'water'], { drawing: TOUR + 'bb-landscape.jpg' }),
-  P('bb-standing', 'beavers-burden', 'm', ['animals', 'drawn', 'materials'], { drawing: TOUR + 'bb-standing.jpg' }),
+  P('bb-crawling', 'beavers-burden', 's', ['animals', 'drawn', 'materials'], { drawing: TOUR + 'bb-crawling.jpg' }),
+  P('bb-landscape', 'beavers-burden', 'xl', ['animals', 'drawn', 'water'], { drawing: TOUR + 'bb-landscape.jpg' }),
+  P('bb-standing', 'beavers-burden', 's', ['animals', 'drawn', 'materials'], { drawing: TOUR + 'bb-standing.jpg' }),
   P('bb-model', 'beavers-burden', 'm', ['animals', 'built', 'materials'], { model: 'beavers-burden' }),
   /* Mylo To-Go */
   P('mylo-logo', 'mylo-to-go', 's', ['plants & fungi', 'drawn', 'waste'], { drawing: TOUR + 'mylo-logo.jpg' }),
   P('mylo-picnic', 'mylo-to-go', 'm', ['a community', 'gathered', 'waste'], { drawing: TOUR + 'mylo-picnic.jpg' }),
-  P('mylo-poster', 'mylo-to-go', 'm', ['plants & fungi', 'drawn', 'materials'], { drawing: TOUR + 'mylo-poster.jpg' }),
+  P('mylo-poster', 'mylo-to-go', 'l', ['plants & fungi', 'drawn', 'materials'], { drawing: TOUR + 'mylo-poster.jpg' }),
   P('mylo-model', 'mylo-to-go', 's', ['plants & fungi', 'grown', 'waste'], { model: 'mylo-to-go' }),
   /* 3 Little Pigs */
-  P('tlp-axon', 'three-little-pigs', 'l', ['plants & fungi', 'drawn', 'materials'], { drawing: TOUR + 'tlp-axon.jpg' }),
-  P('tlp-section', 'three-little-pigs', 'm', ['plants & fungi', 'drawn', 'energy'], { drawing: TOUR + 'tlp-section.jpg' }),
+  P('tlp-axon', 'three-little-pigs', 's', ['plants & fungi', 'drawn', 'materials'], { drawing: TOUR + 'tlp-axon.jpg' }),
   P('tlp-model', 'three-little-pigs', 's', ['plants & fungi', 'built', 'materials'], { model: 'three-little-pigs' }),
   /* placeholders: pieces on the index whose Plates are not made yet */
   P('rap-1', 'rap', 'wide', ['a person', 'coded', 'access']),

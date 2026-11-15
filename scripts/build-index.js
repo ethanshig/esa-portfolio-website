@@ -64,7 +64,7 @@ export function computeShapes() {
       }
       shapes[p.id] = { m, n, px: [w, h], keep: Number(keep.toFixed(4)) };
     } else {
-      shapes[p.id] = shapeForHint(p.size);
+      shapes[p.id] = shapeForHint(p.size, { placeholder: !DATA.RECORDS[p.record].href });
     }
   }
   return shapes;

@@ -33,7 +33,7 @@
    same field.
    =================================================================== */
 
-import { MODULE, GUTTER, SPAN_MIN, SPAN_MAX, boxSteps, SIZES } from './shape.js';
+import { MODULE, GUTTER, SPAN_MIN, SPAN_MAX, PLACEHOLDER_SPAN_MIN, boxSteps, SIZES } from './shape.js';
 export { MODULE, GUTTER };
 const CELL = 2 * MODULE;                           /* the old cell pitch: the unit the framing counts in */
 export const NAV_H = 84;                           /* css px the floating nav occupies */
@@ -43,8 +43,15 @@ const W_NEIGHBOURS = 0.15, W_CENTRE = 0.004;
    is most compact (bounding box 13 x 16 modules, 47 module cells of paper inside it, 3 enclosed)
    while mean neighbour similarity rises (0.527 -> 0.532) and more Plates touch one of their own
    Record (21 -> 23 of 27). Below 1.45 or above 2.05 the field loosens or similarity drops. It only
-   chooses WHERE a Plate goes; WHICH Plate goes next is still similarity alone. */
+   chooses WHERE a Plate goes. (Those numbers predate the size scale: see the size pull below.) */
 export const W_CONTACT = 1.75;
+/* Size pull (Ethan, 2026-11-15: "the bigger the plate, the more I want it seen, so they should pack
+   tighter together"). A Plate's weight is its area over a 2 x 2's. WHICH Plate goes next adds
+   W_BIG_ORDER * ln(weight) to its similarity, so big Plates come down early, round the seed (itself
+   the biggest), and the thin placeholders last, on the rim. With today's data: 12 x 14 modules,
+   29 cells of paper, mean neighbour similarity 0.470. Also weighting the centre term by size
+   loosened the field (85 cells of paper), so it is not used. */
+export const W_BIG_ORDER = 1;
 const EPS = 1e-9;
 const FACETS = ['with', 'made', 'cycle'];
 
@@ -82,19 +89,21 @@ export function validatePlates({ VOCAB, RECORDS, PLATES, SHAPES }) {
       if (!VOCAB[f].includes(w)) fail(`plate ${p.id}: ${f} "${w}" is not a ${f} word`);
     }
     const sh = SHAPES[p.id];
-    const okSpan = (k) => Number.isInteger(k) && k >= SPAN_MIN && k <= SPAN_MAX;
-    if (!sh || !okSpan(sh.m) || !okSpan(sh.n)) fail(`plate ${p.id} has no shape of ${SPAN_MIN}..${SPAN_MAX} modules each way in SHAPES (rerun scripts/build-index.js)`);
+    const lo = r.href ? SPAN_MIN : PLACEHOLDER_SPAN_MIN;
+    const okSpan = (k) => Number.isInteger(k) && k >= lo && k <= SPAN_MAX;
+    if (!sh || !okSpan(sh.m) || !okSpan(sh.n)) fail(`plate ${p.id} has no shape of ${lo}..${SPAN_MAX} modules each way in SHAPES (rerun scripts/build-index.js)`);
     if (r.href) real++;
   }
   for (const id of Object.keys(SHAPES)) if (!ids.has(id)) fail(`SHAPES has ${id}, which is not a Plate (rerun scripts/build-index.js)`);
   if (real === 0) fail('no real Plate to seed the field from');
 }
 
+const STEP = { s: 0, cell: 0, m: 1, wide: 1, l: 2, xl: 3 };
 const recency = (r) => (r.dates ? r.dates.end || r.dates.start : '');
 
 /* The field: every Plate placed, plus the growth order, the seed, the Records in the order they
    first appear (each with its hero, its first Plate placed) and the mean edge similarity. */
-export function growField(data, { contactWeight = W_CONTACT } = {}) {
+export function growField(data, { contactWeight = W_CONTACT, bigOrder = W_BIG_ORDER } = {}) {
   validatePlates(data);
   const { RECORDS, PLATES } = data;
   const plates = PLATES.map((p, i) => {
@@ -103,6 +112,7 @@ export function growField(data, { contactWeight = W_CONTACT } = {}) {
     return { ...p, i, m, n, href: r.href, active: r.status === 'active', placeholder: !r.href };
   });
   const n = plates.length;
+  const weight = (p) => (p.m * p.n) / 4;
   const S = plates.map((a) => plates.map((b) => (a === b ? 0 : sim(a, b))));
   const total = S.map((row) => row.reduce((t, x) => t + x, 0));
 
@@ -113,6 +123,10 @@ export function growField(data, { contactWeight = W_CONTACT } = {}) {
     if (p.placeholder) continue;
     if (seed < 0) { seed = i; continue; }
     const q = plates[seed];
+    /* the biggest size step seeds (Ethan, 2026-11-15: arrival lands on the headline work) */
+    const ds = STEP[p.size] - STEP[q.size];
+    if (ds > 0) { seed = i; continue; }
+    if (ds < 0) continue;
     const dt = total[i] - total[seed];
     if (dt > EPS) { seed = i; continue; }
     if (dt < -EPS) continue;
@@ -150,10 +164,10 @@ export function growField(data, { contactWeight = W_CONTACT } = {}) {
   const seedCentre = centre(s0.c, s0.r, s0.m, s0.n);
   const placed = new Set([seed]);
   while (placed.size < n) {
-    let best = -1, bestT = -1, bestM = -1;
+    let best = -1, bestT = -Infinity, bestM = -1;
     for (let i = 0; i < n; i++) {
       if (placed.has(i)) continue;
-      let t = 0, mx = 0;
+      let t = bigOrder * Math.log(weight(plates[i])), mx = 0;
       for (const j of placed) { t += S[i][j]; mx = Math.max(mx, S[i][j]); }
       if (t > bestT + EPS || (Math.abs(t - bestT) < EPS && mx > bestM)) { best = i; bestT = t; bestM = mx; }
     }

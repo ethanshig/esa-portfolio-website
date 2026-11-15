@@ -1,7 +1,7 @@
 /* Tests for the index as a sheet of Plates (issue #17): the growth and the built HTML.
  *
  * They run against the real data (data/plates.js) and the real index.html, because the
- * spec's claims (seed uss-model, mean neighbour similarity 0.512, every real Plate a link)
+ * spec's claims (seed bb-landscape, mean neighbour similarity 0.470, every real Plate a link)
  * are claims about the shipped site.
  *
  * Run: bun scripts/build-index.test.js
@@ -33,17 +33,19 @@ test('similarity counts shared Facets over 3, and an empty cycle never matches',
 
 test('the shape rule: the coordinator\'s numbers, and where the rule as written differs', () => {
   const at = (id) => [SHAPES[id].m, SHAPES[id].n].join('x');
-  assert.strictEqual(at('uss-atlas'), '2x2');
+  /* sizes are Ethan's (markup, 2026-11-15): atlas and landscape XL, poster L, board M */
+  assert.strictEqual(at('uss-atlas'), '4x4');
   assert.strictEqual(at('uss-board'), '3x3');
   for (const id of ['bb-catamaraft', 'bb-crawling', 'bb-standing', 'mylo-picnic', 'tlp-axon']) assert.strictEqual(at(id), '3x2', id);
-  assert.strictEqual(at('mylo-poster'), '2x3');
+  /* crawling, standing and tlp-axon are S, but S is the smallest box that fits: a 3:2 drawing's is 3x2 */
+  assert.strictEqual(at('mylo-poster'), '3x4');
   assert.strictEqual(at('mylo-logo'), '2x2');
-  assert.strictEqual(at('bb-landscape'), '2x5');
-  /* area weight 0.2 (Ethan, 2026-10-27). tlp-section becomes 3x2 as asked; uss-gable (2000x1545,
+  assert.strictEqual(at('bb-landscape'), '3x8');
+  /* area weight 0.2 (Ethan, 2026-10-27). uss-gable (2000x1545,
      about 4:3, a 'cell') becomes 2x2, not 3x2: 2x2 keep .773 - 0 = .773 beats 3x2 .824 - .2 ln 1.5 = .743
      and 4x3 .949 - .2 ln 3 = .730. No area weight gives it 3x2 with target 4: 3x2 beats 2x2 only
      below .126 and beats 4x3 only above .180. */
-  assert.strictEqual(at('tlp-section'), '3x2');
+  assert.ok(!SHAPES['tlp-section'], 'tlp-section is off the index (Ethan, 2026-11-15)');
   /* so the gable carries Ethan's override, shape: [3, 2], in data/plates.js */
   const rule = shapeForImage(2000, 1545, 'cell');
   assert.strictEqual(`${rule.m}x${rule.n}`, '2x2');
@@ -59,6 +61,13 @@ test('a 533 x 1600 image gets n > m; spans stay in 2..8; hints give 2x2 and 4x2'
   }
   assert.deepStrictEqual(shapeForHint('cell'), { m: 2, n: 2 });
   assert.deepStrictEqual(shapeForHint('wide'), { m: 4, n: 2 });
+  /* the size scale (2026-11-15): each step aims at a bigger area, and placeholders may be one module thin */
+  const area = (sz) => { const t = shapeForImage(1600, 1067, sz); return t.m * t.n; };
+  assert.ok(area('s') <= area('m') && area('m') <= area('l') && area('l') < area('xl'), ['s', 'm', 'l', 'xl'].map(area).join(' '));
+  assert.deepStrictEqual(['s', 'm', 'l', 'xl'].map((z) => shapeForHint(z)), [{ m: 2, n: 2 }, { m: 4, n: 2 }, { m: 4, n: 3 }, { m: 5, n: 4 }]);
+  assert.deepStrictEqual(shapeForHint('cell', { placeholder: true }), { m: 1, n: 1 });
+  assert.deepStrictEqual(shapeForHint('wide', { placeholder: true }), { m: 2, n: 1 });
+  assert.throws(() => shapeForImage(1600, 1067, 'huge'), /not one of/);
   assert.deepStrictEqual(boxSteps(2, 2), [28, 28]);
   assert.deepStrictEqual(boxSteps(4, 2), [60, 28]);
   assert.throws(() => shapeForImage(0, 10, 'cell'), /not measurable/);
@@ -68,23 +77,33 @@ test('data/plate-shapes.js is what build-index.js writes now (rerun it after cha
   assert.strictEqual(readFileSync(join(root, 'data/plate-shapes.js'), 'utf8'), renderShapes(computeShapes()));
 });
 
-test('the seed is uss-model, a real Plate; the mean neighbour similarity on the module grid is 0.529', () => {
+test('the seed is bb-landscape, the biggest real Plate; the mean neighbour similarity on the module grid is 0.470', () => {
   const seed = F.plates[F.seed];
-  assert.strictEqual(seed.id, 'uss-model');
+  assert.strictEqual(seed.id, 'bb-landscape');   /* uss-model before the size scale; XL ties break on Facets */
   assert.ok(!seed.placeholder);
-  assert.strictEqual(F.meanEdge.toFixed(3), '0.529');   /* 0.532 before the gable override */
+  /* 0.529 before the size scale (2026-11-15) */
+  assert.strictEqual(F.meanEdge.toFixed(3), '0.470');
 });
 
-test('contact packs the field tighter without losing neighbour similarity', () => {
+test('contact packs the field tighter', () => {
   const loose = growField({ ...DATA, SHAPES }, { contactWeight: 0 });
   const paper = (G) => {
     const w = Math.max(...G.plates.map((p) => p.c + p.m)) - Math.min(...G.plates.map((p) => p.c));
     const h = Math.max(...G.plates.map((p) => p.r + p.n)) - Math.min(...G.plates.map((p) => p.r));
     return w * h - G.plates.reduce((t, p) => t + p.m * p.n, 0);
   };
-  assert.strictEqual(paper(F), 45);   /* with the gable at 3x2 (its override) */
+  assert.strictEqual(paper(F), 29);   /* 45 before the size scale */
   assert.ok(paper(F) < paper(loose), `${paper(F)} vs ${paper(loose)} module cells of paper`);
-  assert.ok(F.meanEdge >= loose.meanEdge, `${F.meanEdge} vs ${loose.meanEdge}`);
+});
+
+test('the size pull brings the big Plates in round the seed', () => {
+  const flat = growField({ ...DATA, SHAPES }, { bigOrder: 0 });
+  const spread = (G) => {
+    const s = G.plates[G.seed], at = (p) => [p.c + p.m / 2, p.r + p.n / 2], [sx, sy] = at(s);
+    const big = G.plates.filter((p) => !p.placeholder && p.m * p.n >= 9);
+    return big.reduce((t, p) => t + Math.hypot(at(p)[0] - sx, at(p)[1] - sy), 0) / big.length;
+  };
+  assert.ok(spread(F) < spread(flat), `${spread(F)} vs ${spread(flat)} modules from the seed`);
 });
 
 test('the growth is deterministic', () => {
