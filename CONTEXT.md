@@ -33,10 +33,17 @@ _Avoid_: tag, topic, preference
 
 ## The page
 
+**Sheet**:
+The project page: the dot paper with a Record's Drawings laid flat on it, and its model standing in
+dimetric beside them when it has one (ADR-0007). Only the story panel at the foot scrolls. If the
+work is 3D it renders 3D; if it is 2D it renders 2D.
+_Avoid_: canvas (fine in speech), page (too general), layout, Document (that is the panel)
+
 **Document**:
-The conventional project page — hero, meta, `The story`, `What I did`, `Process`, `Outcome`,
-`Reflection`, `Drawings`. It is written from Record prose, ships whole in the HTML, and never
-moves or rearranges when the story is on.
+The project's prose in a fixed order — hero, meta, `The story`, `What I did`, `Process`, `Outcome`,
+`Reflection`, `Drawings`. It is written from Record prose and ships whole in the HTML. It is no
+longer the page: it is the story-off panel on the Sheet and the no-WebGL fallback (ADR-0007). The
+scrolling Document pages that `scripts/build-project-pages.js` still generates are the old shape.
 _Avoid_: page (too general), article, detail view, case study
 
 **Narration**:
