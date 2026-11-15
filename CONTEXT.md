@@ -45,11 +45,13 @@ Document, held on one line at the foot and keyed to the section a reader has rea
 _Avoid_: story (the Record field is named that), copy, voiceover, text
 
 **Plate**:
-One tile on the index: a square cell, or two cells wide, showing one of a Record's Drawings or its
-model, cropped to fit. A Record shows on the index as one or more Plates — more for more extensive
-work — and every Plate opens that Record's page. A Plate whose art is not made yet stands in as a
-dashed placeholder that opens nothing.
-_Avoid_: artifact (Ethan's "records are artifacts" means a Record is never rewritten), tile, card, thumbnail
+One tile on the index: a box of whole modules showing one of a Record's Drawings or its model,
+cropped to fit. Its **shape** follows its Drawing's aspect; its **size** is a step Ethan gives it
+(S, M, L, XL) for the work and the emphasis it carries. The bigger a Plate, the nearer the start of
+the field it sits, and the biggest seeds it. A Record shows on the index as one or more Plates —
+more for more extensive work — and every Plate opens that Record's page. A Plate whose art is not
+made yet stands in as a dashed placeholder, as thin as one module, that opens nothing.
+_Avoid_: artifact (Ethan's "records are artifacts" means a Record is never rewritten), tile, card, thumbnail; weight or priority for its size
 
 **Facet**:
 One of three short, shared vocabularies a Plate is tagged with, which decide which Plates lie next
