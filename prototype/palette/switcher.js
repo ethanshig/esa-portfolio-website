@@ -16,7 +16,9 @@
   let draw = ['blue', 'shot', 'flush'].includes(q.get('drawings')) ? q.get('drawings') : 'blue';
   let wash = q.get('wash') === 'on' ? 'on' : 'off';   /* rev 4, Ethan: "No watercolor background" */
   /* rev 4: the saturation dial, 0 grey .. 1 as drawn .. 1.5 */
-  let sat = q.has('sat') ? Math.max(0, Math.min(1.5, +q.get('sat'))) : 1;
+  /* rev 5: Ethan likes 45% by day; night has its own dial, so the Prussian night keeps its blue */
+  let sat = q.has('sat') ? Math.max(0, Math.min(1.5, +q.get('sat'))) : 0.45;
+  let nsat = q.has('nsat') ? Math.max(0, Math.min(1.5, +q.get('nsat'))) : 1;
   /* rev 2 behaviours: Daylight follows the sun (live, or scrubbed through a Champaign day); Grid-aware is simulated */
   let grid = ['low', 'moderate', 'high'].includes(q.get('grid')) ? q.get('grid') : 'moderate';
   let hour = q.has('hour') ? Math.max(0, Math.min(24, +q.get('hour'))) : null;   /* null = now */
@@ -53,7 +55,7 @@ html[data-wash="on"] .pp-wash { display: block; }
 .pp-wash-paint { filter: url(#pp-paint); opacity: var(--pp-painted, 0); }
 #pp-bar .pp-beh { display: none; align-items: center; gap: 6px; }
 #pp-bar .pp-beh.on { display: inline-flex; }
-#pp-bar input[type=range] { width: 140px; }
+#pp-bar input[type=range] { width: 90px; }
 html[data-vision="protan"] { filter: url(#pp-protan); }
 html[data-vision="deutan"] { filter: url(#pp-deutan); }
 html[data-vision="tritan"] { filter: url(#pp-tritan); }
@@ -87,14 +89,23 @@ html[data-vision="achroma"] { filter: url(#pp-achroma); }
   const clock = (d) => d.toLocaleTimeString('en-US', { timeZone: 'America/Chicago', hour: '2-digit', minute: '2-digit', hour12: false });
   let sun = null;   /* { alt, paper } while Daylight holds the page */
   /* the tokens on the page now */
-  const tok = () => window.ESA_SAT(sun ? sun.paper : pal().behaviour === 'wc-still' ? window.ESA_WC_STILL[mode()] : pal()[mode()], sat);
+  const raw = () => (sun ? sun.paper : pal().behaviour === 'wc-still' ? window.ESA_WC_STILL[mode()] : pal()[mode()]);
+  const isNight = () => (sun ? sun.paper.theme : mode()) === 'dark';
+  const tok = () => window.ESA_SAT(raw(), isNight() ? nsat : sat);
   const follows = () => pal().behaviour === 'sun' || pal().behaviour === 'wc-sun';
 
   /* the SVG filters: one per vision kind (Machado 2009, applied in linear light), and the duotone */
   function filters() {
     const mat = (m) => `${m[0].join(' ')} 0 0 ${m[1].join(' ')} 0 0 ${m[2].join(' ')} 0 0 0 0 0 1 0`;
     const lin = (h) => [1, 3, 5].map((i) => { const c = parseInt(h.slice(i, i + 2), 16) / 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; });
-    const m = tok(), ink = lin(m.ink), bg = lin(m.bg);
+    const m = tok();
+    /* the images' two colours. By day: ink for their darks, paper for their lights. By night (rev 5) they
+       stay positive, not negatives: a deep Prussian for their darks and a lamp-dimmed cream for their
+       lights, like blue prints laid on the dark sheet. */
+    const night = isNight();
+    const lo = night ? window.ESA_SAT({ c: '#0b1d3d' }, nsat).c : m.ink;
+    const hi = night ? window.ESA_SAT({ c: '#d9ceb6' }, nsat).c : m.bg;
+    const ink = lin(lo), bg = lin(hi);
     const sr = [1, 3, 5].map((i) => (parseInt(m.bg.slice(i, i + 2), 16) / 255).toFixed(4));   /* multiply by the paper: white takes it */
     const ach = '0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0 0 0 1 0';
     return `<svg id="pp-svg" width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -220,7 +231,8 @@ html[data-vision="achroma"] { filter: url(#pp-achroma); }
     if (push) {
       const u = new URLSearchParams(location.search);
       u.set('palette', cur); u.set('vision', vision); u.set('drawings', draw);
-      if (sat !== 1) u.set('sat', sat); else u.delete('sat');
+      if (sat !== 0.45) u.set('sat', sat); else u.delete('sat');
+      if (nsat !== 1) u.set('nsat', nsat); else u.delete('nsat');
       u.delete('grid'); if (wash === 'on') u.set('wash', 'on'); else u.delete('wash');
       if (follows() && hour !== null) u.set('hour', hour); else u.delete('hour');
       history.replaceState(history.state, '', location.pathname + '?' + u + location.hash);
@@ -237,7 +249,7 @@ html[data-vision="achroma"] { filter: url(#pp-achroma); }
     }
     if (bar) {
       const m = tok(), worst = Math.min(...C.audit(m).map((r) => Math.min(r.ink / 7, r.muted / 4.5, r.accent / 3, r.sep / 20)));
-      bar.querySelector('.pp-satv').innerHTML = `${Math.round(sat * 100)}% ${worst >= 1 ? '<b style="color:#0a6b2f">✓</b>' : '<b style="color:#c00">✗ fails a check</b>'}`;
+      bar.querySelector('.pp-satv').innerHTML = `${isNight() ? 'night' : 'day'} ${Math.round((isNight() ? nsat : sat) * 100)}% ${worst >= 1 ? '<b style="color:#0a6b2f">✓</b>' : '<b style="color:#c00">✗ fails a check</b>'}`;
     }
     if (sw) { const m = tok(); sw.innerHTML = ['bg', 'ink', 'muted', 'accent'].map((k) => `<i title="${k} ${m[k]}" style="background:${m[k]}"></i>`).join(''); }
     state();
@@ -256,7 +268,7 @@ html[data-vision="achroma"] { filter: url(#pp-achroma); }
       `contrast with the paper (want ink 7, muted 4.5, accent 3)\nΔE accent from ink (want 20)\n${rows.join('\n')}\n\n` +
       (sun ? `Champaign ${sun.time}${hour === null ? ' (now)' : ' (scrubbed)'}  sun ${sun.alt.toFixed(1)}° ${sun.rising ? 'rising' : 'setting'}  → ${m.theme} paper\n` : '') +
       (m.pig ? `wash ${wash}: pigment ${m.pig}  deepest ${m.dense}  painted ${(m.painted * 100).toFixed(0)}%\n  ink on the deepest wash ${C.contrast(m.ink, m.dense).toFixed(1)}:1\n` : '') +
-      `saturation ${Math.round(sat * 100)}%\n` +
+      `saturation: day ${Math.round(sat * 100)}%, night ${Math.round(nsat * 100)}% (${isNight() ? 'night' : 'day'} now)\n` +
       `vision preview: ${vision}   drawings: ${pal().behaviour === 'grid' ? 'set by the grid' : draw}\nline drawings found: ${lines} of ${imgs.length} plates\n(placeholder colours: R6, the Palette is Ethan's own)`;
   }
 
@@ -270,7 +282,8 @@ html[data-vision="achroma"] { filter: url(#pp-achroma); }
     bar = document.createElement('div'); bar.id = 'pp-bar';
     bar.innerHTML = `<span class="pp-tag">PROTOTYPE</span><button data-d="-1" aria-label="Previous palette">←</button><span class="pp-label"></span><button data-d="1" aria-label="Next palette">→</button><span class="pp-sw"></span>
       <select data-k="vision" aria-label="Vision preview">${C.KINDS.map((k) => `<option${k === vision ? ' selected' : ''}>${k}</option>`).join('')}</select>
-      saturation <input type="range" data-k="sat" min="0" max="1.5" step="0.05" value="${sat}" aria-label="Saturation"><span class="pp-satv"></span>
+      day <input type="range" data-k="sat" min="0" max="1.5" step="0.05" value="${sat}" aria-label="Day saturation">
+      night <input type="range" data-k="nsat" min="0" max="1.5" step="0.05" value="${nsat}" aria-label="Night saturation"><span class="pp-satv"></span>
       <select data-k="draw" aria-label="Images on the paper">${['blue', 'shot', 'flush'].map((k) => `<option${k === draw ? ' selected' : ''}>${k}</option>`).join('')}</select>
       <span class="pp-beh" data-beh="sun">sun <input type="range" min="0" max="24" step="0.25" aria-label="Hour in Champaign" value="${hour === null ? 12 : hour}"><button data-k="now">now</button></span>
       <span class="pp-beh" data-beh="wash">wash <select data-k="wash" aria-label="Watercolour wash">${['on', 'off'].map((k) => `<option${k === wash ? ' selected' : ''}>${k}</option>`).join('')}</select></span>
@@ -292,6 +305,7 @@ html[data-vision="achroma"] { filter: url(#pp-achroma); }
     });
     bar.addEventListener('input', (e) => {
       if (e.target.dataset.k === 'sat') { sat = +e.target.value; apply(true); }
+      else if (e.target.dataset.k === 'nsat') { nsat = +e.target.value; apply(true); }
       else if (e.target.type === 'range') { hour = +e.target.value; apply(true); }
     });
     attachReveal();
