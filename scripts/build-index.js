@@ -183,6 +183,7 @@ export function render({ plates, records }) {
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/index-sheet.css">
     <script>${PRE_PAINT}</script>
+    <script src="js/daylight.js"></script>
     <script type="importmap">
     {
         "imports": {

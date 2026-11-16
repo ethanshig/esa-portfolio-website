@@ -15,6 +15,7 @@
      - the model stills (platestill.js), repainted when the theme turns
    JavaScript adds no text: every title is in the HTML (scripts/build-index.js).
    =================================================================== */
+import { createReveal } from './reveal.js';
 import { MODULE, NAV_H, frameAround } from './field.js';
 import { renderStills } from './platestill.js';
 import { createPlateLive } from './platelive.js';
@@ -155,6 +156,7 @@ export function attachPlates({ sheet, stage, field, records, reduceMotion }) {
      at a time. */
   const live = createPlateLive({ stage, before: overlay, sheet, reduceMotion, pxPerStep: PX_PER_STEP,
     onHold: (p, on) => { const img = imgs[real.indexOf(p)]; if (img) img.style.visibility = on ? 'hidden' : ''; } });
+  const reveal = createReveal({ reduceMotion });
   let hovered = null;
   function hoverPlate(p) {
     if (p === hovered) return;
@@ -162,6 +164,7 @@ export function attachPlates({ sheet, stage, field, records, reduceMotion }) {
     if (frameOf(hovered)) frameOf(hovered).classList.remove('is-on');
     hovered = p;
     if (frameOf(p)) frameOf(p).classList.add('is-on');
+    reveal(p && !p.model ? imgs[real.indexOf(p)] : null);
     live.hover(p);
   }
   /* Without hover a tap simply opens the Plate. The model Plates turn of their own accord instead: the
