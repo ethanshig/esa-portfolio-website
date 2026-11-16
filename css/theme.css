@@ -4,8 +4,9 @@
    the index and on every project page.
 
    The site is dark (style.css). <html data-theme="light"> swaps in the
-   light tokens; js/theme.js turns it and remembers it in esa-theme; each
-   page's head script applies it before first paint.
+   light tokens. These are the fallback, black and white, for a page
+   without JavaScript: js/daylight.js sets the paper's colours inline from
+   the sun over Champaign before first paint, and js/theme.js pins one.
    =================================================================== */
 
 html[data-theme="light"] {

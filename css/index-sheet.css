@@ -68,6 +68,11 @@ html.ix-index.ls-on .navbar:has(.nav-menu.active) { background: var(--color-bg);
 /* a model's still is drawn in the dark paper's ink: on light paper it inverts */
 .ix-plate img.ix-still { object-fit: contain; background: none; }
 html[data-theme="light"] .ix-plate img.ix-still { filter: invert(1); }
+/* on the sheet, every image is printed in the paper's two colours until it is hovered, when it fades into
+   its own (js/daylight.js makes #esa-duo and #esa-reveal; js/index-sheet/reveal.js drives the fade).
+   Only on the live sheet: the plain index of links keeps the images' own colour. */
+html.env-live .env-plane-img:not(.ix-model) { filter: url(#esa-duo); }
+html.env-live .env-plane-img.is-revealed:not(.ix-model) { filter: url(#esa-reveal); }
 .ix-plate .ix-name { display: inline; }
 .ix-meta { color: var(--color-text-light); opacity: 0.6; }
 /* the box keeps its shape: the image fills it, the title sits inside its foot */

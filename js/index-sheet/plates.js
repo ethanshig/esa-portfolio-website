@@ -15,6 +15,7 @@
      - the model stills (platestill.js), repainted when the theme turns
    JavaScript adds no text: every title is in the HTML (scripts/build-index.js).
    =================================================================== */
+import { createReveal } from './reveal.js';
 import { MODULE, NAV_H, frameAround } from './field.js';
 import { renderStills } from './platestill.js';
 import { createPlateLive } from './platelive.js';
@@ -155,6 +156,7 @@ export function attachPlates({ sheet, stage, field, records, reduceMotion }) {
      at a time. */
   const live = createPlateLive({ stage, before: overlay, sheet, reduceMotion, pxPerStep: PX_PER_STEP,
     onHold: (p, on) => { const img = imgs[real.indexOf(p)]; if (img) img.style.visibility = on ? 'hidden' : ''; } });
+  const reveal = createReveal({ reduceMotion });
   let hovered = null;
   function hoverPlate(p) {
     if (p === hovered) return;
@@ -162,6 +164,7 @@ export function attachPlates({ sheet, stage, field, records, reduceMotion }) {
     if (frameOf(hovered)) frameOf(hovered).classList.remove('is-on');
     hovered = p;
     if (frameOf(p)) frameOf(p).classList.add('is-on');
+    reveal(p && !p.model ? imgs[real.indexOf(p)] : null);
     live.hover(p);
   }
   /* Without hover a tap simply opens the Plate. The model Plates turn of their own accord instead: the
@@ -169,16 +172,39 @@ export function attachPlates({ sheet, stage, field, records, reduceMotion }) {
      and again, for as long as it stays in view. Only one turns at a time. */
   const AUTO_DELAY = 0.6, AUTO_UP = 3.7, AUTO_CYCLE = 6.4;        /* s: plan first, axon (0.7 + 3), back (0.7 + 2) */
   let auto = null;                                                /* { p, t0 } */
-  function autoTurn() {
+  /* the Plate of a kind (model or image) most central and wholly in view, or null */
+  function centred(model) {
     const f = { left: 0, right: W(), top: NAV_H, bottom: H() };
     let best = null, bd = Infinity;
     for (const p of real) {
-      if (!p.model) continue;
+      if (!p.model !== !model) continue;
       const [x0, y0] = sheet.toScreen(p.rect.u0, p.rect.v0), [x1, y1] = sheet.toScreen(p.rect.u1, p.rect.v1);
       if (x0 < f.left || x1 > f.right || y0 < f.top || y1 > f.bottom) continue;
       const d = Math.hypot((x0 + x1 - f.left - f.right) / 2, (y0 + y1 - f.top - f.bottom) / 2);
       if (d < bd) { bd = d; best = p; }
     }
+    return best;
+  }
+  /* the image Plate under the middle of the screen; a tall Plate can fill a phone without being wholly in
+     view. Failing that (the middle falls in a gap), the image Plate nearest the middle that is at least
+     half in view. */
+  function centredImage() {
+    const f = { left: 0, right: W(), top: NAV_H, bottom: H() };
+    const cx = (f.left + f.right) / 2, cy = (f.top + f.bottom) / 2;
+    let best = null, bd = Infinity;
+    for (const p of real) {
+      if (p.model) continue;
+      const [x0, y0] = sheet.toScreen(p.rect.u0, p.rect.v0), [x1, y1] = sheet.toScreen(p.rect.u1, p.rect.v1);
+      if (cx >= x0 && cx <= x1 && cy >= y0 && cy <= y1) return p;
+      const seen = Math.max(0, Math.min(x1, f.right) - Math.max(x0, f.left)) * Math.max(0, Math.min(y1, f.bottom) - Math.max(y0, f.top));
+      if (seen < 0.5 * (x1 - x0) * (y1 - y0)) continue;
+      const d = Math.hypot((x0 + x1) / 2 - cx, (y0 + y1) / 2 - cy);
+      if (d < bd) { bd = d; best = p; }
+    }
+    return best;
+  }
+  function autoTurn() {
+    const best = centred(true);
     const now = performance.now() / 1000;
     if (!auto || auto.p !== best) auto = { p: best, t0: now + AUTO_DELAY };
     const e = now - auto.t0;
@@ -236,6 +262,9 @@ export function attachPlates({ sheet, stage, field, records, reduceMotion }) {
       }
     }
     if (noHover && !reduceMotion) autoTurn();
+    /* without hover, the image Plate most central and wholly in view shows in its own colour (Ethan,
+       2026-11-16: "when plate is centered"); the rest stay in the paper's two colours */
+    if (noHover) { const p = centredImage(); reveal(p ? imgs[real.indexOf(p)] : null); }
     /* arrows beside the current Record's hero, each on the side that faces the Record it leads to */
     const hero = L.records[cur].hero;
     const n = L.records.length;
