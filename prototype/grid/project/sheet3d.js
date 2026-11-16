@@ -85,6 +85,7 @@ const MARK_FILL = { rest: 0.05, hot: 0.18 };
 /* story focus (prototype, round 8): everything stays on the sheet; what the story points at holds
    full ink and the rest dims to DIM. ?focus=off keeps everything lit, for comparison. */
 const DIM = 0.2;
+const COLOUR = ['all', 'story', 'hover'].includes(new URLSearchParams(location.search).get('colour')) ? new URLSearchParams(location.search).get('colour') : 'all';
 const REVEAL_EASE = 0.1;            /* seconds: a hovered raster drawing's fade into its own colour (~350 ms) */
 const FOCUS_EASE = 0.16;            /* seconds: the time constant of the dim */         /* the cut rectangle stands this far proud of the end face */
 
@@ -1020,9 +1021,17 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     const op = 1 - (1 - GHOST_OPACITY) * ghost;
     const zoomK = clamp(cam.s / 16, 0.55, 1.5) * (1 - 0.45 * ghost);
     if (lit && storyOff()) setFocus('sheet');
-    /* the raster drawing in its own colour: the hovered one, or without hover the one in the middle */
+    /* which raster drawings show their own colour (PROTOTYPE ?colour=, Ethan 2026-11-16: "should all the
+       images be the monotone before hovered since the user is already on the page?"):
+         all   every drawing, always (the default: inside a project the drawings are the content)
+         story the drawings the Narration is on, plus the hovered one; all of them when the whole sheet is up
+         hover the hovered one, or without hover the one in the middle (the index's rule) */
     const shown = hot || (noHover ? centredRaster() : null);
-    for (const d of drawings) if (d.revealTo !== undefined) d.revealTo = d.id === shown && !d.broken ? 1 : 0;
+    for (const d of drawings) {
+      if (d.revealTo === undefined) continue;
+      const on = COLOUR === 'all' ? true : COLOUR === 'story' ? (d.id === hot || !lit || lit.has(d.id)) : d.id === shown;
+      d.revealTo = on && !d.broken ? 1 : 0;
+    }
     stepFocus(performance.now() / 1000);
     for (const { m, w, item } of lineMats) { m.linewidth = WEIGHT_PX[w] * zoomK; m.opacity = op * item.f; }
     for (const d of drawings) {

@@ -94,6 +94,8 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   let raf = 0;
   let hot = null;
   const noHover = window.matchMedia('(hover: none)').matches;
+  const COLOUR = ['all', 'story', 'hover'].includes(new URLSearchParams(location.search).get('colour')) ? new URLSearchParams(location.search).get('colour') : 'all';
+  document.documentElement.setAttribute('data-colour', COLOUR);
   const reveal = createReveal({ reduceMotion });
 
   /* the page's own limits, inside the engine's */
@@ -190,6 +192,8 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     }
     frameEl.classList.toggle('is-on', !!hot);
     /* the drawing in its own colour: the hovered one, or without hover the one in the middle (env.css) */
+    /* PROTOTYPE ?colour= (see sheet3d.js): a flat sheet has no story focus, so 'story' is 'all' here */
+    if (COLOUR !== 'hover') { reveal(null); return; }
     const shown = hot || (noHover ? centred() : null);
     reveal(shown && !byId.get(shown).img.classList.contains('is-broken') ? byId.get(shown).img : null);
   }
