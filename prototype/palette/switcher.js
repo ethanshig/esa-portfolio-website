@@ -1,6 +1,6 @@
 /* PROTOTYPE (prototype/palette) — throwaway. Question: what colour should the site be, beyond black
    and white, while staying readable to every kind of colour vision?
-   Rev 2 (family 1, family 2, and two that behave: the sun over Champaign, a simulated grid).
+   Rev 3: Ethan's watercolour (IMG_7650) as the paper, its pigment following the sun over Champaign; the work shown as made.
    Five palettes on the real index, switchable with ?palette=a..e, the floating bar's arrows, or ← →.
    The nav's own light/dark cell still turns each palette's paper. The bar also previews the page
    through protan, deutan, tritan and achromat eyes, and how the drawings sit on coloured paper.
@@ -11,7 +11,9 @@
   const keys = P.map((p) => p.key);
   let cur = keys.includes(q.get('palette')) ? q.get('palette') : 'b';
   let vision = C.KINDS.includes(q.get('vision')) ? q.get('vision') : 'normal';
-  let draw = ['shot', 'flush', 'ink'].includes(q.get('drawings')) ? q.get('drawings') : 'flush';
+  /* rev 3: the work is shown as made (Ethan: "ultimately I need to communicate the design"), so no reprinting */
+  let draw = ['shot', 'flush'].includes(q.get('drawings')) ? q.get('drawings') : 'flush';
+  let wash = q.get('wash') === 'off' ? 'off' : 'on';
   /* rev 2 behaviours: Daylight follows the sun (live, or scrubbed through a Champaign day); Grid-aware is simulated */
   let grid = ['low', 'moderate', 'high'].includes(q.get('grid')) ? q.get('grid') : 'moderate';
   let hour = q.has('hour') ? Math.max(0, Math.min(24, +q.get('hour'))) : null;   /* null = now */
@@ -38,6 +40,11 @@ html[data-palette="e"][data-grid="moderate"][data-theme="light"] .env-plane-img:
 html[data-palette="e"][data-grid="moderate"][data-theme="dark"] .env-plane-img:not(.pp-line):not(.ix-model) { filter: none; }
 html[data-palette="e"][data-grid="high"] .env-plane-img:not(.ix-model) { filter: url(#pp-duo); }
 html[data-palette="e"][data-grid="high"] .env-dots { opacity: 0.15; }
+/* the wash sits under the dots and the plates; the plates are never filtered by it */
+.pp-wash { position: absolute; inset: 0; pointer-events: none; display: none; background: url(prototype/palette/wash.jpg) center / cover no-repeat; }
+html[data-wash="on"] .pp-wash { display: block; }
+.pp-wash-tint { filter: url(#pp-tint); }
+.pp-wash-paint { filter: url(#pp-paint); opacity: var(--pp-painted, 0); }
 #pp-bar .pp-beh { display: none; align-items: center; gap: 6px; }
 #pp-bar .pp-beh.on { display: inline-flex; }
 #pp-bar input[type=range] { width: 140px; }
@@ -74,7 +81,8 @@ html[data-vision="achroma"] { filter: url(#pp-achroma); }
   const clock = (d) => d.toLocaleTimeString('en-US', { timeZone: 'America/Chicago', hour: '2-digit', minute: '2-digit', hour12: false });
   let sun = null;   /* { alt, paper } while Daylight holds the page */
   /* the tokens on the page now */
-  const tok = () => (pal().behaviour === 'sun' ? sun.paper : pal()[mode()]);
+  const tok = () => (sun ? sun.paper : pal().behaviour === 'wc-still' ? window.ESA_WC_STILL[mode()] : pal()[mode()]);
+  const follows = () => pal().behaviour === 'sun' || pal().behaviour === 'wc-sun';
 
   /* the SVG filters: one per vision kind (Machado 2009, applied in linear light), and the duotone */
   function filters() {
@@ -87,12 +95,35 @@ html[data-vision="achroma"] { filter: url(#pp-achroma); }
       ${['protan', 'deutan', 'tritan'].map((k) => `<filter id="pp-${k}" color-interpolation-filters="linearRGB"><feColorMatrix type="matrix" values="${mat(C.M[k])}"/></filter>`).join('')}
       <filter id="pp-achroma" color-interpolation-filters="linearRGB"><feColorMatrix type="matrix" values="${ach}"/></filter>
       <filter id="pp-flush" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="${sr[0]} 0 0 0 0 0 ${sr[1]} 0 0 0 0 0 ${sr[2]} 0 0 0 0 0 1 0"/></filter>
+      ${m.pig ? washFilters(m) : ''}
       <filter id="pp-duo" color-interpolation-filters="linearRGB">
         <feColorMatrix type="matrix" values="${ach}"/>
         <feComponentTransfer>
           <feFuncR type="table" tableValues="${ink[0]} ${bg[0]}"/><feFuncG type="table" tableValues="${ink[1]} ${bg[1]}"/><feFuncB type="table" tableValues="${ink[2]} ${bg[2]}"/>
         </feComponentTransfer>
       </filter></svg>`;
+  }
+
+  /* the wash: Ethan's watercolour with the pen taken out (make-wash.py). tint: its densities in the
+     hour's pigment, from the paper (none) to m.dense (deepest); paint: its own colours, lifted to the
+     same strength and laid on the paper. The check holds the ink to 4.5:1 on m.dense. */
+  function washFilters(m) {
+    const ch = (h) => [1, 3, 5].map((i) => (parseInt(h.slice(i, i + 2), 16) / 255).toFixed(4));
+    const d = ch(m.dense), b = ch(m.bg), WP = 236 / 255, k = (1 - m.s).toFixed(4);
+    return `<filter id="pp-tint" color-interpolation-filters="sRGB">
+        <feColorMatrix type="matrix" values="0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0 0 0 1 0"/>
+        <feComponentTransfer><feFuncR type="linear" slope="2.08" intercept="-0.94"/><feFuncG type="linear" slope="2.08" intercept="-0.94"/><feFuncB type="linear" slope="2.08" intercept="-0.94"/></feComponentTransfer>
+        <feComponentTransfer><feFuncR type="table" tableValues="${d[0]} ${b[0]}"/><feFuncG type="table" tableValues="${d[1]} ${b[1]}"/><feFuncB type="table" tableValues="${d[2]} ${b[2]}"/></feComponentTransfer>
+      </filter>
+      <filter id="pp-paint" color-interpolation-filters="sRGB">
+        <feComponentTransfer><feFuncR type="linear" slope="${m.s.toFixed(4)}" intercept="${k}"/><feFuncG type="linear" slope="${m.s.toFixed(4)}" intercept="${k}"/><feFuncB type="linear" slope="${m.s.toFixed(4)}" intercept="${k}"/></feComponentTransfer>
+        <feColorMatrix type="matrix" values="${(b[0] / WP).toFixed(4)} 0 0 0 0 0 ${(b[1] / WP).toFixed(4)} 0 0 0 0 0 ${(b[2] / WP).toFixed(4)} 0 0 0 0 0 1 0"/>
+      </filter>`;
+  }
+  function mountWash() {
+    const stage = document.querySelector('.env-stage');
+    if (!stage || stage.querySelector('.pp-wash')) return;
+    stage.insertAdjacentHTML('afterbegin', '<div class="pp-wash pp-wash-tint" aria-hidden="true"></div><div class="pp-wash pp-wash-paint" aria-hidden="true"></div>');
   }
 
   /* a line drawing is a drawing with almost no colour in it; photographs and coloured drawings keep theirs */
@@ -119,9 +150,10 @@ html[data-vision="achroma"] { filter: url(#pp-achroma); }
   let applying = false;
   function apply(push) {
     if (applying) return; applying = true;
-    if (pal().behaviour === 'sun') {
+    if (follows()) {
       const d = when(), alt = window.ESA_SUN_ALT(d);
-      sun = { alt, time: clock(d), paper: window.ESA_SUN_PAPER(alt) };
+      const rising = window.ESA_SUN_ALT(new Date(d.getTime() + 6e5)) > alt;
+      sun = { alt, rising, time: clock(d), paper: pal().behaviour === 'wc-sun' ? window.ESA_WC(alt, rising) : window.ESA_SUN_PAPER(alt) };
       const m = sun.paper;
       const set = { '--color-bg': m.bg, '--color-bg-alt': m.alt, '--color-primary': m.ink, '--color-text': m.ink, '--color-secondary': m.muted,
         '--color-text-light': m.muted, '--color-utility-gray': m.muted, '--color-accent': m.accent, '--color-border': m.border };
@@ -130,7 +162,16 @@ html[data-vision="achroma"] { filter: url(#pp-achroma); }
     } else {
       sun = null;
       root.removeAttribute('style');
+      if (pal().behaviour === 'wc-still') {
+        const m = window.ESA_WC_STILL[mode()];
+        const set = { '--color-bg': m.bg, '--color-bg-alt': m.alt, '--color-primary': m.ink, '--color-text': m.ink, '--color-secondary': m.muted,
+          '--color-text-light': m.muted, '--color-utility-gray': m.muted, '--color-accent': m.accent, '--color-border': m.border };
+        for (const [k, v] of Object.entries(set)) root.style.setProperty(k, v);
+      }
     }
+    const w = tok();
+    root.setAttribute('data-wash', w.pig && wash === 'on' ? 'on' : 'off');
+    if (w.pig) root.style.setProperty('--pp-painted', w.painted.toFixed(3));
     root.setAttribute('data-grid', grid);
     root.setAttribute('data-palette', cur);
     root.setAttribute('data-vision', vision);
@@ -138,8 +179,8 @@ html[data-vision="achroma"] { filter: url(#pp-achroma); }
     if (push) {
       const u = new URLSearchParams(location.search);
       u.set('palette', cur); u.set('vision', vision); u.set('drawings', draw);
-      if (pal().behaviour === 'grid') u.set('grid', grid); else u.delete('grid');
-      if (pal().behaviour === 'sun' && hour !== null) u.set('hour', hour); else u.delete('hour');
+      u.delete('grid'); if (wash === 'off') u.set('wash', 'off'); else u.delete('wash');
+      if (follows() && hour !== null) u.set('hour', hour); else u.delete('hour');
       history.replaceState(history.state, '', location.pathname + '?' + u + location.hash);
     }
     const old = document.getElementById('pp-svg'); if (old) old.remove();
@@ -147,7 +188,8 @@ html[data-vision="achroma"] { filter: url(#pp-achroma); }
     if (window.__esaRepaint) window.__esaRepaint();     /* the sheet's dots and the model stills are painted in page colours */
     if (label) { label.innerHTML = `<span class="pp-tag">${cur.toUpperCase()}</span> ${pal().name} · ${sun ? `${sun.time} · sun ${sun.alt.toFixed(0)}°` : mode()}`; }
     if (bar) {
-      bar.querySelector('[data-beh="sun"]').classList.toggle('on', pal().behaviour === 'sun');
+      bar.querySelector('[data-beh="sun"]').classList.toggle('on', follows());
+      bar.querySelector('[data-beh="wash"]').classList.toggle('on', !!tok().pig);
       bar.querySelector('[data-beh="grid"]').classList.toggle('on', pal().behaviour === 'grid');
       bar.querySelector('[data-k="draw"]').disabled = pal().behaviour === 'grid';
     }
@@ -166,7 +208,8 @@ html[data-vision="achroma"] { filter: url(#pp-achroma); }
     panel.innerHTML = `<b>${cur.toUpperCase()} ${pal().name} — ${mode()} paper</b>\n${pal().note.replace(/(.{1,52})(\s|$)/g, '$1\n')}` +
       `bg ${m.bg}  ink ${m.ink}  muted ${m.muted}\naccent ${m.accent}  border ${m.border}\n\n` +
       `contrast with the paper (want ink 7, muted 4.5, accent 3)\nΔE accent from ink (want 20)\n${rows.join('\n')}\n\n` +
-      (sun ? `Champaign ${sun.time}${hour === null ? ' (now)' : ' (scrubbed)'}  sun ${sun.alt.toFixed(1)}°  → ${m.theme} paper\n` : '') +
+      (sun ? `Champaign ${sun.time}${hour === null ? ' (now)' : ' (scrubbed)'}  sun ${sun.alt.toFixed(1)}° ${sun.rising ? 'rising' : 'setting'}  → ${m.theme} paper\n` : '') +
+      (m.pig ? `wash ${wash}: pigment ${m.pig}  deepest ${m.dense}  painted ${(m.painted * 100).toFixed(0)}%\n  ink on the deepest wash ${C.contrast(m.ink, m.dense).toFixed(1)}:1\n` : '') +
       (pal().behaviour === 'grid' ? `grid (simulated): ${grid}\n` : '') +
       `vision preview: ${vision}   drawings: ${pal().behaviour === 'grid' ? 'set by the grid' : draw}\nline drawings found: ${lines} of ${imgs.length} plates\n(placeholder colours: R6, the Palette is Ethan's own)`;
   }
@@ -181,8 +224,9 @@ html[data-vision="achroma"] { filter: url(#pp-achroma); }
     bar = document.createElement('div'); bar.id = 'pp-bar';
     bar.innerHTML = `<span class="pp-tag">PROTOTYPE</span><button data-d="-1" aria-label="Previous palette">←</button><span class="pp-label"></span><button data-d="1" aria-label="Next palette">→</button><span class="pp-sw"></span>
       <select data-k="vision" aria-label="Vision preview">${C.KINDS.map((k) => `<option${k === vision ? ' selected' : ''}>${k}</option>`).join('')}</select>
-      <select data-k="draw" aria-label="Drawings on the paper">${['shot', 'flush', 'ink'].map((k) => `<option${k === draw ? ' selected' : ''}>${k}</option>`).join('')}</select>
+      <select data-k="draw" aria-label="Drawings on the paper">${['shot', 'flush'].map((k) => `<option${k === draw ? ' selected' : ''}>${k}</option>`).join('')}</select>
       <span class="pp-beh" data-beh="sun">sun <input type="range" min="0" max="24" step="0.25" aria-label="Hour in Champaign" value="${hour === null ? 12 : hour}"><button data-k="now">now</button></span>
+      <span class="pp-beh" data-beh="wash">wash <select data-k="wash" aria-label="Watercolour wash">${['on', 'off'].map((k) => `<option${k === wash ? ' selected' : ''}>${k}</option>`).join('')}</select></span>
       <span class="pp-beh" data-beh="grid">grid <select data-k="grid" aria-label="Grid intensity (simulated)">${['low', 'moderate', 'high'].map((k) => `<option${k === grid ? ' selected' : ''}>${k}</option>`).join('')}</select></span>
       <button data-k="state">numbers</button>`;
     document.body.appendChild(bar);
@@ -196,11 +240,11 @@ html[data-vision="achroma"] { filter: url(#pp-achroma); }
     });
     bar.addEventListener('change', (e) => {
       const k = e.target.dataset.k;
-      if (k === 'vision') vision = e.target.value; else if (k === 'grid') grid = e.target.value; else if (k === 'draw') draw = e.target.value; else return;
+      if (k === 'vision') vision = e.target.value; else if (k === 'grid') grid = e.target.value; else if (k === 'wash') wash = e.target.value; else if (k === 'draw') draw = e.target.value; else return;
       apply(true);
     });
     bar.addEventListener('input', (e) => { if (e.target.type === 'range') { hour = +e.target.value; apply(true); } });
-    setInterval(() => { if (pal().behaviour === 'sun' && hour === null) apply(false); }, 60000);
+    setInterval(() => { if (follows() && hour === null) apply(false); }, 60000);
     document.addEventListener('keydown', (e) => {
       if (e.target.closest('input, textarea, select, [contenteditable]')) return;
       if (e.key === 'ArrowLeft') step(-1); else if (e.key === 'ArrowRight') step(1);
@@ -208,6 +252,6 @@ html[data-vision="achroma"] { filter: url(#pp-achroma); }
     /* the nav's light/dark cell turns the paper: follow it */
     new MutationObserver(() => apply(false)).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
     new MutationObserver(tagLines).observe(document.body, { childList: true, subtree: true });
-    apply(false); tagLines();
+    mountWash(); apply(false); tagLines();
   });
 })();

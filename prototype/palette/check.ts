@@ -10,8 +10,13 @@ const test = (label: string, m: any, quiet = false) => {
     r.ink < 7 && `${r.kind} ink ${r.ink.toFixed(1)}`, r.muted < 4.5 && `${r.kind} muted ${r.muted.toFixed(1)}`,
     r.accent < 3 && `${r.kind} accent ${r.accent.toFixed(1)}`, r.sep < 20 && `${r.kind} accent~ink dE ${r.sep.toFixed(0)}`,
   ].filter(Boolean));
+  /* a wash under text: the ink must still read on the deepest wash (4.5, AA), under every kind of vision */
+  if (m.dense) for (const k of G.ESA_CVD.KINDS) {
+    const r = G.ESA_CVD.contrast(G.ESA_CVD.simulate(m.ink, k), G.ESA_CVD.simulate(m.dense, k));
+    if (r < 4.5) fails.push(`${k} ink on wash ${r.toFixed(1)}`);
+  }
   const n = rows[0];
-  if (!quiet || fails.length) console.log(`${label.padEnd(34)} ink ${n.ink.toFixed(1)} muted ${n.muted.toFixed(1)} accent ${n.accent.toFixed(1)} minSep ${Math.min(...rows.map((r: any) => r.sep)).toFixed(0)}  ${fails.length ? 'FAIL ' + fails.join(', ') : 'ok'}`);
+  if (!quiet || fails.length) console.log(`${label.padEnd(34)}${m.dense ? ` onWash ${G.ESA_CVD.contrast(m.ink, m.dense).toFixed(1)}` : ''} ink ${n.ink.toFixed(1)} muted ${n.muted.toFixed(1)} accent ${n.accent.toFixed(1)} minSep ${Math.min(...rows.map((r: any) => r.sep)).toFixed(0)}  ${fails.length ? 'FAIL ' + fails.join(', ') : 'ok'}`);
   bad += fails.length;
 };
 for (const p of G.ESA_PALETTES) {
@@ -19,6 +24,12 @@ for (const p of G.ESA_PALETTES) {
     for (let a = -20; a <= 75; a += 0.5) test(`${p.key} ${p.name} sun ${a}°`, G.ESA_SUN_PAPER(a), ![-20, -1.5, -1, 0, 20, 50, 75].includes(a));
     continue;
   }
+  if (p.behaviour === 'wc-sun') {
+    for (const rising of [true, false]) for (let a = -20; a <= 75; a += 0.5)
+      test(`${p.key} ${rising ? 'rise' : 'set'} ${a}°`, G.ESA_WC(a, rising), ![-20, -1, 0, 6, 12, 28].includes(a));
+    continue;
+  }
+  if (p.behaviour === 'wc-still') { for (const mode of ['light', 'dark']) test(`${p.key} ${p.name} ${mode}`, G.ESA_WC_STILL[mode]); continue; }
   for (const mode of ['light', 'dark']) test(`${p.key} ${p.name} ${mode}`, p[mode]);
 }
 const day = new Date(); day.setUTCHours(18, 0, 0, 0);
