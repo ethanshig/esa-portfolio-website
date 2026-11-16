@@ -135,9 +135,7 @@
     return apply();
   }
 
-  /* the paper on the page now (a canvas reads its image colours from it) */
-  const current = () => (last ? last.paper : apply().paper);
-  g.ESA_DAYLIGHT = { sunAltitude, paper, saturate, apply, pin, pinned, current, SATURATION };
+  g.ESA_DAYLIGHT = { sunAltitude, paper, saturate, apply, pin, pinned, SATURATION };
 
   /* before first paint, then once the body exists (for the filters), then every minute */
   apply();
