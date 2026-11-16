@@ -1,5 +1,5 @@
 ---
-status: proposed (prototype on branch prototype/grid; grid, seat, datum, palette and controls settled 2026-10-17 — variants kept at tag prototype/grid-variants-r7)
+status: accepted 2026-11-15 (Ethan; the three Media Lab Sheets are its first generated pages). Was proposed, prototype on branch prototype/grid; grid, seat, datum, palette and controls settled 2026-10-17 — variants kept at tag prototype/grid-variants-r7
 ---
 
 # The project page is the drawing sheet
