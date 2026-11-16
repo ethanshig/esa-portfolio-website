@@ -82,3 +82,33 @@
     return { theme: 'dark', bg, alt: mix(bg, '#ffffff', 0.04), ink: '#f1e6cf', muted: '#b9c3d3', accent: '#e0a040', border: mix(bg, '#ffffff', 0.1) };
   };
 })(typeof window !== 'undefined' ? window : globalThis);
+
+/* ---- rev 4: the saturation dial. Chroma scaled in CIELAB (k = 0 grey, 1 as drawn, up to 1.5), so
+   lightness, and with it contrast, barely moves. Out-of-gamut results are clipped to sRGB. ---- */
+(function (g) {
+  const lin = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  const gam = (c) => { c = Math.min(1, Math.max(0, c)); return c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055; };
+  const W = [0.95047, 1, 1.08883];
+  function toLab(h) {
+    const [r, gg, b] = [1, 3, 5].map((i) => lin(parseInt(h.slice(i, i + 2), 16) / 255));
+    const xyz = [0.4124 * r + 0.3576 * gg + 0.1805 * b, 0.2126 * r + 0.7152 * gg + 0.0722 * b, 0.0193 * r + 0.1192 * gg + 0.9505 * b];
+    const f = (t) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116);
+    const [X, Y, Z] = xyz.map((v, i) => f(v / W[i]));
+    return [116 * Y - 16, 500 * (X - Y), 200 * (Y - Z)];
+  }
+  function toHex([L, a, b]) {
+    const Y = (L + 16) / 116, X = a / 500 + Y, Z = Y - b / 200;
+    const fi = (t) => (t ** 3 > 0.008856 ? t ** 3 : (t - 16 / 116) / 7.787);
+    const [x, y, z] = [fi(X) * W[0], fi(Y) * W[1], fi(Z) * W[2]];
+    const rgb = [3.2406 * x - 1.5372 * y - 0.4986 * z, -0.9689 * x + 1.8758 * y + 0.0415 * z, 0.0557 * x - 0.204 * y + 1.057 * z];
+    return '#' + rgb.map((c) => Math.round(gam(c) * 255).toString(16).padStart(2, '0')).join('');
+  }
+  g.ESA_SAT = function (m, k) {
+    if (k === 1) return m;
+    const out = { ...m };
+    for (const [key, v] of Object.entries(m)) if (typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v)) {
+      const [L, a, b] = toLab(v); out[key] = toHex([L, a * k, b * k]);
+    }
+    return out;
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
