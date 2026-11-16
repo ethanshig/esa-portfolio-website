@@ -1,0 +1,43 @@
+/* ===================================================================
+   THEME — light or dark paper, site-wide (issue #17, from prototype/grid's
+   project/env.css). Loads after css/style.css and css/line-system.css on
+   the index and on every project page.
+
+   The site is dark (style.css). <html data-theme="light"> swaps in the
+   light tokens; js/theme.js turns it and remembers it in esa-theme; each
+   page's head script applies it before first paint.
+   =================================================================== */
+
+html[data-theme="light"] {
+    --color-primary: #1a1a1a;
+    --color-secondary: #555;
+    --color-accent: #6b52d6;     /* the terracotta is too pale on white: a deeper violet, 5.3:1 */
+    --color-bg: #fafafa;
+    --color-bg-alt: #f0f0f0;
+    --color-text: #1a1a1a;
+    --color-text-light: #5f6468;
+    --color-utility-gray: #666;
+    --color-border: #e2e2e2;
+    color-scheme: light;
+}
+html[data-theme="dark"] { color-scheme: dark; }
+
+/* The line system's nav links are white, made for the dark paper; on light paper they take the ink.
+   (The mark and the outlines are white blended by difference, so they invert on their own.) */
+html[data-theme="light"].ls-on .nav-link,
+html[data-theme="light"].ls-on .nav-link:hover,
+html[data-theme="light"].ls-on .nav-link.active { color: var(--color-primary); }
+
+/* The switch: the nav's last item, one cell split on its middle line. The ink sits on the left on
+   dark paper and slides to the right on light, so the cell always shows which paper is down. */
+.env-theme { display: inline-flex; align-items: center; padding: 0; border: 0; background: none; cursor: pointer; color: inherit; font: inherit; }
+.env-theme svg { width: 14px; height: 14px; display: block; overflow: visible; }
+.env-theme svg rect, .env-theme svg line { stroke: currentColor; stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.env-theme-cell { fill: none; }
+.env-theme-ink { fill: currentColor; transition: transform 0.25s ease; }
+html[data-theme="light"] .env-theme-ink { transform: translateX(7.25px); }
+.env-theme:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) { .env-theme-ink { transition: none; } }
+
+/* the negative flip is driven from js/theme.js; the browser's default crossfade is off */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }

@@ -136,21 +136,30 @@ In the mockup, 21 outlines drew in on a 14 × 7 lattice. On the site the row cou
 
 - **Only the circles turn, about their own centres. The bar never moves.**
 - The circles touch, so they turn like meshed gears: **e and a anticlockwise, s clockwise.**
-- Relay, 12s cycle, starting from the moment the logo is built:
+- **Relay, 600s cycle**, starting from the moment the logo is built. It is slowed
+  until it reads as still: a glance shows "esa", and a minute later a letter has
+  quietly gone over. Every turn is a full circle, so the mark always lands back on
+  the word; what changes is that the visitor is far more likely to catch it partway.
 
 | Letter | Turn starts | Duration | Amount |
 |--------|------------|----------|--------|
-| e | 0.6 s | 3.2 s | 360° |
-| s | 2.8 s | 3.2 s | 360° |
-| a | 5.0 s | 3.2 s | 360° |
-| (rest on "esa") | 8.2 s → 12.6 s | 4.4 s | — |
+| e | 20 s | 150 s | 360° |
+| s | 190 s | 150 s | 360° |
+| a | 360 s | 150 s | 360° |
+| (rest on "esa") | 510 s → 600 s | 90 s | — |
+
+- At 150 s a full circle, a stroke on the logo travels well under a pixel a second:
+  below the threshold where the eye reads it as motion rather than as change.
+- The page loads at the start of the rest window, so the mark is on the word when
+  it is first seen and the first turn comes about 110 s later.
 
 - Easing is sine in-out (`0.5 − 0.5·cos(πp)`). Every turn ends exactly on the word.
 
 ```js
+const CYCLE = 600, FIRST = 20, GAP = 170, TURN = 150;   // seconds
 function turns(t){                         // t = seconds on the logo's clock
-  const c = t % 12, dir = [1, -1, 1];
-  return [0,1,2].map(i => (2*Math.PI * calm((c - 0.6 - i*2.2) / 3.2)) % (2*Math.PI) * dir[i]);
+  const c = t % CYCLE, dir = [1, -1, 1];
+  return [0,1,2].map(i => (2*Math.PI * calm((c - FIRST - i*GAP) / TURN)) % (2*Math.PI) * dir[i]);
 }
 // rotate a point about its circle centre (screen y is flipped, so + is anticlockwise):
 // x' = ox + dx·cosθ + dy·sinθ ;  y' = dy·cosθ − dx·sinθ

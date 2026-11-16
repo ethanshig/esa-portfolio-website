@@ -95,7 +95,7 @@ function getEasterEggPosition() {
     const availableCells = [];
     for (let row = 1; row <= 8; row++) {
         for (let col = 1; col <= 12; col++) {
-            // Skip ESA, navigation, and theme toggle cells
+            // Skip ESA and navigation cells
             if (!isCellOccupied(row, col)) {
                 availableCells.push({ row, col });
             }
@@ -108,11 +108,10 @@ function getEasterEggPosition() {
 }
 
 function isCellOccupied(row, col) {
-    // Check if cell contains ESA, navigation, or theme toggle
+    // Check if cell contains ESA or navigation
     if (row === 5 && col >= 6 && col <= 8) return true; // ESA
     if (row === 5) return true; // Resume and About horizontal
     if (col === 6 || col === 8) return true; // Projects and Contact vertical
-    if (row === 1 && col === 12) return true; // Theme toggle
     return false;
 }
 
@@ -181,15 +180,6 @@ function createCell(row, col) {
         if (letterData.type === 'esa') {
             cell.classList.add('esa-letter');
         }
-    }
-
-    // Theme toggle cell
-    if (row === 1 && col === 12) {
-        cell.innerHTML = `
-            <div class="theme-toggle-cell" onclick="toggleTheme()">
-                <span class="theme-icon-landing" id="theme-icon-landing">☀</span>
-            </div>
-        `;
     }
 
     return cell;
@@ -363,34 +353,6 @@ function navigateToPage(word) {
         window.location.href = pages[word];
     }
 }
-
-/* ===================================
-   THEME TOGGLE
-   =================================== */
-function toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-
-    // Update icon
-    const icon = document.getElementById('theme-icon-landing');
-    if (icon) {
-        icon.textContent = newTheme === 'dark' ? '☀' : '☽';
-    }
-}
-
-// Initialize theme from localStorage
-(function initTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-
-    const icon = document.getElementById('theme-icon-landing');
-    if (icon) {
-        icon.textContent = savedTheme === 'dark' ? '☀' : '☽';
-    }
-})();
 
 /* ===================================
    EASTER EGG

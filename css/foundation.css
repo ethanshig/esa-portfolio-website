@@ -100,14 +100,6 @@
     --grid-line-dotted: 1px;
 }
 
-/* Dark Mode Theme */
-[data-theme="dark"] {
-    --color-primary: var(--color-primary-dark);
-    --color-bg: var(--color-bg-dark);
-    --color-border: var(--color-border-dark);
-    --color-gray: var(--color-gray-dark);
-}
-
 /* ===================================
    RESET & BASE STYLES
    =================================== */

@@ -7,6 +7,7 @@
     --L: clamp(28px, 5.667vw, 96px);           /* one lattice step = one esa circle radius */
     --L4: calc(var(--L) / 4);                  /* fine lattice */
     --logo-h: clamp(15px, 3.1vw, 30px);
+    --nav-top: max(var(--L4), 26px);           /* the tour's nav rhythm, shared */
     --ls-ink: var(--color-primary, #1a1a1a);
 }
 
@@ -14,8 +15,7 @@
 html.ls-on .navbar {
     box-shadow: none !important;               /* main.js adds a scroll shadow; the bar is the edge now */
     border-bottom: none;
-    padding-block: var(--L4);
-    padding-inline: 0;
+    padding: var(--nav-top) 0 var(--L4);       /* same rhythm as the tour's header */
     background-color: var(--color-bg);
     backdrop-filter: none;
 }
@@ -34,7 +34,8 @@ html.ls-on .nav-container {
     width: calc(100% - 2 * var(--L));
     height: 100%;
     overflow: visible;
-    color: var(--ls-ink);
+    color: #fff;
+    mix-blend-mode: difference;
     pointer-events: none;
 }
 html.ls-on .navbar .logo {
@@ -64,19 +65,20 @@ html.ls-on .navbar .logo:focus-visible {
 }
 .ls-links-in .ls-nav-right { opacity: 1; }
 html.ls-on .nav-menu { gap: clamp(0.9rem, 2vw, 2rem); align-items: flex-end; }
-html.ls-on .nav-link { line-height: 1; display: block; }
-html.ls-on .nav-link::after { display: none; }
-html.ls-on .navbar .theme-toggle {
-    border: none;
-    padding: 0;
-    margin: 0;
+/* The tour's links: white, held back to 62% until you reach for them. The bar stays
+   opaque here rather than difference-blended like the tour's, because body text scrolls
+   under it on about and resume - the tour can be transparent only because a full-bleed
+   drawing sits behind it. */
+html.ls-on .nav-link {
     line-height: 1;
-    font-size: var(--text-sm);
-    color: var(--color-text-light);
-    background: transparent;
+    display: block;
+    color: #fff;
+    opacity: 0.62;
+    font-size: 0.85rem;
+    transition: opacity 180ms ease;
 }
-html.ls-on .navbar .theme-toggle:hover { color: var(--color-primary); }
-html.ls-on .theme-icon:empty { display: none; }
+html.ls-on .nav-link:hover, html.ls-on .nav-link.active { opacity: 1; color: #fff; }
+html.ls-on .nav-link::after { display: none; }
 
 @media (max-width: 768px) {
     html.ls-on .nav-menu {
@@ -89,13 +91,16 @@ html.ls-on .theme-icon:empty { display: none; }
 }
 
 /* ---------- outlines ---------- */
+/* Structure as inversion: painted white, blended by difference, so each stroke
+   reads as the negative of whatever it crosses. */
 .ls-outline-layer {
     position: absolute;
     left: 0;
     top: 0;
     pointer-events: none;
     overflow: visible;
-    color: var(--ls-ink);
+    color: #fff;
+    mix-blend-mode: difference;
     z-index: 900;                              /* over content, under the fixed nav */
 }
 
@@ -112,6 +117,11 @@ html.ls-on .project-hero-image {
     overflow: hidden;
     margin-inline: var(--L);
     width: round(down, calc(100% - 2 * var(--L)), var(--L));
+}
+/* height in whole L too (spec §4), under the same cap project.css sets */
+html.ls-on .project-hero-image img { max-height: round(down, 70vh, var(--L)); }
+@media (max-width: 768px) {
+    html.ls-on .project-hero-image img { max-height: round(down, 50vh, var(--L)); }
 }
 html.ls-on .gallery-item img {
     border-radius: var(--L);
@@ -162,113 +172,6 @@ html.ls-on .contact-form textarea {
 .ls-word.is-ready .ls-word-prompt { opacity: 1; }
 .ls-word.is-leaving .ls-word-prompt { opacity: 0; }
 
-/* home: every edge on the lattice */
-.ls-home {
-    padding-top: calc(var(--logo-h) + 2 * var(--L4) + var(--L));
-    padding-inline: var(--L);
-    padding-bottom: var(--L);
-    display: grid;
-    grid-template-columns: repeat(auto-fill, var(--L));
-    grid-auto-rows: var(--L);
-    align-content: start;
-    transition: opacity 0.8s ease;
-}
-.ls-home.is-waiting { opacity: 0; }
-.ls-home > * { min-width: 0; min-height: 0; margin: 0; }
-
-.ls-hero {
-    grid-column: 1 / span 8;
-    grid-row: 1 / span 5;
-    border-radius: var(--L);
-    overflow: hidden;
-    display: block;
-    position: relative;
-}
-.ls-hero img, .ls-thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: grayscale(100%);
-    transition: filter var(--transition-slow, 0.6s);
-}
-.ls-hero:hover img, .ls-thumb:hover img { filter: grayscale(0); }
-.ls-hero-caption, .ls-thumb-caption {
-    position: absolute;
-    left: var(--L4);
-    bottom: var(--L4);
-    font-size: var(--text-xs);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--color-primary);
-    background: var(--color-bg);
-    padding: 0.35em 0.9em;
-    border-radius: 999px;
-}
-
-.ls-intro {
-    grid-column: 10 / span 6;
-    grid-row: 1 / span 5;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-.ls-intro h1 {
-    font-size: var(--text-2xl);
-    font-weight: 500;
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    text-wrap: balance;
-    padding-top: var(--L4);
-}
-.ls-intro p {
-    font-size: var(--text-base);
-    line-height: 1.55;
-    color: var(--color-text-light);
-    max-width: 40ch;
-}
-.ls-intro .ls-rule-row { height: var(--L); display: flex; align-items: center; }
-
-.ls-thumb {
-    grid-row: 7 / span 3;
-    border-radius: var(--L);
-    overflow: hidden;
-    position: relative;
-    display: block;
-}
-.ls-thumb-1 { grid-column: 1 / span 3; }
-.ls-thumb-2 { grid-column: 6 / span 3; }
-
-.ls-cta-row {
-    grid-column: 10 / span 6;
-    grid-row: 7 / span 3;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    gap: var(--L4);
-}
-.ls-cta {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: max(calc(3 * var(--L4)), 44px);     /* touch target floor on phones */
-    padding-inline: var(--L);
-    border-radius: 999px;
-    font-size: var(--text-sm);
-    letter-spacing: 0.04em;
-    color: var(--color-primary);
-    align-self: flex-start;
-}
-.ls-cta-secondary { color: var(--color-text-light); }
-
-@media (max-width: 900px) {
-    /* narrow: stack, but every height stays a whole number of lattice steps */
-    .ls-home { display: flex; flex-wrap: wrap; gap: var(--L) var(--L); align-content: flex-start; }
-    .ls-hero   { width: 100%; height: calc(7 * var(--L)); }
-    .ls-intro  { width: 100%; gap: var(--L4); }
-    .ls-thumb  { width: calc(50% - var(--L) / 2); height: calc(5 * var(--L)); }
-    .ls-cta-row { width: 100%; }
-}
-
 @media (prefers-reduced-motion: reduce) {
-    .ls-word, .ls-home, .ls-nav-right { transition: none; }
+    .ls-word, .ls-nav-right { transition: none; }
 }

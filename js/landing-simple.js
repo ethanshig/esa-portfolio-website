@@ -14,11 +14,6 @@ const gridLayout = {
         { letter: 'a', row: 5, col: 8, class: 'letter-esa' }
     ],
 
-    // Theme toggle - has its own cell
-    theme: [
-        { row: 1, col: 12 } // Top right corner
-    ],
-
     // Easter egg - bouncing egg that appears on random/rotating cell
     easterEgg: [
         { row: 8, col: 3 } // Bottom left area (grid is 8 rows max)
@@ -160,45 +155,20 @@ function generateGrid(gridOverlay) {
 
         const cellData = cellMap.get(key);
 
-        // Check if this is the theme toggle cell
-        const isThemeCell = gridLayout.theme.some(t => t.row === row && t.col === col);
-
         // Check if this is the easter egg cell
         const isEasterEggCell = gridLayout.easterEgg.some(e => e.row === row && e.col === col);
 
-        if (isThemeCell) {
-            // Theme toggle cell
-            cell.classList.add('theme-cell', 'interactive');
-            cell.id = 'theme-cell';
-
-            const currentTheme = localStorage.getItem('theme') || 'light';
-            const currentIcon = currentTheme === 'light' ? 'Sun.jpg' : 'Moon.jpg';
-            const hoverIcon = currentTheme === 'light' ? 'Moon.jpg' : 'Sun.jpg';
-
-            cell.innerHTML = `
-                <div class="flip-card">
-                    <div class="flip-card-front">
-                        <img src="images/${currentIcon}" alt="Current theme" class="theme-icon">
-                    </div>
-                    <div class="flip-card-back">
-                        <img src="images/${hoverIcon}" alt="Toggle theme" class="theme-icon">
-                    </div>
-                </div>
-            `;
-        } else if (isEasterEggCell) {
+        if (isEasterEggCell) {
             // Easter egg cell
             cell.classList.add('easter-egg-cell', 'interactive');
             cell.id = 'easter-egg-cell';
 
-            const currentTheme = localStorage.getItem('theme') || 'light';
-            const keyIcon = currentTheme === 'light' ? 'key-light.svg' : 'key-dark.svg';
-
             cell.innerHTML = `
                 <div class="flip-card">
                     <div class="flip-card-front">
                     </div>
                     <div class="flip-card-back">
-                        <img src="images/${keyIcon}" alt="Secret key" class="easter-egg-key">
+                        <img src="images/key-dark.svg" alt="Secret key" class="easter-egg-key">
                     </div>
                 </div>
             `;
@@ -252,12 +222,6 @@ function generateGrid(gridOverlay) {
 function setupHoverEffects() {
     const allCells = document.querySelectorAll('.grid-cell.interactive');
 
-    // Setup theme toggle
-    const themeCell = document.getElementById('theme-cell');
-    if (themeCell) {
-        themeCell.addEventListener('click', toggleTheme);
-    }
-
     // Setup easter egg click
     const easterEggCell = document.getElementById('easter-egg-cell');
     if (easterEggCell) {
@@ -271,8 +235,8 @@ function setupHoverEffects() {
     }
 
     allCells.forEach(cell => {
-        // Skip theme cell and easter egg cell for word hover effects
-        if (cell.id === 'theme-cell' || cell.id === 'easter-egg-cell') return;
+        // Skip the easter egg cell for word hover effects
+        if (cell.id === 'easter-egg-cell') return;
         cell.addEventListener('mouseenter', () => {
             const word = cell.dataset.word;
             if (!word) return;
@@ -338,33 +302,6 @@ function setupHoverEffects() {
     link.href = href;
     document.head.appendChild(link);
 });
-
-// Theme toggle function
-function toggleTheme() {
-    const html = document.documentElement;
-    const currentTheme = html.getAttribute('data-theme');
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-
-    html.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-
-    // Update theme cell icons
-    updateThemeCell(newTheme);
-}
-
-function updateThemeCell(theme) {
-    const themeCell = document.getElementById('theme-cell');
-    if (!themeCell) return;
-
-    const currentIcon = theme === 'light' ? 'Sun.jpg' : 'Moon.jpg';
-    const hoverIcon = theme === 'light' ? 'Moon.jpg' : 'Sun.jpg';
-
-    const frontImg = themeCell.querySelector('.flip-card-front img');
-    const backImg = themeCell.querySelector('.flip-card-back img');
-
-    if (frontImg) frontImg.src = `images/${currentIcon}`;
-    if (backImg) backImg.src = `images/${hoverIcon}`;
-}
 
 console.log('Landing page initialized');
 console.log('Grid layout:', gridLayout);

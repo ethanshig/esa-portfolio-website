@@ -1,0 +1,240 @@
+/* Tests for the index as a sheet of Plates (issue #17): the growth and the built HTML.
+ *
+ * They run against the real data (data/plates.js) and the real index.html, because the
+ * spec's claims (seed bb-landscape, mean neighbour similarity 0.470, every real Plate a link)
+ * are claims about the shipped site.
+ *
+ * Run: bun scripts/build-index.test.js
+ */
+import assert from 'node:assert';
+import { readFileSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import * as DATA from '../data/plates.js';
+import { growField, validatePlates, sim, frameAround, limitsFor, NAV_H } from '../js/index-sheet/field.js';
+import { shapeForImage, shapeForHint, boxSteps } from '../js/index-sheet/shape.js';
+import { SHAPES } from '../data/plate-shapes.js';
+import { plan, render, load, computeShapes, renderShapes } from './build-index.js';
+import { isBold } from '../js/axon/dimetric.js';
+
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+let pass = 0;
+const test = (name, fn) => { try { fn(); pass++; } catch (e) { console.error('FAIL ' + name + '\n  ' + e.message); process.exitCode = 1; } };
+
+const F = growField({ ...DATA, SHAPES });
+const CELL = 32;
+
+test('similarity counts shared Facets over 3, and an empty cycle never matches', () => {
+  const a = { facets: { with: 'designers', made: 'coded', cycle: null } };
+  const b = { facets: { with: 'designers', made: 'drawn', cycle: null } };
+  assert.strictEqual(sim(a, b), 1 / 3);
+  assert.strictEqual(sim(a, a), 2 / 3);
+});
+
+test('the shape rule: the coordinator\'s numbers, and where the rule as written differs', () => {
+  const at = (id) => [SHAPES[id].m, SHAPES[id].n].join('x');
+  /* sizes are Ethan's (markup, 2026-11-15): atlas and landscape XL, poster L, board M */
+  assert.strictEqual(at('uss-atlas'), '4x4');
+  assert.strictEqual(at('uss-board'), '3x3');
+  for (const id of ['bb-catamaraft', 'bb-crawling', 'bb-standing', 'mylo-picnic', 'tlp-axon']) assert.strictEqual(at(id), '3x2', id);
+  /* crawling, standing and tlp-axon are S, but S is the smallest box that fits: a 3:2 drawing's is 3x2 */
+  assert.strictEqual(at('mylo-poster'), '3x4');
+  assert.strictEqual(at('mylo-logo'), '2x2');
+  assert.strictEqual(at('bb-landscape'), '3x8');
+  /* area weight 0.2 (Ethan, 2026-10-27). uss-gable (2000x1545,
+     about 4:3, a 'cell') becomes 2x2, not 3x2: 2x2 keep .773 - 0 = .773 beats 3x2 .824 - .2 ln 1.5 = .743
+     and 4x3 .949 - .2 ln 3 = .730. No area weight gives it 3x2 with target 4: 3x2 beats 2x2 only
+     below .126 and beats 4x3 only above .180. */
+  assert.ok(!SHAPES['tlp-section'], 'tlp-section is off the index (Ethan, 2026-11-15)');
+  /* so the gable carries Ethan's override, shape: [3, 2], in data/plates.js */
+  const rule = shapeForImage(2000, 1545, 'cell');
+  assert.strictEqual(`${rule.m}x${rule.n}`, '2x2');
+  assert.strictEqual(at('uss-gable'), '3x2');
+});
+
+test('a 533 x 1600 image gets n > m; spans stay in 2..8; hints give 2x2 and 4x2', () => {
+  const s = shapeForImage(533, 1600, 'cell');
+  assert.ok(s.n > s.m, `${s.m}x${s.n}`);
+  for (const [w, h] of [[10000, 10], [10, 10000], [1, 1]]) for (const size of ['cell', 'wide']) {
+    const t = shapeForImage(w, h, size);
+    assert.ok(t.m >= 2 && t.m <= 8 && t.n >= 2 && t.n <= 8, `${w}x${h} ${size}: ${t.m}x${t.n}`);
+  }
+  assert.deepStrictEqual(shapeForHint('cell'), { m: 2, n: 2 });
+  assert.deepStrictEqual(shapeForHint('wide'), { m: 4, n: 2 });
+  /* the size scale (2026-11-15): each step aims at a bigger area, and placeholders may be one module thin */
+  const area = (sz) => { const t = shapeForImage(1600, 1067, sz); return t.m * t.n; };
+  assert.ok(area('s') <= area('m') && area('m') <= area('l') && area('l') < area('xl'), ['s', 'm', 'l', 'xl'].map(area).join(' '));
+  assert.deepStrictEqual(['s', 'm', 'l', 'xl'].map((z) => shapeForHint(z)), [{ m: 2, n: 2 }, { m: 4, n: 2 }, { m: 4, n: 3 }, { m: 5, n: 4 }]);
+  assert.deepStrictEqual(shapeForHint('cell', { placeholder: true }), { m: 1, n: 1 });
+  assert.deepStrictEqual(shapeForHint('wide', { placeholder: true }), { m: 2, n: 1 });
+  assert.throws(() => shapeForImage(1600, 1067, 'huge'), /not one of/);
+  assert.deepStrictEqual(boxSteps(2, 2), [28, 28]);
+  assert.deepStrictEqual(boxSteps(4, 2), [60, 28]);
+  assert.throws(() => shapeForImage(0, 10, 'cell'), /not measurable/);
+});
+
+test('data/plate-shapes.js is what build-index.js writes now (rerun it after changing data or images)', () => {
+  assert.strictEqual(readFileSync(join(root, 'data/plate-shapes.js'), 'utf8'), renderShapes(computeShapes()));
+});
+
+test('the seed is bb-landscape, the biggest real Plate; the mean neighbour similarity on the module grid is 0.470', () => {
+  const seed = F.plates[F.seed];
+  assert.strictEqual(seed.id, 'bb-landscape');   /* uss-model before the size scale; XL ties break on Facets */
+  assert.ok(!seed.placeholder);
+  /* 0.529 before the size scale (2026-11-15) */
+  assert.strictEqual(F.meanEdge.toFixed(3), '0.470');
+});
+
+test('contact packs the field tighter', () => {
+  const loose = growField({ ...DATA, SHAPES }, { contactWeight: 0 });
+  const paper = (G) => {
+    const w = Math.max(...G.plates.map((p) => p.c + p.m)) - Math.min(...G.plates.map((p) => p.c));
+    const h = Math.max(...G.plates.map((p) => p.r + p.n)) - Math.min(...G.plates.map((p) => p.r));
+    return w * h - G.plates.reduce((t, p) => t + p.m * p.n, 0);
+  };
+  assert.strictEqual(paper(F), 29);   /* 45 before the size scale */
+  assert.ok(paper(F) < paper(loose), `${paper(F)} vs ${paper(loose)} module cells of paper`);
+});
+
+test('the size pull brings the big Plates in round the seed', () => {
+  const flat = growField({ ...DATA, SHAPES }, { bigOrder: 0 });
+  const spread = (G) => {
+    const s = G.plates[G.seed], at = (p) => [p.c + p.m / 2, p.r + p.n / 2], [sx, sy] = at(s);
+    const big = G.plates.filter((p) => !p.placeholder && p.m * p.n >= 9);
+    return big.reduce((t, p) => t + Math.hypot(at(p)[0] - sx, at(p)[1] - sy), 0) / big.length;
+  };
+  assert.ok(spread(F) < spread(flat), `${spread(F)} vs ${spread(flat)} modules from the seed`);
+});
+
+test('the growth is deterministic', () => {
+  const again = growField({ ...DATA, SHAPES });
+  assert.deepStrictEqual(again.order, F.order);
+  assert.deepStrictEqual(again.plates.map((p) => [p.c, p.r]), F.plates.map((p) => [p.c, p.r]));
+});
+
+test('every Plate is placed once, no two overlap, every Plate touches another, every corner on a bold node', () => {
+  const cells = new Set();
+  for (const p of F.plates) {
+    for (let y = p.r; y < p.r + p.n; y++) for (let x = p.c; x < p.c + p.m; x++) { const key = x + ',' + y; assert.ok(!cells.has(key), `${p.id} overlaps at ${key}`); cells.add(key); }
+  }
+  for (const a of F.plates) for (const b of F.plates) {
+    if (a === b) continue;
+    const sep = a.rect.u1 <= b.rect.u0 || b.rect.u1 <= a.rect.u0 || a.rect.v1 <= b.rect.v0 || b.rect.v1 <= a.rect.v0;
+    assert.ok(sep, `${a.id} and ${b.id} overlap on the paper`);
+  }
+  for (const p of F.plates) {
+    const touches = F.plates.some((q) => q !== p && (
+      ((q.rect.u0 === p.rect.u1 + 4 || p.rect.u0 === q.rect.u1 + 4) && q.rect.v0 < p.rect.v1 && p.rect.v0 < q.rect.v1) ||
+      ((q.rect.v0 === p.rect.v1 + 4 || p.rect.v0 === q.rect.v1 + 4) && q.rect.u0 < p.rect.u1 && p.rect.u0 < q.rect.u1)));
+    assert.ok(touches, `${p.id} shares no edge with another Plate`);
+    for (const [u, v] of [[p.rect.u0, p.rect.v0], [p.rect.u1, p.rect.v0], [p.rect.u0, p.rect.v1], [p.rect.u1, p.rect.v1]]) {
+      assert.ok(isBold(u, v), `${p.id}: corner ${u},${v} is not a bold node`);
+    }
+    assert.deepStrictEqual([p.wSteps, p.hSteps], boxSteps(p.m, p.n));
+  }
+  assert.strictEqual(F.order.length, DATA.PLATES.length);
+});
+
+test('the Records come in first-appearance order, 11 of them, each hero its first Plate', () => {
+  assert.strictEqual(F.records.length, 11);
+  for (const r of F.records) {
+    const first = F.order.map((i) => F.plates[i]).find((p) => p.record === r.id);
+    assert.strictEqual(r.hero, first);
+  }
+});
+
+test('the seed tie-break uses more real Plates, then the more recent Record', () => {
+  const VOCAB = DATA.VOCAB;
+  const f = { with: 'animals', made: 'built', cycle: 'water' };
+  const rec = (dates) => ({ title: 't', meta: 'm', status: 'complete', href: 'x.html', dates, drawings: [] });
+  const data = (aDates, bDates, bExtra) => ({
+    VOCAB,
+    RECORDS: { a: rec(aDates), b: rec(bDates) },
+    SHAPES: { a1: { m: 2, n: 2 }, b1: { m: 2, n: 2 }, ...(bExtra ? { b2: { m: 2, n: 2 } } : {}) },
+    PLATES: [
+      { id: 'a1', record: 'a', size: 'cell', drawing: 'a.jpg', facets: f },
+      { id: 'b1', record: 'b', size: 'cell', drawing: 'b.jpg', facets: f },
+      ...(bExtra ? [{ id: 'b2', record: 'b', size: 'cell', drawing: 'c.jpg', facets: { with: 'soil', made: 'written', cycle: null } }] : []),
+    ],
+  });
+  /* equal totals and equal real counts: the more recent Record wins */
+  assert.strictEqual(growField(data({ start: '2024-01' }, { start: '2025-01' }, false)).plates[growField(data({ start: '2024-01' }, { start: '2025-01' }, false)).seed].id, 'b1');
+  assert.strictEqual(growField(data({ start: '2025-01', end: '2025-09' }, { start: '2025-01' }, false)).seed, 0);
+  /* no dates counts as oldest */
+  assert.strictEqual(growField(data(null, { start: '2020-01' }, false)).seed, 1);
+});
+
+test('the data is refused when a Plate breaks its contract', () => {
+  assert.throws(() => validatePlates({ ...DATA, SHAPES: { ...SHAPES, 'rap-1': undefined } }), /rap-1 has no shape/);
+  const bad = { ...DATA, SHAPES, PLATES: DATA.PLATES.map((p) => (p.id === 'rap-1' ? { ...p, facets: { ...p.facets, made: 'sculpted' } } : p)) };
+  assert.throws(() => validatePlates(bad), /made "sculpted"/);
+  const both = { ...DATA, SHAPES, PLATES: DATA.PLATES.map((p) => (p.id === 'uss-model' ? { ...p, drawing: 'x.jpg' } : p)) };
+  assert.throws(() => validatePlates(both), /both a drawing and a model/);
+});
+
+test('arrival fits the seed: at most 3 across / 2 down, and inside a 390 px phone', () => {
+  const seed = F.plates[F.seed];
+  for (const [W, H] of [[1600, 900], [390, 844]]) {
+    const c = frameAround(seed, W, H);
+    const across = W / c.s / CELL, down = (H - NAV_H) / c.s / CELL;
+    assert.ok(across <= 3 + 1e-9 || down <= 2 + 1e-9, `${W}x${H}: ${across.toFixed(2)} across, ${down.toFixed(2)} down`);
+    assert.ok(seed.wSteps * c.s <= W, `${W}: the seed is ${seed.wSteps * c.s}px wide`);
+  }
+  for (const p of F.plates) {
+    const c = frameAround(p, 390, 844);
+    assert.ok((p.wSteps + 8) * c.s <= 390 + 1e-6, `${p.id} spills off a phone`);
+  }
+});
+
+test('limits: 256 steps (8 cells) across zoomed out at 1600x900; a 28-step square at most twice the height under the nav', () => {
+  const l = limitsFor(F.bounds, 1600, 900);
+  assert.strictEqual((1600 / l.sMin).toFixed(2), '256.00');
+  const tall = limitsFor(F.bounds, 390, 844);
+  assert.strictEqual(((844 - NAV_H) / tall.sMin).toFixed(2), (32 * 16 / 3).toFixed(2));
+  assert.ok(28 * l.sMax <= 2 * (900 - NAV_H) + 1e-9);
+  assert.strictEqual(l.margin, 16);
+});
+
+const html = readFileSync(join(root, 'index.html'), 'utf8');
+
+test('index.html is what build-index.js writes now (rerun it after changing data)', () => {
+  assert.strictEqual(html, render(plan(load())));
+});
+
+test('no-JS: every real Plate is a link with its title, meta and an img; placeholders are not links', () => {
+  for (const p of DATA.PLATES) {
+    const r = DATA.RECORDS[p.record];
+    const re = new RegExp(`<li class="ix-m${SHAPES[p.id].m} ix-n${SHAPES[p.id].n}">(<a [^>]*href="([^"]+)"[^>]*data-drawing="${p.id}"[^>]*>|<span [^>]*data-plate="${p.id}">)(.*?)</(a|span)></li>`);
+    const m = html.match(re);
+    assert.ok(m, `${p.id} is missing from the HTML`);
+    if (r.href) {
+      assert.strictEqual(m[2], r.href, `${p.id} links to ${m[2]}`);
+      assert.ok(/<img [^>]*alt="/.test(m[3]), `${p.id} has no img with alt`);
+    } else {
+      assert.ok(m[1].startsWith('<span'), `${p.id} is a link but is a placeholder`);
+    }
+    assert.ok(m[3].includes(r.title.replace(/&/g, '&amp;')), `${p.id} lacks its title`);
+  }
+});
+
+test('no-JS: the grid is in growth order', () => {
+  const ids = [...html.matchAll(/data-(?:drawing|plate)="([^"]+)"/g)].map((m) => m[1]);
+  assert.deepStrictEqual(ids, F.order.map((i) => F.plates[i].id));
+});
+
+test('the meta description is the statement and intro line, verbatim; JSON-LD is an ItemList', () => {
+  assert.ok(html.includes('<meta name="description" content="Architecture, sustainability, and ecological resilience. I study Sustainable Design at the University of Illinois. My work sits where built environments meet natural systems.">'));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+  assert.strictEqual(ld['@type'], 'ItemList');
+  assert.strictEqual(ld.itemListElement.length, Object.values(DATA.RECORDS).filter((r) => r.href).length);
+  assert.ok(ld.itemListElement.every((e) => e.item['@type'] === 'CreativeWork' && e.item.name && e.item.url));
+});
+
+test('no trial switches and no story toggle ship in the index', () => {
+  const js = ['js/index-sheet/index-sheet.js', 'js/index-sheet/plates.js', 'js/sheet/dots.js'].map((f) => readFileSync(join(root, f), 'utf8')).join('\n');
+  for (const sw of ['variant', 'outline', "'ow'", "'nav'", 'fling\'', "'hint'", "'grid'"]) assert.ok(!js.includes(`get(${sw.startsWith("'") ? sw : `'${sw}'`})`), `a ?${sw} switch survives`);
+  assert.ok(!/ix-proto|pairmodel/.test(html + js));
+  assert.ok(!/story-toggle/.test(html));
+});
+
+if (!process.exitCode) console.log(`ok — ${pass} assertions passed`);

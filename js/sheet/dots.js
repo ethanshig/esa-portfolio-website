@@ -1,0 +1,128 @@
+/* ===================================================================
+   DOTS — the AxoNotebook paper under a sheet that pans and zooms.
+   Ported from prototype/grid/project (issue #17).
+
+   The paper is one dot set in sheet steps (u right, v down). One step is
+   --L4 at zoom 1; exactly 1 in 4 dots is a bold 2:1 dimetric node
+   (isBold, from the axon prototype). The camera hands over an affine map
+   paper -> screen px:  screen = origin + u * a + v * b.  In the
+   superimposed view a = (s, 0), b = (0, s); when the 3D sheet orbits, the
+   paper plane tilts and the same map (an orthographic view of a plane is
+   affine) keeps the dots on it.
+
+   Density guard: below a few px per step the light dots fade out, then
+   the bold ones; a view that would need more than MAX_DOTS dots draws the
+   bold lattice only, and past that draws nothing (an edge-on paper).
+   =================================================================== */
+import { isBold, LIGHT_R_PER_PITCH } from '../axon/dimetric.js';
+
+/* The paper's one style, 'quiet' (prototype/grid's default after the ?grid= trials): light and
+   bold dots as a share of a step, their ink alpha before the paper's own opacity (--env-paper),
+   bold nodes drawn as dots. The trial styles (plus, cross, tint, lines) are dropped. */
+const PAPER_STYLE = { rLight: LIGHT_R_PER_PITCH, rBold: LIGHT_R_PER_PITCH * 1.3, aLight: 0.32, aBold: 0.5 };
+
+const MAX_DOTS = 160000;
+const MIN_LIGHT_R = 0.45;      /* css px: below this a dot vanishes on 1x screens */
+const RECT_BELOW_R = 1.1;      /* css px: smaller dots are drawn as squares (fast, same ink) */
+
+const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+
+export class DotField {
+  constructor(canvas) {
+    if (!canvas || !canvas.getContext) throw new Error('dots: a <canvas> is required');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('dots: 2d context unavailable');
+    this.canvas = canvas;
+    this.ctx = ctx;
+    this.w = 0;
+    this.h = 0;
+    this.dpr = 1;
+    this.lastCount = 0;
+    this.style = PAPER_STYLE;
+    this.last = null;
+  }
+
+  resize(w, h) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    if (!(w > 0 && h > 0)) return;
+    this.w = w; this.h = h; this.dpr = dpr;
+    this.canvas.width = Math.round(w * dpr);
+    this.canvas.height = Math.round(h * dpr);
+    this.canvas.style.width = w + 'px';
+    this.canvas.style.height = h + 'px';
+  }
+
+  /* map: { origin: [x, y], a: [ax, ay], b: [bx, by] } in css px.
+     fade: 0..1 multiplies all ink (the ghosted paper). ink: CSS colour. */
+  draw(map, opts = {}) {
+    const { fade = 1, boldFade = 1, ink = '#888' } = opts;
+    this.last = { map, opts };
+    const { ctx, w, h, dpr } = this;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    this.lastCount = 0;
+    if (!(w > 0 && h > 0) || fade <= 0.001) return;
+
+    const [ox, oy] = map.origin, [ax, ay] = map.a, [bx, by] = map.b;
+    const det = ax * by - ay * bx;
+    if (!Number.isFinite(det) || Math.abs(det) < 1e-6) return;     /* paper edge-on */
+    const stepPx = Math.sqrt(Math.abs(det));                        /* mean step, css px */
+
+    /* screen -> paper: invert the affine for the four viewport corners */
+    const inv = (x, y) => {
+      const dx = x - ox, dy = y - oy;
+      return [(dx * by - dy * bx) / det, (ax * dy - ay * dx) / det];
+    };
+    const cs = [inv(0, 0), inv(w, 0), inv(0, h), inv(w, h)];
+    const u0 = Math.floor(Math.min(...cs.map((c) => c[0]))) - 1;
+    const u1 = Math.ceil(Math.max(...cs.map((c) => c[0]))) + 1;
+    const v0 = Math.floor(Math.min(...cs.map((c) => c[1]))) - 1;
+    const v1 = Math.ceil(Math.max(...cs.map((c) => c[1]))) + 1;
+    const total = (u1 - u0 + 1) * (v1 - v0 + 1);
+
+    const st = this.style;
+    const rLight = Math.max(st.rLight * stepPx, MIN_LIGHT_R);
+    const rBold = Math.max(st.rBold * stepPx, MIN_LIGHT_R);
+    let lightAlpha = st.aLight * clamp01((stepPx - 3) / 5) * fade;
+    let boldAlpha = st.aBold * clamp01((stepPx - 1.2) / 3) * fade * boldFade;    /* bold dots lift into the lattice */
+    if (total > MAX_DOTS) lightAlpha = 0;
+    if (total / 4 > MAX_DOTS) boldAlpha = 0;
+
+    /* the light (cartesian) dots: every dot that is not an axon node */
+    ctx.fillStyle = ink;
+    if (lightAlpha > 0.002) this.fillDots(rLight, lightAlpha, false, [u0, u1, v0, v1, ox, oy, ax, ay, bx, by]);
+    if (boldAlpha <= 0.002) { ctx.globalAlpha = 1; return; }
+
+    /* the axon nodes */
+    this.fillDots(rBold, boldAlpha, true, [u0, u1, v0, v1, ox, oy, ax, ay, bx, by]);
+    ctx.globalAlpha = 1;
+  }
+
+  /* one layer of dots in the current fill: one path, one fill */
+  fillDots(r, alpha, bold, view) {
+    const { ctx } = this;
+    const square = r < RECT_BELOW_R, side = r * 1.7725;          /* square of equal area */
+    ctx.globalAlpha = alpha;
+    ctx.beginPath();
+    this.eachDot(...view, bold, (x, y) => {
+      if (square) ctx.rect(x - side / 2, y - side / 2, side, side);
+      else { ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, Math.PI * 2); }
+    });
+    ctx.fill();
+  }
+
+  eachDot(u0, u1, v0, v1, ox, oy, ax, ay, bx, by, bold, fn) {
+    const { w, h } = this;
+    for (let u = u0; u <= u1; u++) {
+      if (bold && (u & 1)) continue;                     /* the bold rule needs even u */
+      const cx = ox + u * ax, cy = oy + u * ay;
+      for (let v = v0; v <= v1; v++) {
+        if (isBold(u, v) !== bold) continue;
+        const x = cx + v * bx, y = cy + v * by;
+        if (x < -8 || y < -8 || x > w + 8 || y > h + 8) continue;
+        fn(x, y, u, v);
+        this.lastCount++;
+      }
+    }
+  }
+}

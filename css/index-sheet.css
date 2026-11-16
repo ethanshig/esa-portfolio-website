@@ -1,0 +1,247 @@
+/* ===================================================================
+   INDEX SHEET — index.html as a sheet of Plates (issue #17; ported from
+   prototype/grid's index-sheet.css and project/env.css). Loads after
+   css/style.css, css/line-system.css and css/theme.css.
+
+   Two layouts from the same HTML:
+     - no html.ix-js (no JavaScript, or the sheet could not start): the
+       Plates are a plain static grid of links in growth order
+     - html.ix-js (set before paint by the head script): the stage fills
+       the viewport and js/index-sheet/ draws the sheet; the page never
+       scrolls
+   =================================================================== */
+
+/* black on white: pure white, so work drawn on white sits flush with the paper */
+html.ix-index[data-theme="light"] { --color-bg: #ffffff; --color-bg-alt: #ffffff; --color-primary: #111111; --color-text: #111111; }
+html.ix-index body { background: var(--color-bg); }
+
+/* ---------- the nav: no ground, ink with a thin paper-coloured halo (#16) ---------- */
+html.ix-index.ls-on .navbar { background: transparent; pointer-events: none; }
+html.ix-index.ls-on .navbar a,
+html.ix-index.ls-on .navbar button,
+html.ix-index.ls-on .navbar .hamburger { pointer-events: auto; }
+html.ix-index.ls-on .navbar .nav-link,
+html.ix-index.ls-on .navbar .nav-link:hover,
+html.ix-index.ls-on .navbar .nav-link.active,
+html.ix-index.ls-on .navbar .logo,
+html.ix-index.ls-on .navbar .hamburger { color: var(--color-primary); }
+html.ix-index.ls-on .navbar .hamburger span { background-color: var(--color-primary); }
+html.ix-index.ls-on .navbar .nav-link { text-shadow: 0 0 2px var(--color-bg), 0 0 4px var(--color-bg), 0 0 8px var(--color-bg); }
+html.ix-index.ls-on .navbar .logo,
+html.ix-index.ls-on .navbar .env-theme svg,
+html.ix-index.ls-on .navbar .hamburger { filter: drop-shadow(0 0 2px var(--color-bg)) drop-shadow(0 0 4px var(--color-bg)); }
+/* the mark and its rule: drawn in the ink, not blended by difference (it went to mud over mid-tone photos) */
+html.ix-index .ls-nav-svg {
+    mix-blend-mode: normal;
+    color: var(--color-primary);
+    filter: drop-shadow(0 0 1.5px var(--color-bg)) drop-shadow(0 0 3px var(--color-bg));
+}
+/* the phone menu needs a real ground while it is open */
+html.ix-index.ls-on .navbar:has(.nav-menu.active) { background: var(--color-bg); }
+
+/* ---------- without the sheet: a plain grid of links, in growth order ----------
+   Module tracks, each Plate spanning its own m x n (data/plate-shapes.js, carried as ix-m* / ix-n*
+   classes). Dense packing fills holes. The track is sized so 8 always fit, so the widest Plate
+   (8 modules) never pushes the page sideways. */
+.ix-grid {
+    --ix-mod: clamp(24px, calc((100vw - 32px - 7 * 8px) / 8), 64px);
+    list-style: none;
+    margin: 0;
+    padding: 140px 16px 48px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, var(--ix-mod));
+    grid-auto-rows: var(--ix-mod);
+    grid-auto-flow: row dense;
+    justify-content: center;
+    gap: 8px;
+}
+.ix-m2 { grid-column: span 2; } .ix-n2 { grid-row: span 2; }
+.ix-m3 { grid-column: span 3; } .ix-n3 { grid-row: span 3; }
+.ix-m4 { grid-column: span 4; } .ix-n4 { grid-row: span 4; }
+.ix-m5 { grid-column: span 5; } .ix-n5 { grid-row: span 5; }
+.ix-m6 { grid-column: span 6; } .ix-n6 { grid-row: span 6; }
+.ix-m7 { grid-column: span 7; } .ix-n7 { grid-row: span 7; }
+.ix-m8 { grid-column: span 8; } .ix-n8 { grid-row: span 8; }
+.ix-grid > li { margin: 0; min-width: 0; min-height: 0; }
+.ix-plate { display: block; color: var(--color-text); text-decoration: none; }
+.ix-plate img { display: block; object-fit: cover; background: var(--color-bg-alt); }
+/* a model's still is drawn in the dark paper's ink: on light paper it inverts */
+.ix-plate img.ix-still { object-fit: contain; background: none; }
+html[data-theme="light"] .ix-plate img.ix-still { filter: invert(1); }
+.ix-plate .ix-name { display: inline; }
+.ix-meta { color: var(--color-text-light); opacity: 0.6; }
+/* the box keeps its shape: the image fills it, the title sits inside its foot */
+html:not(.ix-js) .ix-plate {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-end;
+    column-gap: 0.3em;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 6px 8px;
+    overflow: hidden;
+    font-size: 0.75rem;
+    line-height: 1.25;
+}
+html:not(.ix-js) .ix-plate img { position: absolute; inset: 0; width: 100%; height: 100%; }
+html:not(.ix-js) a.ix-plate .ix-name,
+html:not(.ix-js) a.ix-plate .ix-meta { position: relative; background: var(--color-bg); padding: 0 3px; }
+html:not(.ix-js) a.ix-plate:hover .ix-name,
+html:not(.ix-js) a.ix-plate:focus-visible .ix-name { text-decoration: underline; }
+html:not(.ix-js) span.ix-plate { border: 1.5px dashed var(--color-text-light); background: var(--color-bg-alt); }
+html:not(.ix-js) .env-stage > :not(.env-overlay) { display: none; }
+
+/* ---------- the sheet ---------- */
+html.ix-js, html.ix-js body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    scroll-behavior: auto;
+}
+html.ix-js body { margin: 0; }
+html.ix-js .env-stage {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    background: var(--color-bg);
+    cursor: default;
+}
+html.ix-js .env-stage.is-over-drawing { cursor: pointer; }
+html.ix-js .env-dots, html.ix-js .env-plane, html.ix-js .env-overlay { position: absolute; left: 0; top: 0; }
+html.ix-js .env-dots { width: 100%; height: 100%; opacity: var(--env-paper, 0.34); pointer-events: none; }
+html.ix-js .env-plane { transform-origin: 0 0; pointer-events: none; }
+.env-plane-img {
+    position: absolute;
+    display: block;
+    max-width: none;
+    object-fit: cover;               /* images cover their cell and may crop */
+    background: var(--color-bg-alt);
+    pointer-events: none;
+}
+.env-plane-img.ix-model { background: none; }   /* a model Plate has no ground: the model sits on the paper */
+.env-plane-img.is-broken { border: 1px solid var(--color-border); }
+html.ix-js .env-overlay { inset: 0; pointer-events: none; overflow: hidden; }
+.ix-gl { position: absolute; inset: 0; pointer-events: none; }   /* the live model: between the plane and the titles */
+
+/* the sheet's titles: the HTML's Plate links, laid on the paper. sheet2d puts each just under its
+   Plate; the translate lifts it inside the Plate's bottom-left corner. Shown on hover or focus only. */
+html.ix-js .ix-grid, html.ix-js .ix-grid > li { display: contents; }
+html.ix-js .ix-plate img { display: none; }
+html.ix-js .ix-plate {
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 1px 4px;
+    margin-left: -4px;
+    font-size: var(--env-title-size, 13px);
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    color: var(--color-primary);
+    background: var(--color-bg);
+    translate: 8px calc(-100% - 12px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease;
+}
+html.ix-js .ix-plate.is-hot,
+html.ix-js .ix-plate:focus-visible { opacity: 1; pointer-events: auto; }
+html.ix-js .ix-plate:focus-visible { outline: 1px solid var(--color-accent); outline-offset: 3px; }
+html.ix-js span.ix-plate { cursor: default; }
+
+/* the flat sheet's hover frame round a real Plate. The index draws its own (.ix-hframe), so it is off here */
+html.ix-js .env-stage .env-frame { display: none; }
+.env-frame {
+    position: absolute;
+    left: 0;
+    top: 0;
+    border: 1.5px solid var(--color-accent);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+.env-frame.is-on { opacity: 1; }
+
+/* placeholders (dashed, alt paper) and active Records (dotted, on the Plate's edge) */
+.ix-plates-svg { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
+.ix-ph { fill: var(--color-bg-alt); stroke: var(--color-text-light); stroke-width: 1.5; stroke-dasharray: 9 7; }
+.ix-active { fill: none; stroke: var(--color-primary); stroke-linecap: round; opacity: 0.75; }
+
+/* the drafting arrows: hairlines on the paper that rise into fins on hover */
+.ix-axarrow {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 4;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    pointer-events: auto;
+}
+.ix-axarrow[hidden] { display: none; }
+.ix-axarrow svg { display: block; overflow: visible; }
+.ix-axarrow polygon { fill: var(--color-bg); stroke: var(--color-primary); stroke-width: 1.4; stroke-linejoin: round; }
+.ix-axarrow:hover polygon, .ix-axarrow:focus-visible polygon { stroke: var(--color-accent); }
+.ix-axarrow:focus-visible { outline: none; }
+/* a finger needs more than the arrow's 2 steps: an unseen 44px target centred on it */
+@media (hover: none) {
+    .ix-axarrow::before { content: ""; position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; translate: -50% -50%; }
+}
+
+/* the left-drag hint: absent at rest, one quiet line after a left-drag that moved nothing */
+.ix-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 88px;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 6px 14px;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+    color: var(--color-text-light);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+.ix-hint.is-on { opacity: 1; }
+
+/* an image Plate's hover (Ethan, 2026-10-27): a hairline frame in ink draws itself round the image,
+   from its top-left corner clockwise, over 0.45 s; it withdraws faster when the pointer leaves */
+.ix-hframe {
+    fill: none;
+    stroke: var(--color-primary);
+    stroke-width: 1.5;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 0.25s ease-in;
+}
+.ix-hframe.is-on { stroke-dashoffset: 0; transition: stroke-dashoffset 0.45s cubic-bezier(0.4, 0, 0.2, 1); }
+
+/* ---------- the landing (js/landing-sequence.js): once per session the esa mark builds over the
+   sheet; as it unbuilds, the paper's dots come up from where it stood, and then the field shows at
+   the arrival framing ---------- */
+@property --ix-reveal { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
+html.ls-landing .env-dots {
+    --ix-reveal: 0%;
+    -webkit-mask-image: radial-gradient(circle farthest-corner at 50% 50%, #000 calc(var(--ix-reveal) - 18%), transparent var(--ix-reveal));
+    mask-image: radial-gradient(circle farthest-corner at 50% 50%, #000 calc(var(--ix-reveal) - 18%), transparent var(--ix-reveal));
+}
+html.ls-landing.ls-unbuilding .env-dots { --ix-reveal: 118%; transition: --ix-reveal 2.1s cubic-bezier(0.3, 0.7, 0.2, 1); }
+html.ix-js .env-plane, html.ix-js .ix-plates-svg, html.ix-js .env-overlay, html.ix-js .ix-axarrow, html.ix-js .ix-gl { transition: opacity 0.6s ease; }
+html.ls-landing .env-plane, html.ls-landing .ix-plates-svg, html.ls-landing .env-overlay,
+html.ls-landing .ix-axarrow, html.ls-landing .ix-gl { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+    .env-plane-img, .ix-hframe, .ix-plate, .env-frame, .ix-hint { transition: none; }
+}

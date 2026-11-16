@@ -1,7 +1,15 @@
 /* ===================================================================
    LANDING: the word builds, a click unbuilds it, the page draws in.
    Timeline: ESA-LINE-SYSTEM-SPEC.md §6. Plays once per session; after that
-   the home page opens already built.
+   the index opens already built.
+
+   The index (issue #17) waits under the word through classes on <html>:
+     ls-landing     set before paint by index.html's head script when the
+                    word will play; the sheet's field is hidden under it
+     ls-unbuilding  added here as the word starts to unbuild: the paper's
+                    dots come up from where the mark stood
+   Both are removed when the page begins, and the field shows at its
+   arrival framing (css/index-sheet.css).
    =================================================================== */
 (function () {
   'use strict';
@@ -9,11 +17,11 @@
   var R = U.R, TAU = Math.PI * 2, reduce = U.reduce;
   var SEEN_KEY = 'esa-landing-seen';
 
-  var home = document.querySelector('.ls-home');
+  var root = document.documentElement;
   var seen = false;
   try { seen = sessionStorage.getItem(SEEN_KEY) === '1'; } catch (e) {}
   if (seen || reduce) {
-    if (home) home.classList.remove('is-waiting');
+    root.classList.remove('ls-landing', 'ls-unbuilding');
     try { sessionStorage.setItem(SEEN_KEY, '1'); } catch (e) {}
     LS.init();
     return;
@@ -104,7 +112,7 @@
     if (pe > 0.9) stage.classList.add('is-leaving');
     if (!pageBegun && pe >= U_PAGE) {
       pageBegun = true;
-      if (home) home.classList.remove('is-waiting');
+      root.classList.remove('ls-landing', 'ls-unbuilding');
       LS.beginPage();
     }
     if (pe > U_PAGE + 0.4) {
@@ -119,6 +127,7 @@
     phase = 'exit';
     pt0 = U.now();
     stage.classList.add('is-ready');
+    root.classList.add('ls-unbuilding');
     try { sessionStorage.setItem(SEEN_KEY, '1'); } catch (e) {}
   }
   stage.addEventListener('click', trigger);

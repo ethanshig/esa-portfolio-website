@@ -14,7 +14,7 @@ const navLinks = {
 const cardData = {
     'download-card': {
         startCol: 1, startRow: 2, cols: 10, rows: 1,
-        frontContent: '<h2>Resume</h2><p class="card-subtitle">View my experience</p>',
+        frontContent: '<h2>Résumé</h2><p class="card-subtitle">View my experience</p>',
         backContent: '<a href="assets/resume/Your-Name-Resume.pdf" download class="download-link">Download PDF</a>'
     },
     'education-card': {
@@ -170,27 +170,6 @@ function generateGrid() {
                 } else if (col === 8) {
                     createNavCell(cell, 'C', 'Contact');
                 }
-
-                // Theme toggle in last column
-                if (col === cols) {
-                    cell.classList.add('theme-cell');
-                    cell.id = 'theme-cell';
-
-                    const currentTheme = localStorage.getItem('theme') || 'light';
-                    const currentIcon = currentTheme === 'light' ? 'Sun.jpg' : 'Moon.jpg';
-                    const hoverIcon = currentTheme === 'light' ? 'Moon.jpg' : 'Sun.jpg';
-
-                    cell.innerHTML = `
-                        <div class="flip-card" id="theme-flip-card">
-                            <div class="flip-card-front">
-                                <img src="images/${currentIcon}" alt="Current theme" class="theme-icon">
-                            </div>
-                            <div class="flip-card-back">
-                                <img src="images/${hoverIcon}" alt="Toggle theme" class="theme-icon">
-                            </div>
-                        </div>
-                    `;
-                }
             }
 
             gridBackground.appendChild(cell);
@@ -311,33 +290,6 @@ function setupCardHoverEffects() {
             });
         });
     });
-}
-
-// Theme toggle functionality
-document.addEventListener('click', (e) => {
-    if (e.target.closest('#theme-cell')) {
-        const html = document.documentElement;
-        const currentTheme = html.getAttribute('data-theme');
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-
-        html.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        updateThemeIcons(newTheme);
-    }
-});
-
-function updateThemeIcons(theme) {
-    const flipCard = document.getElementById('theme-flip-card');
-    if (!flipCard) return;
-
-    const currentIcon = theme === 'light' ? 'Sun.jpg' : 'Moon.jpg';
-    const hoverIcon = theme === 'light' ? 'Moon.jpg' : 'Sun.jpg';
-
-    const frontImg = flipCard.querySelector('.flip-card-front img');
-    const backImg = flipCard.querySelector('.flip-card-back img');
-
-    if (frontImg) frontImg.src = `images/${currentIcon}`;
-    if (backImg) backImg.src = `images/${hoverIcon}`;
 }
 
 // Initialize

@@ -55,10 +55,6 @@
     filter: blur(10px);
 }
 
-[data-theme="dark"] .landing-page .esa-glow {
-    filter: blur(12px);
-}
-
 @keyframes revealText {
     0% {
         opacity: 0;
