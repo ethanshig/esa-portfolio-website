@@ -40,6 +40,11 @@ scrolls. If the work is 3D it renders 3D; if it is 2D it renders 2D. Sheets are 
 everything else drawn from a Record. A page of a PDF portfolio is never a Sheet: those are pages.
 _Avoid_: canvas (fine in speech), page (too general), layout, Document (that is the panel), sheet for a PDF page
 
+**Move**:
+A named, ordered group of a piece's Drawings, such as "The cycle" or "Loading". On a Sheet each
+Move carries a quiet label on the paper above its Drawings.
+_Avoid_: group (fine in speech), section (the Document has those), spread, page
+
 **Document**:
 The project's prose in a fixed order — hero, meta, `The story`, `What I did`, `Process`, `Outcome`,
 `Reflection`, `Drawings`. It is written from Record prose and ships whole in the HTML. It is no
