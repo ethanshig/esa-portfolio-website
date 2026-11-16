@@ -85,6 +85,7 @@ const MARK_FILL = { rest: 0.05, hot: 0.18 };
 /* story focus (prototype, round 8): everything stays on the sheet; what the story points at holds
    full ink and the rest dims to DIM. ?focus=off keeps everything lit, for comparison. */
 const DIM = 0.2;
+const REVEAL_EASE = 0.1;            /* seconds: a hovered raster drawing's fade into its own colour (~350 ms) */
 const FOCUS_EASE = 0.16;            /* seconds: the time constant of the dim */         /* the cut rectangle stands this far proud of the end face */
 
 /* line weights, css px at a 16 px step; scaled with zoom inside [0.55, 1.5] */
@@ -322,8 +323,21 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
       const mat = new THREE.MeshBasicMaterial({
         color: 0xffffff, transparent: true, depthWrite: false, side: THREE.DoubleSide, toneMapped: false,
       });
+      /* printed in the paper's two colours until revealed (js/daylight.js; Ethan, 2026-11-16) */
+      mat.userData.duo = { uDark: { value: new THREE.Color() }, uLight: { value: new THREE.Color() }, uReveal: { value: 0 } };
+      mat.onBeforeCompile = (sh) => {
+        Object.assign(sh.uniforms, mat.userData.duo);
+        sh.fragmentShader = 'uniform vec3 uDark;\nuniform vec3 uLight;\nuniform float uReveal;\n' + sh.fragmentShader.replace('#include <map_fragment>', [
+          '#include <map_fragment>',
+          '#ifdef USE_MAP',
+          '  float duoL = dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722));',
+          '  diffuseColor.rgb = mix(mix(uDark, uLight, duoL), diffuseColor.rgb, uReveal);',
+          '#endif',
+        ].join('\n'));
+      };
       rasterMats.push(mat);
       item.mat = mat;
+      item.reveal = 0; item.revealTo = 0;
       const plane = new THREE.Mesh(new THREE.PlaneGeometry(d.w, h), mat);
       const c = paper((item.rect.u0 + item.rect.u1) / 2, (item.rect.v0 + item.rect.v1) / 2);
       plane.quaternion.copy(Q_HOME);
@@ -357,6 +371,13 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   /* ---------- the model ---------- */
   const ink = createInkMaterials();
   ink.setColors(colors.ink, colors.bg);
+  /* the raster drawings' two colours: the daylight paper's image ink, or the page's ink and paper */
+  function setDuo() {
+    const p = window.ESA_DAYLIGHT ? window.ESA_DAYLIGHT.current() : null;
+    const dark = p ? p.imageDark : colors.ink, light = p ? p.imageLight : colors.bg;
+    for (const m of rasterMats) { m.userData.duo.uDark.value.set(dark); m.userData.duo.uLight.value.set(light); }
+  }
+  setDuo();
   const k = (2 * Math.SQRT2) / data.model.ftPerLattice;   /* ft -> world units */
   const opts = readOptions();
   /* verticals=all: the model's heights on paper spacing too (unit height 2 steps, not sqrt 6) */
@@ -725,15 +746,24 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     dirty = true; kick();
   }
   function focusMoving() {
-    return modelFocus.f !== modelFocus.focusTo || drawings.some((d) => d.f !== d.focusTo);
+    return modelFocus.f !== modelFocus.focusTo || drawings.some((d) => d.f !== d.focusTo || d.reveal !== d.revealTo);
   }
   function stepFocus(now) {
     /* its own clock, a frame at most: a re-frame mid-fade must not restart it */
-    const k = 1 - Math.exp(-Math.min(0.1, Math.max(0, now - focusT)) / FOCUS_EASE);
+    const dt = Math.min(0.1, Math.max(0, now - focusT));
+    const k = 1 - Math.exp(-dt / FOCUS_EASE);
     focusT = now;
     for (const o of drawings.concat([modelFocus])) {
       o.f += (o.focusTo - o.f) * (reduceMotion ? 1 : k);
       if (Math.abs(o.f - o.focusTo) < 0.004) o.f = o.focusTo;
+    }
+    /* a raster drawing fades into its own colour (and back) over about a third of a second */
+    const kr = reduceMotion ? 1 : 1 - Math.exp(-dt / REVEAL_EASE);
+    for (const d of drawings) {
+      if (d.revealTo === undefined) continue;
+      d.reveal += (d.revealTo - d.reveal) * kr;
+      if (Math.abs(d.reveal - d.revealTo) < 0.004) d.reveal = d.revealTo;
+      d.mat.userData.duo.uReveal.value = d.reveal;
     }
   }
 
@@ -842,6 +872,24 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     if (!modelMeshes.length) return false;
     raycaster.ray.copy(screenRay(x, y));
     return raycaster.intersectObjects(modelMeshes, false).length > 0;
+  }
+  /* without hover: the raster drawing under the middle of the screen; failing that, the nearest at least
+     half in view (the index's rule, Ethan 2026-11-16: "when plate is centered") */
+  const noHover = window.matchMedia('(hover: none)').matches;
+  function centredRaster() {
+    const mid = drawingAt(W / 2, H / 2);
+    if (mid && byId.get(mid).revealTo !== undefined) return mid;
+    let best = null, bd = Infinity;
+    for (const d of drawings) {
+      if (d.revealTo === undefined) continue;
+      const a = project(paper(d.rect.u0, d.rect.v0)), b = project(paper(d.rect.u1, d.rect.v1));
+      const x0 = Math.min(a[0], b[0]), x1 = Math.max(a[0], b[0]), y0 = Math.min(a[1], b[1]), y1 = Math.max(a[1], b[1]);
+      const seen = Math.max(0, Math.min(x1, W) - Math.max(x0, 0)) * Math.max(0, Math.min(y1, H) - Math.max(y0, 0));
+      if (seen < 0.5 * (x1 - x0) * (y1 - y0)) continue;
+      const dd = Math.hypot((x0 + x1) / 2 - W / 2, (y0 + y1) / 2 - H / 2);
+      if (dd < bd) { bd = dd; best = d.id; }
+    }
+    return best;
   }
   function drawingAt(x, y) {
     const X = paperHit(x, y);
@@ -972,6 +1020,9 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     const op = 1 - (1 - GHOST_OPACITY) * ghost;
     const zoomK = clamp(cam.s / 16, 0.55, 1.5) * (1 - 0.45 * ghost);
     if (lit && storyOff()) setFocus('sheet');
+    /* the raster drawing in its own colour: the hovered one, or without hover the one in the middle */
+    const shown = hot || (noHover ? centredRaster() : null);
+    for (const d of drawings) if (d.revealTo !== undefined) d.revealTo = d.id === shown && !d.broken ? 1 : 0;
     stepFocus(performance.now() / 1000);
     for (const { m, w, item } of lineMats) { m.linewidth = WEIGHT_PX[w] * zoomK; m.opacity = op * item.f; }
     for (const d of drawings) {
@@ -1073,6 +1124,7 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
     if (seatRing) seatRing.setColor(colors.accent);
     for (const d of drawings) if (d.broken) d.mat.color.set(colors.bg);
     ink.setColors(colors.ink, colors.bg);
+    setDuo();
     modelFocus.applied = NaN;          /* the model's dim is mixed from the ink: render mixes it again */
     dirty = true;                      /* the dots read colors on every draw */
     kick();

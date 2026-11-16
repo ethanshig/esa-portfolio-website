@@ -19,6 +19,7 @@
    =================================================================== */
 import { DotField } from './dots.js';
 import { attachGestures } from './gestures.js';
+import { createReveal } from '../../../js/index-sheet/reveal.js';
 
 const BASE = 16;                    /* css px per step inside the plane layer, before its scale */
 const S_MIN = 1.5, S_MAX = 160;     /* px per step */
@@ -92,6 +93,8 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
   let dirty = true;
   let raf = 0;
   let hot = null;
+  const noHover = window.matchMedia('(hover: none)').matches;
+  const reveal = createReveal({ reduceMotion });
 
   /* the page's own limits, inside the engine's */
   function lim() {
@@ -186,6 +189,24 @@ export async function createSheet({ stage, data, views, reduceMotion, freeRegion
       frameEl.style.height = (y1 - y0 + 8) + 'px';
     }
     frameEl.classList.toggle('is-on', !!hot);
+    /* the drawing in its own colour: the hovered one, or without hover the one in the middle (env.css) */
+    const shown = hot || (noHover ? centred() : null);
+    reveal(shown && !byId.get(shown).img.classList.contains('is-broken') ? byId.get(shown).img : null);
+  }
+  /* without hover: the drawing under the middle of the screen; failing that, the nearest at least half in
+     view (the index's rule, Ethan 2026-11-16: "when plate is centered") */
+  function centred() {
+    const mid = drawingAt(W / 2, H / 2);
+    if (mid) return mid;
+    let best = null, bd = Infinity;
+    for (const d of drawings) {
+      const [x0, y0] = toScreen(d.rect.u0, d.rect.v0), [x1, y1] = toScreen(d.rect.u1, d.rect.v1);
+      const seen = Math.max(0, Math.min(x1, W) - Math.max(x0, 0)) * Math.max(0, Math.min(y1, H) - Math.max(y0, 0));
+      if (seen < 0.5 * (x1 - x0) * (y1 - y0)) continue;
+      const dd = Math.hypot((x0 + x1) / 2 - W / 2, (y0 + y1) / 2 - H / 2);
+      if (dd < bd) { bd = dd; best = d.id; }
+    }
+    return best;
   }
 
   function kick() { if (!raf) raf = requestAnimationFrame(tick); }

@@ -330,6 +330,8 @@ initHamburger();
 const themeBtn = document.querySelector('[data-theme-toggle]');
 if (themeBtn) attachThemeSwitch({ button: themeBtn, reduceMotion, onChange: () => (sheet ? sheet.retheme() : undefined) });
 else console.warn('[env] no [data-theme-toggle] in the nav; the paper stays as loaded');
+/* the paper follows the sun (js/daylight.js): repaint when it has visibly moved */
+window.addEventListener('esa-daylight', () => { if (sheet) sheet.retheme(); });
 
 /* Where the sheet may frame: the template's clearArea. The screen, less the nav and less
    the caption at the foot, measured only at rest (one line and one row of pills), so

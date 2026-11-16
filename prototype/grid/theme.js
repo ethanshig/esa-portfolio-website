@@ -8,9 +8,10 @@
    inverts and fades as the new one comes up through it. The camera stays
    still; reduced motion, or no View Transitions, swaps in one frame.
 
-   The choice is remembered site-wide (localStorage esa-theme); ?theme=
-   wins on load (each page's head script) and is dropped from the URL on
-   the first toggle, so a reload keeps what the reader chose.
+   The paper follows the sun over Champaign (js/daylight.js, live on main
+   since PR #21). The switch pins the other paper for the session;
+   choosing the paper the sun would give anyway clears the pin. Without
+   js/daylight.js the choice is remembered in localStorage esa-theme.
    =================================================================== */
 const KEY = 'esa-theme';
 const FLIP_MS = 420;
@@ -30,16 +31,24 @@ export function attachThemeSwitch({ button, reduceMotion, onChange = () => {} })
     button.setAttribute('aria-label', themeNow() === 'light' ? 'Dark paper' : 'Light paper');
   };
   label();
+  /* the sun can turn the paper too (at sunset, sunrise): keep the cell's ink on the right side */
+  window.addEventListener('esa-daylight', label);
 
   async function apply(t) {
-    root.setAttribute('data-theme', t);
-    label();
-    try { localStorage.setItem(KEY, t); } catch { /* private window: the choice lasts this page only */ }
-    const q = new URLSearchParams(location.search);
-    if (q.has('theme')) {
-      q.delete('theme');
-      history.replaceState(history.state, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash);
+    const day = window.ESA_DAYLIGHT;
+    if (day) {
+      const sunWould = day.paper(day.sunAltitude(new Date())).theme;
+      day.pin(t === sunWould ? null : t);
+    } else {
+      root.setAttribute('data-theme', t);
+      try { localStorage.setItem(KEY, t); } catch { /* private window: the choice lasts this page only */ }
+      const q = new URLSearchParams(location.search);
+      if (q.has('theme')) {
+        q.delete('theme');
+        history.replaceState(history.state, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash);
+      }
     }
+    label();
     let cap = 0;
     try {
       await Promise.race([
