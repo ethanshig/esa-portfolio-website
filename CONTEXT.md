@@ -74,6 +74,13 @@ show different things made in different ways, so they spread. They are not shown
 the reader sees only which Plates sit together.
 _Avoid_: tag, theme (themes are free words per Record), category
 
+**Audience**:
+A known reader the site recognises, by the link it was given (`?for=mit`) or by its network, and
+frames the index for: the arrival lands on that reader's pieces, and one line names them in order.
+It may frame the index's arrival, but it never changes a Sheet or the Document. It is the one
+signal allowed to touch the index, unlike an Interest. One Audience so far: the MIT Media Lab.
+_Avoid_: visitor, user, segment, persona, target
+
 **Crossing**:
 An authored link from one Record's page to another, carrying a narrative label
 ("Follow the water east to poisoned ground") and a plain one (the destination's title). Both ship
