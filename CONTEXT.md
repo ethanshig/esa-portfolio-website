@@ -84,7 +84,7 @@ signal allowed to touch the index, unlike an Interest. One Audience so far: the 
 _Avoid_: visitor, user, segment, persona, target
 
 **Crossing**:
-An authored link from one Record's page to another, carrying a narrative label
+An authored link from one Record's page to another Record, or to an Idea, carrying a narrative label
 ("Follow the water east to poisoned ground") and a plain one (the destination's title). Both ship
 in the HTML; which one shows is a CSS decision. "Related work" is the heading over the set, never
 a label on a link — three links all reading "Related work" tell a reader nothing and a crawler less.
@@ -114,7 +114,8 @@ _Avoid_: save, profile, progress, run
 
 **Sky**:
 A proposed front door: the Records as Stars, with the Crossings between them drawn as lines. Every
-cold arrival starts in the Sky with nothing selected, and Narration opens the story. A reader
+cold arrival starts in the Sky with nothing selected, and Narration opens the story. The Sky is
+laid out as one Light cone. A reader
 flies a line by taking its Crossing. Whether the Sky replaces the index is still open; ADR-0006's
 conventional front door stands until it does.
 _Avoid_: map, universe (fine in Narration), galaxy, star chart (fine in speech)
@@ -126,3 +127,17 @@ between the Sky and the Sheet. Nothing is drawn orbiting a Star. Asked about, a 
 the Record's title and one plain line, which is also the way through the Sky by keyboard and screen
 reader.
 _Avoid_: node, planet, system (as a term), dot
+
+**Light cone**:
+The shape of the whole Sky: all of Ethan's work in one double cone whose height is time and whose
+breadth is space, with its tip at the present. The past cone holds every Star at its date; the
+future cone holds Ideas. Seen from inside, at the tip, it is a night sky where farther means older,
+as with starlight; seen from outside, it is the cone itself, and a reader may switch between the
+two. There is one Light cone, never one per Star.
+_Avoid_: timeline, history, cone (fine in speech)
+
+**Idea**:
+Work Ethan hasn't made yet, which appears only in the future cone and never looks like a Star. It is
+approved and compiled the same way a Record is. An Idea may be shown, but it is never passed off as
+finished work.
+_Avoid_: project, plan, future work, seed
