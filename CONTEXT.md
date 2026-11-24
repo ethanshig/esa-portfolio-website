@@ -1,7 +1,7 @@
 # esa Portfolio
 
-The portfolio at ethanshig.design reads as a conventional project site: a grid of work, and a page
-per project. The storytelling is a layer a reader finds *inside* a project, never at the front door.
+The portfolio at ethanshig.design opens on the Sky: Ethan's work as one Light cone a reader arrives
+inside and flies through (ADR-0008). Inside a project, the storytelling is a layer over the page.
 This glossary fixes the language that describes it.
 
 ## The work
@@ -63,7 +63,8 @@ _Avoid_: story (the Record field is named that), copy, voiceover, text, guide
 One tile on the index: a square cell, or two cells wide, showing one of a Record's Drawings or its
 model, cropped to fit. A Record shows on the index as one or more Plates — more for more extensive
 work — and every Plate opens that Record's page. A Plate whose art is not made yet stands in as a
-dashed placeholder that opens nothing.
+dashed placeholder that opens nothing. The index of Plates is the fallback front door, for readers
+the Sky cannot reach (ADR-0008).
 _Avoid_: artifact (Ethan's "records are artifacts" means a Record is never rewritten), tile, card, thumbnail
 
 **Facet**:
@@ -110,14 +111,14 @@ part of this — it persists, because it is something a reader asked for rather 
 did.
 _Avoid_: save, profile, progress, run
 
-## The sky (proposed front door, not yet adopted)
+## The sky (the front door, ADR-0008)
 
 **Sky**:
-A proposed front door: the Records as Stars, with the Crossings between them drawn as lines. Every
+The front door: the Records as Stars, with the Crossings between them drawn as lines. Every
 cold arrival starts in the Sky with nothing selected, and Narration opens the story. The Sky is
 laid out as one Light cone. A reader
-flies a line by taking its Crossing. Whether the Sky replaces the index is still open; ADR-0006's
-conventional front door stands until it does.
+flies a line by taking its Crossing. Where WebGL, a phone or reduced motion rules it out, the index
+of Plates is the front door instead.
 _Avoid_: map, universe (fine in Narration), galaxy, star chart (fine in speech)
 
 **Star**:
