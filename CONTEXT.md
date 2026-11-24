@@ -86,7 +86,8 @@ An authored link from one Record's page to another, carrying a narrative label
 ("Follow the water east to poisoned ground") and a plain one (the destination's title). Both ship
 in the HTML; which one shows is a CSS decision. "Related work" is the heading over the set, never
 a label on a link — three links all reading "Related work" tell a reader nothing and a crawler less.
-_Avoid_: link, next, related, path, bridge
+_Avoid_: link, next, related, path, bridge, constellation line (in the Sky a line between Stars is a
+Crossing)
 
 **Route**:
 The Crossings a reader has taken, in order. The reader builds it by choosing; it is never shown
@@ -106,3 +107,25 @@ the Drawings they were shown. A new visit starts cold. The *preference* for stor
 part of this — it persists, because it is something a reader asked for rather than something they
 did.
 _Avoid_: save, profile, progress, run
+
+## The sky (proposed front door, not yet adopted)
+
+**Sky**:
+A proposed front door: the Records as Stars, with the Crossings between them drawn as lines. Every
+cold arrival starts in the Sky with nothing selected, and the Guide greets the reader. A reader
+flies a line by taking its Crossing. Whether the Sky replaces the index is still open; ADR-0006's
+conventional front door stands until it does.
+_Avoid_: map, universe (fine in the Guide's voice), galaxy, star chart (fine in speech)
+
+**Star**:
+A Record as it appears in the Sky. Entering a Star lands the reader on that Record's Sheet: "system"
+is fine in speech for a Star once entered, but it is never a second name for a Record or a page
+between the Sky and the Sheet. Nothing is drawn orbiting a Star.
+_Avoid_: node, planet, system (as a term), dot
+
+**Guide**:
+Ethan himself, speaking in the first person to the reader exploring his work with him. The Guide
+opens the Sky with a text prompt and, asked about any Star, gives its entry: the Record's title and
+one plain line. Those entries are also the way through the Sky by keyboard and screen reader.
+Narration, the second-person register inside a project, is a different voice.
+_Avoid_: narrator, host, tour, assistant
