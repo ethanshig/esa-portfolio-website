@@ -134,7 +134,9 @@ The shape of the whole Sky: all of Ethan's work in one double cone whose height 
 breadth is space, with its tip at the present. The past cone holds every Star at its date; the
 future cone holds Ideas. Seen from inside, at the tip, it is a night sky where farther means older,
 as with starlight; seen from outside, it is the cone itself, and a reader may switch between the
-two. A reader arrives inside, at the tip. There is one Light cone, never one per Star.
+two. A reader arrives inside, at the tip. Across the cone, Stars that share keywords pull together,
+as in a graph of linked notes; the layout is settled once, the same for every reader, and changes
+only when work or links are added. There is one Light cone, never one per Star.
 _Avoid_: timeline, history, cone (fine in speech)
 
 **Idea**:
@@ -142,3 +144,22 @@ Work Ethan hasn't made yet, which appears only in the future cone and never look
 approved and compiled the same way a Record is. An Idea may be shown, but it is never passed off as
 finished work.
 _Avoid_: project, plan, future work, seed
+
+**Constellation**:
+One of Ethan's keywords, seen in the Sky as the set of Stars it pulls together, with its name shown
+faintly beside them. Constellations overlap, since a Star can carry several keywords, and their
+shapes change with where the reader looks from. A line between two Stars is a Crossing, never a
+constellation.
+_Avoid_: cluster, tag, category, theme (a Record field)
+
+**Source**:
+Someone else's work that shaped Ethan's: a literature note or an inspiration. It sits outside the
+Light cone, in elsewhere, and is linked into the Stars it shaped. It is always credited and never
+drawn as a Star.
+_Avoid_: reference, citation (fine in speech), inspiration, influence
+
+**Big Bang**:
+The Sky's arrival on a reader's first visit: it opens at Ethan's oldest work, speeds through time as
+Stars ignite and pull into their Constellations, and settles at now, inside the cone. A reader can
+skip it; under reduced motion it never plays, and it does not replay within a Session.
+_Avoid_: intro, splash, loading, animation
