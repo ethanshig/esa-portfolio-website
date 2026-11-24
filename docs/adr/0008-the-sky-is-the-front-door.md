@@ -1,8 +1,10 @@
 ---
-status: accepted
+status: superseded
 ---
 
 # The Sky is the front door
+
+**Superseded 2026-11-24 (Ethan):** the 15 Dec submission is carried by a new site in a new repo, not this one. The Sky continues there as the front door, with these decisions carried into its plan; on this repo nothing replaces the Plates. Below is the decision as it stood.
 
 The front door stops being a conventional grid. A reader arrives in the **Sky**: all of Ethan's work
 as one Light cone (height is time, the tip is now), standing inside at the tip, with the cone itself
