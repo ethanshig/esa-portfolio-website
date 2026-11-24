@@ -124,7 +124,9 @@ _Avoid_: map, universe (fine in Narration), galaxy, star chart (fine in speech)
 **Star**:
 A Record as it appears in the Sky. Entering a Star lands the reader on that Record's Sheet: "system"
 is fine in speech for a Star once entered, but it is never a second name for a Record or a page
-between the Sky and the Sheet. Nothing is drawn orbiting a Star. Asked about, a Star gives its entry:
+between the Sky and the Sheet. Nothing is drawn orbiting a Star. Far off, a Star is a drafted mark (a
+point with four ticks, ringed with dots while the work is active); as the reader nears it, its model
+appears in ink lines, or its hero drawing where it has no model. Asked about, a Star gives its entry:
 the Record's title and one plain line, which is also the way through the Sky by keyboard and screen
 reader.
 _Avoid_: node, planet, system (as a term), dot
@@ -142,7 +144,7 @@ _Avoid_: timeline, history, cone (fine in speech)
 **Idea**:
 Work Ethan hasn't made yet, which appears only in the future cone and never looks like a Star. It is
 approved and compiled the same way a Record is. An Idea may be shown, but it is never passed off as
-finished work.
+finished work: it is drawn dashed, as unbuilt work is.
 _Avoid_: project, plan, future work, seed
 
 **Constellation**:
@@ -154,8 +156,8 @@ _Avoid_: cluster, tag, category, theme (a Record field)
 
 **Source**:
 Someone else's work that shaped Ethan's: a literature note or an inspiration. It sits outside the
-Light cone, in elsewhere, and is linked into the Stars it shaped. It is always credited and never
-drawn as a Star.
+Light cone, in elsewhere, and is linked into the Stars it shaped by a dotted thread, never a Crossing.
+It is always credited and never drawn as a Star: it is an open ring beside its credit.
 _Avoid_: reference, citation (fine in speech), inspiration, influence
 
 **Big Bang**:
