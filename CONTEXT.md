@@ -133,7 +133,7 @@ The shape of the whole Sky: all of Ethan's work in one double cone whose height 
 breadth is space, with its tip at the present. The past cone holds every Star at its date; the
 future cone holds Ideas. Seen from inside, at the tip, it is a night sky where farther means older,
 as with starlight; seen from outside, it is the cone itself, and a reader may switch between the
-two. There is one Light cone, never one per Star.
+two. A reader arrives inside, at the tip. There is one Light cone, never one per Star.
 _Avoid_: timeline, history, cone (fine in speech)
 
 **Idea**:
