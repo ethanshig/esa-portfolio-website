@@ -54,8 +54,10 @@ _Avoid_: page (too general), article, detail view, case study
 
 **Narration**:
 The second-person register of the same work — the `meet` and `with` lines. It is a layer over the
-Document, held on one line at the foot and keyed to the section a reader has reached.
-_Avoid_: story (the Record field is named that), copy, voiceover, text
+Document, held on one line at the foot and keyed to the section a reader has reached. It speaks to
+the reader, who writes the story by choosing among the work; Ethan is a character in that story,
+never its speaker. In the Sky, Narration opens the story with a text prompt.
+_Avoid_: story (the Record field is named that), copy, voiceover, text, guide
 
 **Plate**:
 One tile on the index: a square cell, or two cells wide, showing one of a Record's Drawings or its
@@ -112,20 +114,15 @@ _Avoid_: save, profile, progress, run
 
 **Sky**:
 A proposed front door: the Records as Stars, with the Crossings between them drawn as lines. Every
-cold arrival starts in the Sky with nothing selected, and the Guide greets the reader. A reader
+cold arrival starts in the Sky with nothing selected, and Narration opens the story. A reader
 flies a line by taking its Crossing. Whether the Sky replaces the index is still open; ADR-0006's
 conventional front door stands until it does.
-_Avoid_: map, universe (fine in the Guide's voice), galaxy, star chart (fine in speech)
+_Avoid_: map, universe (fine in Narration), galaxy, star chart (fine in speech)
 
 **Star**:
 A Record as it appears in the Sky. Entering a Star lands the reader on that Record's Sheet: "system"
 is fine in speech for a Star once entered, but it is never a second name for a Record or a page
-between the Sky and the Sheet. Nothing is drawn orbiting a Star.
+between the Sky and the Sheet. Nothing is drawn orbiting a Star. Asked about, a Star gives its entry:
+the Record's title and one plain line, which is also the way through the Sky by keyboard and screen
+reader.
 _Avoid_: node, planet, system (as a term), dot
-
-**Guide**:
-Ethan himself, speaking in the first person to the reader exploring his work with him. The Guide
-opens the Sky with a text prompt and, asked about any Star, gives its entry: the Record's title and
-one plain line. Those entries are also the way through the Sky by keyboard and screen reader.
-Narration, the second-person register inside a project, is a different voice.
-_Avoid_: narrator, host, tour, assistant
